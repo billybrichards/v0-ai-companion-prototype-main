@@ -21,9 +21,27 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [backendHealth, setBackendHealth] = useState<HealthStatus | null>(null)
 
+  // Load gender preference when user changes or on mount
+  const userId = user?.id
   useEffect(() => {
-    const storedGender = localStorage.getItem("companion-gender")
-    const storedCustomGender = localStorage.getItem("companion-custom-gender")
+    // Wait for auth loading to complete first
+    if (authLoading) {
+      return
+    }
+    
+    // If not authenticated, just stop loading
+    if (!isAuthenticated || !userId) {
+      setIsLoading(false)
+      setSetupComplete(false)
+      return
+    }
+
+    // Use user-specific key for gender preference
+    const userGenderKey = `companion-gender-${userId}`
+    const userCustomGenderKey = `companion-custom-gender-${userId}`
+    
+    const storedGender = localStorage.getItem(userGenderKey)
+    const storedCustomGender = localStorage.getItem(userCustomGenderKey)
 
     if (storedGender) {
       setGender(storedGender as GenderOption)
@@ -31,10 +49,13 @@ export default function Home() {
         setCustomGender(storedCustomGender)
       }
       setSetupComplete(true)
+    } else {
+      // Reset for new user
+      setSetupComplete(false)
     }
 
     setIsLoading(false)
-  }, [])
+  }, [authLoading, isAuthenticated, userId])
 
   // Check backend health on startup
   useEffect(() => {
@@ -42,25 +63,35 @@ export default function Home() {
   }, [])
 
   const handleGenderSetup = (selectedGender: GenderOption, selectedCustomGender?: string) => {
+    if (!user?.id) return
+    
+    const userGenderKey = `companion-gender-${user.id}`
+    const userCustomGenderKey = `companion-custom-gender-${user.id}`
+    
     setGender(selectedGender)
     setCustomGender(selectedCustomGender)
-    localStorage.setItem("companion-gender", selectedGender)
+    localStorage.setItem(userGenderKey, selectedGender)
     if (selectedCustomGender) {
-      localStorage.setItem("companion-custom-gender", selectedCustomGender)
+      localStorage.setItem(userCustomGenderKey, selectedCustomGender)
     } else {
-      localStorage.removeItem("companion-custom-gender")
+      localStorage.removeItem(userCustomGenderKey)
     }
     setSetupComplete(true)
   }
 
   const handleSettingsSave = (selectedGender: GenderOption, selectedCustomGender?: string) => {
+    if (!user?.id) return
+    
+    const userGenderKey = `companion-gender-${user.id}`
+    const userCustomGenderKey = `companion-custom-gender-${user.id}`
+    
     setGender(selectedGender)
     setCustomGender(selectedCustomGender)
-    localStorage.setItem("companion-gender", selectedGender)
+    localStorage.setItem(userGenderKey, selectedGender)
     if (selectedCustomGender) {
-      localStorage.setItem("companion-custom-gender", selectedCustomGender)
+      localStorage.setItem(userCustomGenderKey, selectedCustomGender)
     } else {
-      localStorage.removeItem("companion-custom-gender")
+      localStorage.removeItem(userCustomGenderKey)
     }
     setShowSettings(false)
   }
