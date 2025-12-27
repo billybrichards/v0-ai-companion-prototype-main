@@ -40,17 +40,44 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [showThemeCustomizer, setShowThemeCustomizer] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Create transport with auth headers
+  // Create refs for dynamic values to use in transport
+  const preferencesRef = useRef(preferences)
+  const genderRef = useRef(gender)
+  const customGenderRef = useRef(customGender)
+  const accessTokenRef = useRef(accessToken)
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    preferencesRef.current = preferences
+    genderRef.current = gender
+    customGenderRef.current = customGender
+    accessTokenRef.current = accessToken
+  }, [preferences, gender, customGender, accessToken])
+
+  // Create transport with auth headers and dynamic body
   const transport = useMemo(() => {
     return new DefaultChatTransport({
       api: "/api/chat",
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      headers: () => {
+        const headers: Record<string, string> = {}
+        if (accessTokenRef.current) {
+          headers.Authorization = `Bearer ${accessTokenRef.current}`
+        }
+        return headers
+      },
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: {
+          messages,
+          preferences: preferencesRef.current,
+          gender: genderRef.current,
+          customGender: customGenderRef.current,
+        },
+      }),
     })
-  }, [accessToken])
+  }, [])
 
   const { messages, sendMessage, status, stop } = useChat({
     transport,
-    body: { preferences, gender, customGender },
   })
 
   useEffect(() => {
