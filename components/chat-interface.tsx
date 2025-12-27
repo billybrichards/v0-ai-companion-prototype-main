@@ -152,9 +152,13 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   }
 
   const handleSubscribe = async () => {
-    if (!accessToken || !user) return
+    if (!accessToken || !user) {
+      console.log("[Subscribe] Missing accessToken or user", { hasToken: !!accessToken, hasUser: !!user })
+      return
+    }
     
     setIsSubscribing(true)
+    console.log("[Subscribe] Starting checkout...")
     try {
       const response = await fetch("/api/create-checkout", {
         method: "POST",
@@ -168,12 +172,21 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         }),
       })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create checkout session")
+      }
+
       const data = await response.json()
+      console.log("[Subscribe] Checkout response:", data)
       if (data.url) {
         window.location.href = data.url
+      } else {
+        throw new Error("No checkout URL returned")
       }
     } catch (error) {
       console.error("Failed to create checkout session:", error)
+      alert(error instanceof Error ? error.message : "Failed to start checkout")
     } finally {
       setIsSubscribing(false)
     }
