@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
+import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
 import ChatInterface from "@/components/chat-interface"
 import GenderSetup from "@/components/gender-setup"
 import SettingsModal from "@/components/settings-modal"
@@ -18,6 +19,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [backendHealth, setBackendHealth] = useState<HealthStatus | null>(null)
 
   useEffect(() => {
     const storedGender = localStorage.getItem("companion-gender")
@@ -32,6 +34,11 @@ export default function Home() {
     }
 
     setIsLoading(false)
+  }, [])
+
+  // Check backend health on startup
+  useEffect(() => {
+    checkBackendHealth().then(setBackendHealth)
   }, [])
 
   const handleGenderSetup = (selectedGender: GenderOption, selectedCustomGender?: string) => {
@@ -83,6 +90,13 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col">
+      {backendHealth?.status === "unhealthy" && (
+        <div className="bg-destructive/10 border-b border-destructive px-4 py-2 text-center">
+          <p className="text-sm text-destructive font-mono">
+            [WARNING] Backend unavailable: {backendHealth.message}
+          </p>
+        </div>
+      )}
       <ChatInterface
         gender={gender}
         customGender={customGender}
