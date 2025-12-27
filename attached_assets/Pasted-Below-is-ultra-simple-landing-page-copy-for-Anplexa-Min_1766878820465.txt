@@ -1,0 +1,128 @@
+Below is ultra-simple landing page copy for Anplexa.
+Minimal words, maximum implication.
+Designed so the page feels safe, adult, and frictionless.
+
+⸻
+
+Hero Section
+
+Headline
+Your fantasy.
+Your voice.
+Your secret.
+
+Sub-headline
+An open, private AI companion for conversation, intimacy, and imagination.
+No judgment. No filters. No audience.
+
+Primary CTA (large button)
+Use Anplexa now
+No login required
+
+Secondary CTA (text button)
+Sign in
+
+⸻
+
+What It Is (1–2 lines)
+
+Anplexa is an AI companion you can talk to — by text or voice —
+for connection, roleplay, comfort, or fantasy.
+
+You choose who they are.
+You choose where it goes.
+
+⸻
+
+Why People Use It
+
+Short, stacked lines. No bullets.
+	•	To feel less alone
+	•	To explore fantasies safely
+	•	To talk freely without being judged
+	•	To experiment with intimacy at their own pace
+	•	To be understood, quietly
+
+⸻
+
+How It Works (Very Light)
+
+1. Open Anplexa
+No account needed to start.
+
+2. Choose a presence
+Friend, lover, muse, or something unnamed.
+
+3. Talk — or listen
+Text or voice. Slow or intense. You decide.
+
+⸻
+
+Privacy & Trust Block (Critical)
+
+Private by design.
+	•	Anonymous sessions
+	•	Encrypted conversations
+	•	No public profiles
+	•	No social feed
+	•	Nothing shared
+
+What happens here, stays here.
+
+⸻
+
+Tone / Boundary Statement (Subtle but Important)
+
+Anplexa is open and adult.
+It respects consent, boundaries, and your choices.
+
+18+ only.
+
+⸻
+
+Pricing (Simple)
+
+Free
+Try instantly. Limited access.
+
+£5 / month
+Unlimited conversation
+Voice access
+Full freedom
+
+Cancel anytime.
+
+⸻
+
+Soft Emotional Close
+
+You don’t need to explain yourself here.
+You don’t need to impress anyone.
+
+Just… talk.
+
+⸻
+
+Final CTA (Repeat)
+
+Use Anplexa now
+No login required
+
+Sign in
+
+⸻
+
+Notes on intent (not shown on page)
+	•	Page should feel like a whisper, not a pitch
+	•	Dark mode by default
+	•	No testimonials yet (add later)
+	•	No stock photos — pure typography + subtle motion
+	•	Cursor blink / waveform animation adds life without distraction
+
+If you want, next logical steps are:
+	•	ultra-short onboarding screen copy (first 30 seconds)
+	•	AI’s first message (this matters more than anything)
+	•	age-gate microcopy that doesn’t kill mood
+	•	variant for App Store / Web App splash
+
+This page is built to convert curiosity into action without triggering fear or shame.
