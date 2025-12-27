@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { Lock, Mail, User, Terminal } from "lucide-react"
+import { Lock, Mail, User } from "lucide-react"
 
 export default function AuthForm() {
   const { login, register } = useAuth()
@@ -36,23 +36,23 @@ export default function AuthForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border-2 border-border bg-card p-8">
+      <Card className="w-full max-w-md border border-border bg-card p-8 shadow-[var(--shadow-card)]">
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="rounded-lg border-2 border-primary bg-primary/10 p-3">
-              <Terminal className="h-8 w-8 text-primary" />
+            <div className="rounded-full border border-primary/50 bg-primary/10 p-4 animate-pulse-glow">
+              <div className="h-8 w-8 rounded-full bg-primary/30" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">TERMINAL COMPANION</h1>
-          <p className="mt-2 font-mono text-sm text-muted-foreground">
-            {isLogin ? "> Authenticate to continue..." : "> Create your account..."}
+          <h1 className="text-2xl font-heading font-light tracking-tight text-foreground">ANPLEXA</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {isLogin ? "Sign in to continue" : "Create your account"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="space-y-2">
-              <label className="text-sm font-bold text-muted-foreground">DISPLAY NAME</label>
+              <label className="text-sm font-medium text-muted-foreground">Display Name</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -60,14 +60,14 @@ export default function AuthForm() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
-                  className="border-2 border-border bg-background pl-10 font-mono"
+                  className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-muted-foreground">EMAIL</label>
+            <label className="text-sm font-medium text-muted-foreground">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -76,13 +76,13 @@ export default function AuthForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="border-2 border-border bg-background pl-10 font-mono"
+                className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-muted-foreground">PASSWORD</label>
+            <label className="text-sm font-medium text-muted-foreground">Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -92,25 +92,25 @@ export default function AuthForm() {
                 placeholder="••••••••"
                 required
                 minLength={6}
-                className="border-2 border-border bg-background pl-10 font-mono"
+                className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
               />
             </div>
           </div>
 
           {error && (
-            <div className="rounded border-2 border-destructive bg-destructive/10 p-3">
-              <p className="text-sm font-mono text-destructive">[ERROR] {error}</p>
+            <div className="rounded-lg border border-destructive bg-destructive/10 p-3">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full gradient-primary glow-hover rounded-lg" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                {isLogin ? "Authenticating..." : "Creating account..."}
+                {isLogin ? "Signing in..." : "Creating account..."}
               </span>
             ) : (
-              <span>{isLogin ? "LOGIN" : "CREATE ACCOUNT"}</span>
+              <span>{isLogin ? "Sign In" : "Create Account"}</span>
             )}
           </Button>
         </form>
@@ -122,16 +122,16 @@ export default function AuthForm() {
               setIsLogin(!isLogin)
               setError("")
             }}
-            className="text-sm font-mono text-muted-foreground hover:text-primary transition-colors"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
-            {isLogin ? "> Need an account? Register" : "> Already have an account? Login"}
+            {isLogin ? "Need an account? Register" : "Already have an account? Sign in"}
           </button>
         </div>
 
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
-          <Lock className="h-5 w-5 text-primary shrink-0" />
-          <p className="text-xs text-muted-foreground font-mono">
-            [SECURE] Your data is encrypted and stored privately
+        <div className="mt-6 flex items-center gap-3 rounded-lg border border-[var(--security)] bg-[var(--security)]/10 p-4">
+          <Lock className="h-5 w-5 text-[var(--security)] shrink-0" />
+          <p className="text-xs text-[var(--security)]">
+            End-to-End Encrypted • Private & Secure
           </p>
         </div>
       </Card>

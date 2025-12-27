@@ -41,15 +41,15 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-2xl border-2 border-border bg-card p-8">
+      <Card className="w-full max-w-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
         <div className="space-y-6">
           <div className="space-y-2 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <h1 className="text-balance text-3xl font-bold text-foreground">TERMINAL COMPANION</h1>
-              <span className="rounded bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">BETA</span>
+            <div className="flex items-center justify-center gap-3">
+              <h1 className="text-balance text-3xl font-heading font-light tracking-tight text-foreground">ANPLEXA</h1>
+              <span className="rounded-full bg-primary/20 border border-primary/50 px-3 py-1 text-xs font-medium text-primary">BETA</span>
             </div>
-            <p className="text-pretty text-muted-foreground font-mono">
-              &gt; Select companion gender identity to begin
+            <p className="text-pretty text-muted-foreground">
+              Select your companion&apos;s gender identity to begin
             </p>
           </div>
 
@@ -58,8 +58,8 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
               <button
                 key={option.value}
                 onClick={() => handleGenderSelect(option.value)}
-                className={`flex items-start gap-3 rounded-lg border-2 p-4 text-left transition-all hover:border-primary/50 ${
-                  selectedGender === option.value ? "border-primary bg-primary/5" : "border-border bg-background"
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all hover:border-primary/50 ${
+                  selectedGender === option.value ? "border-primary bg-primary/10 glow" : "border-border bg-secondary"
                 }`}
               >
                 <div
@@ -70,8 +70,8 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
                   {selectedGender === option.value && <Check className="h-3 w-3 text-primary-foreground" />}
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-foreground">{option.label}</div>
-                  <div className="text-sm text-muted-foreground font-mono">{option.description}</div>
+                  <div className="font-medium text-foreground">{option.label}</div>
+                  <div className="text-sm text-muted-foreground">{option.description}</div>
                 </div>
               </button>
             ))}
@@ -79,8 +79,8 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
 
           {showCustomInput && (
             <div className="space-y-2">
-              <label htmlFor="custom-gender" className="text-sm font-bold text-foreground">
-                SPECIFY CUSTOM GENDER IDENTITY
+              <label htmlFor="custom-gender" className="text-sm font-medium text-foreground">
+                Specify custom gender identity
               </label>
               <input
                 id="custom-gender"
@@ -88,7 +88,7 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
                 value={customGender}
                 onChange={(e) => setCustomGender(e.target.value)}
                 placeholder="Enter gender identity"
-                className="w-full rounded-lg border-2 border-border bg-background px-4 py-2 text-foreground font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border border-border bg-background px-4 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
               />
             </div>
           )}
@@ -96,14 +96,14 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
           <Button
             onClick={handleContinue}
             disabled={!selectedGender || (selectedGender === "custom" && !customGender.trim())}
-            className="w-full"
+            className="w-full gradient-primary glow-hover rounded-lg"
             size="lg"
           >
-            INITIALIZE
+            Continue
           </Button>
 
-          <p className="text-pretty text-center text-xs text-muted-foreground font-mono">
-            [INFO] Preference can be updated anytime in settings
+          <p className="text-pretty text-center text-xs text-muted-foreground">
+            You can update this preference anytime in settings
           </p>
         </div>
       </Card>

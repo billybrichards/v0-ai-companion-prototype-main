@@ -99,8 +99,11 @@ export default function Home() {
   // Show loading while checking auth
   if (authLoading || isLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center">
-        <div className="text-muted-foreground font-mono">&gt; Initializing...</div>
+      <main className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <div className="text-muted-foreground">Initializing...</div>
+        </div>
       </main>
     )
   }
@@ -122,9 +125,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       {backendHealth?.status === "unhealthy" && (
-        <div className="bg-destructive/10 border-b border-destructive px-4 py-2 text-center">
-          <p className="text-sm text-destructive font-mono">
-            [WARNING] Backend unavailable: {backendHealth.message}
+        <div className="bg-[var(--security)]/10 border-b border-[var(--security)] px-4 py-2 text-center">
+          <p className="text-sm text-[var(--security)]">
+            Connection issue: {backendHealth.message}
           </p>
         </div>
       )}

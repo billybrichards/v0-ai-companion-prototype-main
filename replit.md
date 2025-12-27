@@ -1,7 +1,15 @@
-# Terminal Companion
+# Anplexa - The Private Pulse
 
 ## Overview
-A Next.js 16 frontend application that connects to an external backend API for authentication and chat functionality. Uses Tailwind CSS and shadcn/ui components.
+A Next.js 16 frontend application with Anplexa branding - a private AI companion for meaningful adult conversations. Uses Tailwind CSS and shadcn/ui components with a custom dark theme.
+
+## Design System
+Anplexa uses a luxury/wellness aesthetic with:
+- **Primary Color**: Anplexa Purple (#7B2CBF)
+- **Background**: Midnight Void (#121212)
+- **Text**: Ghost Silver (#E0E1DD)
+- **Typography**: Montserrat (headings), Inter (body), Fira Code (mono)
+- **Effects**: Purple glow shadows, gradient buttons
 
 ## Backend API
 The app connects to the backend at: `https://2-terminal-companion--billy130.replit.app`
