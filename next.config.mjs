@@ -12,6 +12,9 @@ const nextConfig = {
     '*.replit.dev',
     '*.kirk.replit.dev',
   ],
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://2-terminal-companion--billy130.replit.app',
+  },
 }
 
 export default nextConfig
