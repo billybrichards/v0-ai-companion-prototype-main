@@ -36,6 +36,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
   const [isSubscribing, setIsSubscribing] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -204,13 +205,12 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleSubscribe}
-                disabled={isSubscribing}
+                onClick={() => setShowUpgradeModal(true)}
                 className="h-8 gap-1 text-xs border-yellow-500/50 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500/10"
                 title="Upgrade to Pro"
               >
                 <Crown className="h-3 w-3" />
-                {isSubscribing ? "..." : "Upgrade"}
+                Upgrade
               </Button>
             )}
             <Button
@@ -397,6 +397,68 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           </p>
         </div>
       </div>
+
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Crown className="h-6 w-6 text-yellow-500" />
+              Upgrade to PRO
+            </DialogTitle>
+            <DialogDescription>
+              Unlock the full Terminal Companion experience
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-foreground">
+                $4.99
+                <span className="text-lg font-normal text-muted-foreground">/month</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500 shrink-0" />
+                <span>Unlimited messages</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500 shrink-0" />
+                <span>Priority response times</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500 shrink-0" />
+                <span>Access to all companion personalities</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500 shrink-0" />
+                <span>Extended conversation memory</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500 shrink-0" />
+                <span>Early access to new features</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => {
+                setShowUpgradeModal(false)
+                handleSubscribe()
+              }}
+              disabled={isSubscribing}
+              className="w-full h-12 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              {isSubscribing ? "Processing..." : "Subscribe Now"}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              Cancel anytime. Secure payment via Stripe.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
