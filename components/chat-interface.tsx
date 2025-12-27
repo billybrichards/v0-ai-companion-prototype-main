@@ -282,9 +282,12 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 </div>
                 {message.parts.map((part, index) => {
                   if (part.type === "text") {
+                    const isLastMessage = messages.indexOf(message) === messages.length - 1
+                    const isStreaming = status === "streaming" && isLastMessage && message.role === "assistant"
                     return (
                       <p key={index} className="text-pretty whitespace-pre-wrap leading-relaxed font-mono">
                         {part.text}
+                        {isStreaming && <span className="animate-pulse">▌</span>}
                       </p>
                     )
                   }
@@ -294,7 +297,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             </div>
           ))}
 
-          {status === "streaming" && (
+          {status === "streaming" && messages.length > 0 && messages[messages.length - 1].role === "assistant" && 
+           messages[messages.length - 1].parts.every(p => p.type !== "text" || !p.text) && (
             <div className="flex justify-start">
               <div className="max-w-[85%] rounded-lg border-2 border-border bg-card px-4 py-3">
                 <div className="mb-1 text-xs font-bold text-muted-foreground">[AI]</div>

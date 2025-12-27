@@ -53,6 +53,13 @@ Security:
 - Checkout API validates bearer tokens via backend /api/auth/validate endpoint
 - Webhook uses X-Webhook-Secret header for backend authentication
 
+## Chat Streaming
+The chat interface uses AI SDK v5 with streaming responses:
+- Text appears progressively (token by token) like ChatGPT/Claude
+- Blinking cursor indicator while streaming
+- Stop button (square icon) to cancel mid-generation
+- Bouncing dots shown only before first text arrives
+
 ## Recent Changes
 - December 27, 2025: Added Stripe subscription integration
   - Created checkout, webhook, and subscription status API routes
