@@ -1,7 +1,14 @@
 # Terminal Companion
 
 ## Overview
-A Next.js 16 application with Tailwind CSS, featuring a login/authentication interface. The app uses the App Router and includes an API route for chat functionality.
+A Next.js 16 frontend application that connects to an external backend API for authentication and chat functionality. Uses Tailwind CSS and shadcn/ui components.
+
+## Backend API
+The app connects to the backend at: `https://2-terminal-companion--billy130.replit.app`
+
+Environment variables:
+- `API_URL` - Backend URL for server-side API calls
+- `NEXT_PUBLIC_API_URL` - Backend URL for client-side API calls
 
 ## Project Structure
 - `app/` - Next.js App Router pages and API routes
