@@ -38,8 +38,23 @@ async function getStripeClient() {
   }
 
   return new Stripe(connectionSettings.settings.secret, {
-    apiVersion: "2025-05-28.basil",
+    apiVersion: "2025-12-15.clover",
   })
+}
+
+async function validateToken(authHeader: string): Promise<{ valid: boolean; userId?: string }> {
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/validate`, {
+      headers: { Authorization: authHeader },
+    })
+    if (response.ok) {
+      const data = await response.json()
+      return { valid: true, userId: data.user?.id }
+    }
+    return { valid: false }
+  } catch {
+    return { valid: false }
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -50,6 +65,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { priceId, userId } = await req.json()
+    
+    const validation = await validateToken(authHeader)
+    if (!validation.valid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+    
+    const validatedUserId = validation.userId || userId
     
     const stripe = await getStripeClient()
     
@@ -67,9 +89,9 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/?session_id={CHECKOUT_SESSION_ID}&success=true`,
       cancel_url: `${origin}/?canceled=true`,
       metadata: {
-        userId: userId,
+        userId: validatedUserId,
       },
-      client_reference_id: userId,
+      client_reference_id: validatedUserId,
     })
 
     return NextResponse.json({ url: session.url })

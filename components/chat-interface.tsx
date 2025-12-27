@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut } from "lucide-react"
+import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, CreditCard } from "lucide-react"
 import ThemeCustomizer from "@/components/theme-customizer"
 import { useAuth } from "@/lib/auth-context"
 
@@ -29,8 +29,20 @@ interface ChatInterfaceProps {
   userName?: string
 }
 
+const STRIPE_PRICE_ID = "price_1RqRH7DaGKR8CULJkPTJhNBv"
+
 export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, userName }: ChatInterfaceProps) {
-  const { accessToken } = useAuth()
+  const { accessToken, user, refreshSubscriptionStatus } = useAuth()
+  const isSubscribed = user?.subscriptionStatus === "subscribed"
+  const [isSubscribing, setIsSubscribing] = useState(false)
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get("success") === "true") {
+      refreshSubscriptionStatus()
+      window.history.replaceState({}, "", window.location.pathname)
+    }
+  }, [refreshSubscriptionStatus])
   const [input, setInput] = useState("")
   const [showWelcome, setShowWelcome] = useState(true)
   const [preferences, setPreferences] = useState<ResponsePreference>({
@@ -132,6 +144,34 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     return customGender || "Custom"
   }
 
+  const handleSubscribe = async () => {
+    if (!accessToken || !user) return
+    
+    setIsSubscribing(true)
+    try {
+      const response = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          priceId: STRIPE_PRICE_ID,
+          userId: user.id,
+        }),
+      })
+
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error("Failed to create checkout session:", error)
+    } finally {
+      setIsSubscribing(false)
+    }
+  }
+
   return (
     <div className="flex h-screen flex-col">
       <header className="border-b-2 border-border bg-card px-6 py-4">
@@ -141,6 +181,12 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               <div className="flex items-center gap-2">
                 <h1 className="text-balance text-xl font-bold text-foreground">TERMINAL COMPANION</h1>
                 <span className="rounded bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">BETA</span>
+                {isSubscribed && (
+                  <span className="flex items-center gap-1 rounded bg-yellow-500/20 border border-yellow-500/50 px-2 py-0.5 text-xs font-bold text-yellow-600 dark:text-yellow-400">
+                    <Crown className="h-3 w-3" />
+                    PRO
+                  </span>
+                )}
               </div>
               <p className="text-pretty text-sm text-muted-foreground font-mono">
                 v0.1.0 • {getPronounText()} • Private Session
@@ -152,6 +198,19 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               <span className="text-sm text-muted-foreground font-mono hidden sm:inline">
                 {userName}
               </span>
+            )}
+            {!isSubscribed && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSubscribe}
+                disabled={isSubscribing}
+                className="h-8 gap-1 text-xs border-yellow-500/50 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500/10"
+                title="Upgrade to Pro"
+              >
+                <Crown className="h-3 w-3" />
+                {isSubscribing ? "..." : "Upgrade"}
+              </Button>
             )}
             <Button
               variant="ghost"

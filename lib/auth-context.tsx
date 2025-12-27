@@ -19,6 +19,7 @@ interface AuthContextType {
   register: (email: string, password: string, displayName?: string) => Promise<void>
   logout: () => void
   refreshToken: () => Promise<boolean>
+  refreshSubscriptionStatus: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -138,6 +139,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const refreshSubscriptionStatus = async (): Promise<void> => {
+    if (!accessToken) return
+
+    try {
+      const response = await fetch("/api/subscription", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.subscriptionStatus && user) {
+          const updatedUser = { ...user, subscriptionStatus: data.subscriptionStatus }
+          setUser(updatedUser)
+          localStorage.setItem("user", JSON.stringify(updatedUser))
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh subscription status:", error)
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -149,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         refreshToken,
+        refreshSubscriptionStatus,
       }}
     >
       {children}

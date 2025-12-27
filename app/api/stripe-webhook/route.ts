@@ -39,7 +39,7 @@ async function getStripeClient() {
 
   return {
     stripe: new Stripe(connectionSettings.settings.secret, {
-      apiVersion: "2025-05-28.basil",
+      apiVersion: "2025-12-15.clover",
     }),
     webhookSecret: connectionSettings.settings.webhookSecret,
   }
@@ -69,16 +69,20 @@ export async function POST(req: NextRequest) {
       const userId = session.client_reference_id || session.metadata?.userId
 
       if (userId) {
+        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
         const response = await fetch(`${API_BASE}/api/admin/users/${userId}/subscription`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "X-Webhook-Secret": webhookSecret,
           },
           body: JSON.stringify({ subscriptionStatus: "subscribed" }),
         })
 
         if (!response.ok) {
           console.error("Failed to update subscription status:", await response.text())
+        } else {
+          console.log(`Subscription updated for user ${userId}`)
         }
       }
     }
