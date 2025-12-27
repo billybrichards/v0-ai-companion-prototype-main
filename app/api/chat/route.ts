@@ -75,25 +75,10 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
-  // Create a transform stream to convert backend SSE to AI SDK format
+  // Create a transform stream to convert backend SSE to AI SDK v5 format
+  // AI SDK v5 protocol: 0:"text" for text chunks, d:{...} for done
   const stream = new ReadableStream({
     async start(controller) {
-      // Send the initial message start
-      const messageId = `msg-${Date.now()}`
-      controller.enqueue(
-        encoder.encode(
-          `0:${JSON.stringify([
-            {
-              type: "start",
-              value: {
-                messageId,
-                role: "assistant",
-              },
-            },
-          ])}\n`
-        )
-      )
-
       try {
         let buffer = ""
         while (true) {
@@ -111,29 +96,18 @@ export async function POST(req: NextRequest) {
                 const data = JSON.parse(dataStr)
 
                 if (data.type === "text" && data.content) {
-                  // Send text delta in AI SDK format
+                  // AI SDK v5 format: 0:"text content"
                   controller.enqueue(
-                    encoder.encode(
-                      `0:${JSON.stringify([
-                        {
-                          type: "text",
-                          value: data.content,
-                        },
-                      ])}\n`
-                    )
+                    encoder.encode(`0:${JSON.stringify(data.content)}\n`)
                   )
                 } else if (data.type === "done") {
-                  // Send finish event
+                  // AI SDK v5 format: d:{finishReason, usage}
                   controller.enqueue(
                     encoder.encode(
-                      `0:${JSON.stringify([
-                        {
-                          type: "finish",
-                          value: {
-                            finishReason: "stop",
-                          },
-                        },
-                      ])}\n`
+                      `d:${JSON.stringify({
+                        finishReason: "stop",
+                        usage: { promptTokens: 0, completionTokens: 0 },
+                      })}\n`
                     )
                   )
                 }
