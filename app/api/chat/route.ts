@@ -17,22 +17,17 @@ interface UIMessage {
   parts: Array<{ type: string; text?: string }>
 }
 
-// Default model to use for chat
-const DEFAULT_MODEL = "darkplanet"
-
 export async function POST(req: NextRequest) {
   const {
     messages,
     preferences,
     gender,
     customGender,
-    model,
   }: {
     messages: UIMessage[]
     preferences: ResponsePreference
     gender: GenderOption
     customGender?: string
-    model?: string
   } = await req.json()
 
   // Get auth token from request headers
@@ -51,7 +46,6 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       message: messageText,
-      model: model || DEFAULT_MODEL,
       preferences: {
         length: preferences?.length || "moderate",
         style: preferences?.style || "thoughtful",
