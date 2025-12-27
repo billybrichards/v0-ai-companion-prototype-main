@@ -90,9 +90,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     })
   }, [])
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, stop, error } = useChat({
     transport,
   })
+
+  // Debug: log status changes
+  useEffect(() => {
+    console.log("[Chat] Status changed:", status, "Error:", error)
+  }, [status, error])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
