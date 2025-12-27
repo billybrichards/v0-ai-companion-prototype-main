@@ -125,7 +125,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || status !== "ready") return
+    // Allow sending if ready OR if previous message errored
+    if (!input.trim() || (status !== "ready" && status !== "error")) return
 
     setShowWelcome(false)
     sendMessage({ text: input })
@@ -405,9 +406,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             ) : (
               <Button
                 type="submit"
-                disabled={!input.trim() || status !== "ready"}
+                disabled={!input.trim() || (status !== "ready" && status !== "error")}
                 size="icon"
                 className="h-14 w-14 shrink-0"
+                title={`Status: ${status}`}
               >
                 <Send className="h-5 w-5" />
               </Button>
