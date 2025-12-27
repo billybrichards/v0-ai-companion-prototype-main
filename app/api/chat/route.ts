@@ -75,19 +75,24 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
-  // Create a transform stream to convert backend SSE to AI SDK v5 format
-  // AI SDK v5 protocol requires:
-  // - f:{messageId} for message start
-  // - 0:"text" for text chunks  
-  // - e:{finishReason, ...} for finish
-  // - d:{finishReason, usage} for done
+  // AI SDK v5 uses SSE format with specific event types:
+  // data: {"type":"start","messageId":"..."} - message start
+  // data: {"type":"text-start","id":"..."} - text block start
+  // data: {"type":"text-delta","id":"...","delta":"..."} - text delta
+  // data: {"type":"text-end","id":"..."} - text block end
   const messageId = crypto.randomUUID()
+  const textId = crypto.randomUUID()
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Send message start
+        // Send message start event
         controller.enqueue(
-          encoder.encode(`f:${JSON.stringify({ messageId })}\n`)
+          encoder.encode(`data: ${JSON.stringify({ type: "start", messageId })}\n\n`)
+        )
+        
+        // Send text-start event
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "text-start", id: textId })}\n\n`)
         )
         
         let buffer = ""
@@ -106,28 +111,13 @@ export async function POST(req: NextRequest) {
                 const data = JSON.parse(dataStr)
 
                 if (data.type === "text" && data.content) {
-                  // AI SDK v5 format: 0:"text content"
+                  // AI SDK v5 SSE format: text-delta
                   controller.enqueue(
-                    encoder.encode(`0:${JSON.stringify(data.content)}\n`)
-                  )
-                } else if (data.type === "done") {
-                  // AI SDK v5 format: e for finish, d for done
-                  controller.enqueue(
-                    encoder.encode(
-                      `e:${JSON.stringify({
-                        finishReason: "stop",
-                        usage: { promptTokens: 0, completionTokens: 0 },
-                        isContinued: false,
-                      })}\n`
-                    )
-                  )
-                  controller.enqueue(
-                    encoder.encode(
-                      `d:${JSON.stringify({
-                        finishReason: "stop",
-                        usage: { promptTokens: 0, completionTokens: 0 },
-                      })}\n`
-                    )
+                    encoder.encode(`data: ${JSON.stringify({ 
+                      type: "text-delta", 
+                      id: textId, 
+                      delta: data.content 
+                    })}\n\n`)
                   )
                 }
               } catch {
@@ -146,7 +136,11 @@ export async function POST(req: NextRequest) {
               const data = JSON.parse(dataStr)
               if (data.type === "text" && data.content) {
                 controller.enqueue(
-                  encoder.encode(`0:${JSON.stringify(data.content)}\n`)
+                  encoder.encode(`data: ${JSON.stringify({ 
+                    type: "text-delta", 
+                    id: textId, 
+                    delta: data.content 
+                  })}\n\n`)
                 )
               }
             } catch {
@@ -154,8 +148,25 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+        
+        // Send text-end event
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "text-end", id: textId })}\n\n`)
+        )
+        
+        // Send finish event
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ 
+            type: "finish", 
+            finishReason: "stop",
+            usage: { promptTokens: 0, completionTokens: 0 }
+          })}\n\n`)
+        )
       } catch (error) {
         console.error("Stream error:", error)
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "error", errorText: String(error) })}\n\n`)
+        )
       } finally {
         controller.close()
       }
@@ -164,7 +175,10 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "x-vercel-ai-ui-message-stream": "v1",
     },
   })
 }
