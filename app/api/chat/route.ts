@@ -76,10 +76,20 @@ export async function POST(req: NextRequest) {
   const decoder = new TextDecoder()
 
   // Create a transform stream to convert backend SSE to AI SDK v5 format
-  // AI SDK v5 protocol: 0:"text" for text chunks, d:{...} for done
+  // AI SDK v5 protocol requires:
+  // - f:{messageId} for message start
+  // - 0:"text" for text chunks  
+  // - e:{finishReason, ...} for finish
+  // - d:{finishReason, usage} for done
+  const messageId = crypto.randomUUID()
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        // Send message start
+        controller.enqueue(
+          encoder.encode(`f:${JSON.stringify({ messageId })}\n`)
+        )
+        
         let buffer = ""
         while (true) {
           const { done, value } = await reader.read()
@@ -101,7 +111,16 @@ export async function POST(req: NextRequest) {
                     encoder.encode(`0:${JSON.stringify(data.content)}\n`)
                   )
                 } else if (data.type === "done") {
-                  // AI SDK v5 format: d:{finishReason, usage}
+                  // AI SDK v5 format: e for finish, d for done
+                  controller.enqueue(
+                    encoder.encode(
+                      `e:${JSON.stringify({
+                        finishReason: "stop",
+                        usage: { promptTokens: 0, completionTokens: 0 },
+                        isContinued: false,
+                      })}\n`
+                    )
+                  )
                   controller.enqueue(
                     encoder.encode(
                       `d:${JSON.stringify({
@@ -114,6 +133,24 @@ export async function POST(req: NextRequest) {
               } catch {
                 // Ignore invalid JSON
               }
+            }
+          }
+        }
+        
+        // Process remaining buffer
+        if (buffer.trim()) {
+          const line = buffer.trim()
+          if (line.startsWith("data: ")) {
+            const dataStr = line.slice(6)
+            try {
+              const data = JSON.parse(dataStr)
+              if (data.type === "text" && data.content) {
+                controller.enqueue(
+                  encoder.encode(`0:${JSON.stringify(data.content)}\n`)
+                )
+              }
+            } catch {
+              // Ignore invalid JSON
             }
           }
         }
