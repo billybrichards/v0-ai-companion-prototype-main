@@ -4,51 +4,68 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Terminal-style theme with customizable colors */
-  --background: oklch(0.98 0.005 85);
-  --foreground: oklch(0.15 0.01 85);
-  --card: oklch(0.99 0 0);
-  --card-foreground: oklch(0.15 0.01 85);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 85);
+  /* Anplexa Design System - "The Private Pulse" */
+  
+  /* Background Colors */
+  --background: #121212; /* Midnight Void */
+  --foreground: #E0E1DD; /* Ghost Silver */
+  --card: #1A1A1A; /* Deep Layer */
+  --card-foreground: #E0E1DD;
+  --popover: #252525; /* Elevated Layer */
+  --popover-foreground: #E0E1DD;
 
-  /* Terminal primary color - can be customized via JS */
-  --primary: oklch(0.45 0.15 220);
-  --primary-foreground: oklch(0.98 0.005 85);
+  /* Primary - Anplexa Purple */
+  --primary: #7B2CBF;
+  --primary-foreground: #FFFFFF;
 
-  /* Orange accent for terminal style */
-  --accent: oklch(0.65 0.15 45);
-  --accent-foreground: oklch(0.98 0.005 85);
+  /* Accent - Deep Purple */
+  --accent: #5A189A;
+  --accent-foreground: #E0E1DD;
 
-  --secondary: oklch(0.92 0.01 85);
-  --secondary-foreground: oklch(0.15 0.01 85);
-  --muted: oklch(0.95 0.01 85);
-  --muted-foreground: oklch(0.45 0.02 85);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.98 0.005 85);
-  --border: oklch(0.88 0.01 85);
-  --input: oklch(0.92 0.01 85);
-  --ring: oklch(0.45 0.15 220);
+  --secondary: #1A1A1A;
+  --secondary-foreground: #E0E1DD;
+  --muted: #252525;
+  --muted-foreground: #A0A19D; /* Muted Silver */
+  --destructive: #E53935;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Borders */
+  --border: #2A2A2A; /* Dark Seam */
+  --input: #121212;
+  --ring: #7B2CBF;
 
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.375rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Status Colors */
+  --status-online: #4CC9F0; /* Pulse Blue */
+  --status-offline: #495057; /* Dormant Grey */
+  --security: #415A77; /* Secure Slate */
+
+  /* Effects */
+  --glow: rgba(123, 44, 191, 0.4);
+  --shadow-glow: 0 0 15px rgba(123, 44, 191, 0.3);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  --chart-1: #7B2CBF;
+  --chart-2: #5A189A;
+  --chart-3: #4CC9F0;
+  --chart-4: #415A77;
+  --chart-5: #E0E1DD;
+  
+  --radius: 0.5rem;
+  
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #E0E1DD;
+  --sidebar-primary: #7B2CBF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #252525;
+  --sidebar-accent-foreground: #E0E1DD;
+  --sidebar-border: #2A2A2A;
+  --sidebar-ring: #7B2CBF;
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Inter", "Inter Fallback", sans-serif;
+  --font-heading: "Montserrat", "Montserrat Fallback", sans-serif;
+  --font-mono: "Fira Code", "Fira Code Fallback", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -92,6 +109,34 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-mono;
+    @apply bg-background text-foreground font-sans antialiased;
   }
+}
+
+@layer utilities {
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .glow-hover:hover {
+    box-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
+  }
+  .gradient-primary {
+    background: linear-gradient(135deg, #7B2CBF 0%, #5A189A 100%);
+  }
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(123, 44, 191, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(123, 44, 191, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

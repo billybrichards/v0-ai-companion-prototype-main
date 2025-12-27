@@ -1,15 +1,32 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
+import { Inter, Montserrat, Fira_Code } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/lib/auth-context"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const montserrat = Montserrat({ 
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+})
+
+const firaCode = Fira_Code({ 
+  subsets: ["latin"],
+  variable: "--font-fira-code",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
-  title: "Companion - Your Personal AI",
-  description: "A private, judgment-free space for meaningful conversation",
+  title: "Anplexa - The Private Pulse",
+  description: "Your private AI companion for meaningful adult conversations",
   generator: "v0.app",
   icons: {
     icon: [
@@ -32,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} ${montserrat.variable} ${firaCode.variable} font-sans antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>
