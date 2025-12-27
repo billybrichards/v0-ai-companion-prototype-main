@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, Check, Sparkles } from "lucide-react"
 import ThemeCustomizer from "@/components/theme-customizer"
 import { useAuth } from "@/lib/auth-context"
+import AnplexaLogo from "@/components/anplexa-logo"
 
 type ResponsePreference = {
   length: "brief" | "moderate" | "detailed"
@@ -198,9 +199,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       <header className="border-b border-border bg-card px-6 py-4">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <div className="flex items-center gap-3">
+            <AnplexaLogo size={32} />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-balance text-xl font-heading font-medium tracking-tight text-foreground">ANPLEXA</h1>
+                <h1 className="text-balance text-xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</h1>
                 <span className="rounded-full bg-primary/20 border border-primary/50 px-2 py-0.5 text-xs font-medium text-primary">BETA</span>
                 {isSubscribed && (
                   <span className="flex items-center gap-1 rounded-full bg-primary/20 border border-primary/50 px-2 py-0.5 text-xs font-medium text-primary glow">
@@ -260,14 +262,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-6">
           {showWelcome && messages.length === 0 && (
-            <Card className="border border-border bg-card/50 p-8 shadow-[var(--shadow-card)]">
+            <Card className="border border-border bg-card/50 p-8 rounded-2xl shadow-[var(--shadow-card)]">
               <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-balance text-2xl font-heading font-light text-foreground tracking-tight">Welcome to Anplexa</h2>
-                  <span className="rounded-full bg-primary/20 border border-primary/50 px-3 py-1 text-xs font-medium text-primary">BETA</span>
-                </div>
-                <p className="text-pretty leading-relaxed text-muted-foreground text-lg">
-                  Your private AI companion for meaningful adult conversations. Share your thoughts, explore ideas, or simply connect—in complete privacy.
+                <p className="text-pretty leading-relaxed text-muted-foreground border-l-[3px] border-l-primary pl-4">
+                  Welcome to anplexa, to the AI and one, to one of our private, judgment-free space for meaningful conversation, beserivs our AI, acone wince rected you, and siohmoets meesnt you for meaningful conversation.
                 </p>
                 <div className="flex items-center gap-3 rounded-lg border border-[var(--security)] bg-[var(--security)]/10 p-4">
                   <Lock className="h-5 w-5 text-[var(--security)]" />

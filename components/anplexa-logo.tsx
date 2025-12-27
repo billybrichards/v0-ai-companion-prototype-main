@@ -1,0 +1,46 @@
+"use client"
+
+interface AnplexaLogoProps {
+  size?: number
+  className?: string
+}
+
+export default function AnplexaLogo({ size = 40, className = "" }: AnplexaLogoProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M24 4C24 4 8 20 8 32C8 38 12 44 24 44C36 44 40 38 40 32C40 20 24 4 24 4Z"
+        stroke="url(#anplexa-gradient)"
+        strokeWidth="2"
+        fill="none"
+      />
+      <path
+        d="M24 12C24 12 14 24 14 32C14 36 17 40 24 40C31 40 34 36 34 32C34 24 24 12 24 12Z"
+        stroke="url(#anplexa-gradient)"
+        strokeWidth="1.5"
+        fill="none"
+        opacity="0.7"
+      />
+      <path
+        d="M16 28C16 28 20 22 24 22C28 22 32 28 32 28"
+        stroke="url(#anplexa-gradient)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <defs>
+        <linearGradient id="anplexa-gradient" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#9D4EDD" />
+          <stop offset="100%" stopColor="#7B2CBF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}

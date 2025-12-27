@@ -5,7 +5,8 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { Lock, Mail, User } from "lucide-react"
+import { Lock, Mail, User, Eye, EyeOff } from "lucide-react"
+import AnplexaLogo from "@/components/anplexa-logo"
 
 export default function AuthForm() {
   const { login, register } = useAuth()
@@ -15,6 +16,7 @@ export default function AuthForm() {
   const [displayName, setDisplayName] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,16 +38,17 @@ export default function AuthForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border border-border bg-card p-8 shadow-[var(--shadow-card)]">
+      <Card className="w-full max-w-md border border-border bg-card p-8 rounded-3xl shadow-[var(--shadow-card)]">
         <div className="mb-8 text-center">
-          <div className="mb-4 flex justify-center">
-            <div className="rounded-full border border-primary/50 bg-primary/10 p-4 animate-pulse-glow">
-              <div className="h-8 w-8 rounded-full bg-primary/30" />
-            </div>
+          <div className="mb-6 flex justify-center">
+            <AnplexaLogo size={64} className="animate-pulse-glow" />
           </div>
-          <h1 className="text-2xl font-heading font-light tracking-tight text-foreground">ANPLEXA</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isLogin ? "Sign in to continue" : "Create your account"}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <AnplexaLogo size={24} />
+            <h1 className="text-2xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</h1>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Private AI Companion
           </p>
         </div>
 
@@ -60,7 +63,7 @@ export default function AuthForm() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
-                  className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                  className="border border-border bg-background pl-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
                 />
               </div>
             </div>
@@ -74,9 +77,9 @@ export default function AuthForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="Email"
                 required
-                className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                className="border border-border bg-background pl-10 pr-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
               />
             </div>
           </div>
@@ -86,31 +89,38 @@ export default function AuthForm() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Password"
                 required
                 minLength={6}
-                className="border border-border bg-background pl-10 rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                className="border border-border bg-background pl-10 pr-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-destructive bg-destructive/10 p-3">
+            <div className="rounded-xl border border-destructive bg-destructive/10 p-3">
               <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
-          <Button type="submit" className="w-full gradient-primary glow-hover rounded-lg" disabled={isLoading}>
+          <Button type="submit" className="w-full gradient-primary glow-hover rounded-xl h-12 text-base font-medium" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 {isLogin ? "Signing in..." : "Creating account..."}
               </span>
             ) : (
-              <span>{isLogin ? "Sign In" : "Create Account"}</span>
+              <span className="uppercase tracking-wider">{isLogin ? "Login" : "Create Account"}</span>
             )}
           </Button>
         </form>
@@ -128,10 +138,10 @@ export default function AuthForm() {
           </button>
         </div>
 
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-[var(--security)] bg-[var(--security)]/10 p-4">
-          <Lock className="h-5 w-5 text-[var(--security)] shrink-0" />
-          <p className="text-xs text-[var(--security)]">
-            End-to-End Encrypted • Private & Secure
+        <div className="mt-8 flex items-center justify-center gap-2 text-muted-foreground">
+          <Lock className="h-4 w-4" />
+          <p className="text-xs">
+            Your data is encrypted and stored privately
           </p>
         </div>
       </Card>

@@ -68,7 +68,17 @@ The chat interface uses AI SDK v5 with streaming responses:
 - Stop button (square icon) to cancel mid-generation
 - Bouncing dots shown only before first text arrives
 
+## Logo
+The Anplexa logo is a stylized drop/flame shape with purple gradient, available as:
+- SVG file: `public/anplexa-logo.svg`
+- React component: `components/anplexa-logo.tsx`
+
 ## Recent Changes
+- December 27, 2025: Updated UI to match Anplexa design samples
+  - Added custom SVG logo component
+  - Redesigned login page with rounded cards and password toggle
+  - Updated gender selection with icon-based options
+  - Added logo to chat header
 - December 27, 2025: Added Stripe subscription integration
   - Created checkout, webhook, and subscription status API routes
   - Added PRO badge with Crown icon and Upgrade button to chat interface
