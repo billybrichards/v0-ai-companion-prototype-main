@@ -20,7 +20,8 @@ Environment variables:
 
 ## Project Structure
 - `app/` - Next.js App Router pages and API routes
-  - `page.tsx` - Main login page
+  - `page.tsx` - Landing page (marketing/conversion)
+  - `dash/page.tsx` - Main chat interface (gender setup + chat)
   - `layout.tsx` - Root layout
   - `globals.css` - Global styles
   - `api/chat/route.ts` - Chat API endpoint
@@ -80,6 +81,8 @@ The Anplexa logo is a stylized drop/flame shape with purple gradient, available 
 - Guest data migrates to user account on login
 
 ## Recent Changes
+- December 27, 2025: Added landing page at root with hero, features, privacy, and pricing sections
+- December 27, 2025: Moved chat interface to `/dash` route
 - December 27, 2025: Added guest freemium flow (2 free messages before login required)
 - December 27, 2025: Updated UI to match Anplexa design samples
   - Added custom SVG logo component
