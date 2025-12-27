@@ -70,13 +70,13 @@ export async function POST(req: NextRequest) {
 
       if (userId) {
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
-        const response = await fetch(`${API_BASE}/api/admin/users/${userId}/subscription`, {
-          method: "PUT",
+        const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-Webhook-Secret": webhookSecret,
           },
-          body: JSON.stringify({ subscriptionStatus: "subscribed" }),
+          body: JSON.stringify({ userId, subscriptionStatus: "subscribed" }),
         })
 
         if (!response.ok) {
@@ -89,9 +89,25 @@ export async function POST(req: NextRequest) {
 
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription
-      const customerId = subscription.customer as string
+      const userId = subscription.metadata?.userId
 
-      console.log("Subscription canceled for customer:", customerId)
+      if (userId) {
+        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
+        const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Webhook-Secret": webhookSecret,
+          },
+          body: JSON.stringify({ userId, subscriptionStatus: "not_subscribed" }),
+        })
+
+        if (!response.ok) {
+          console.error("Failed to update subscription status:", await response.text())
+        } else {
+          console.log(`Subscription canceled for user ${userId}`)
+        }
+      }
     }
 
     return NextResponse.json({ received: true })
