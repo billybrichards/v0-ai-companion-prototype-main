@@ -7,7 +7,6 @@ import ChatInterface from "@/components/chat-interface"
 import GenderSetup from "@/components/gender-setup"
 import SettingsModal from "@/components/settings-modal"
 import FeedbackModal from "@/components/feedback-modal"
-import AuthForm from "@/components/auth-form"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 
@@ -29,10 +28,18 @@ export default function Home() {
       return
     }
     
-    // If not authenticated, just stop loading
+    // For unauthenticated users, check guest gender preference
     if (!isAuthenticated || !userId) {
+      const guestGender = localStorage.getItem("guest-companion-gender")
+      if (guestGender) {
+        setGender(guestGender as GenderOption)
+        const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
+        if (guestCustomGender) {
+          setCustomGender(guestCustomGender)
+        }
+        setSetupComplete(true)
+      }
       setIsLoading(false)
-      setSetupComplete(false)
       return
     }
 
@@ -50,8 +57,26 @@ export default function Home() {
       }
       setSetupComplete(true)
     } else {
-      // Reset for new user
-      setSetupComplete(false)
+      // Check if there's a guest preference to migrate
+      const guestGender = localStorage.getItem("guest-companion-gender")
+      if (guestGender) {
+        setGender(guestGender as GenderOption)
+        const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
+        if (guestCustomGender) {
+          setCustomGender(guestCustomGender)
+        }
+        // Save to user-specific keys
+        localStorage.setItem(userGenderKey, guestGender)
+        if (guestCustomGender) {
+          localStorage.setItem(userCustomGenderKey, guestCustomGender)
+        }
+        // Clear guest keys
+        localStorage.removeItem("guest-companion-gender")
+        localStorage.removeItem("guest-companion-custom-gender")
+        setSetupComplete(true)
+      } else {
+        setSetupComplete(false)
+      }
     }
 
     setIsLoading(false)
@@ -63,18 +88,27 @@ export default function Home() {
   }, [])
 
   const handleGenderSetup = (selectedGender: GenderOption, selectedCustomGender?: string) => {
-    if (!user?.id) return
-    
-    const userGenderKey = `companion-gender-${user.id}`
-    const userCustomGenderKey = `companion-custom-gender-${user.id}`
-    
     setGender(selectedGender)
     setCustomGender(selectedCustomGender)
-    localStorage.setItem(userGenderKey, selectedGender)
-    if (selectedCustomGender) {
-      localStorage.setItem(userCustomGenderKey, selectedCustomGender)
+    
+    if (user?.id) {
+      // Authenticated user - save to user-specific keys
+      const userGenderKey = `companion-gender-${user.id}`
+      const userCustomGenderKey = `companion-custom-gender-${user.id}`
+      localStorage.setItem(userGenderKey, selectedGender)
+      if (selectedCustomGender) {
+        localStorage.setItem(userCustomGenderKey, selectedCustomGender)
+      } else {
+        localStorage.removeItem(userCustomGenderKey)
+      }
     } else {
-      localStorage.removeItem(userCustomGenderKey)
+      // Guest user - save to guest keys
+      localStorage.setItem("guest-companion-gender", selectedGender)
+      if (selectedCustomGender) {
+        localStorage.setItem("guest-companion-custom-gender", selectedCustomGender)
+      } else {
+        localStorage.removeItem("guest-companion-custom-gender")
+      }
     }
     setSetupComplete(true)
   }
@@ -108,12 +142,7 @@ export default function Home() {
     )
   }
 
-  // Show auth form if not authenticated
-  if (!isAuthenticated) {
-    return <AuthForm />
-  }
-
-  // Show gender setup if not complete
+  // Show gender setup if not complete (for both guests and authenticated users)
   if (!setupComplete) {
     return (
       <main className="flex min-h-screen flex-col">
@@ -136,10 +165,11 @@ export default function Home() {
         customGender={customGender}
         onOpenSettings={() => setShowSettings(true)}
         onOpenFeedback={() => setShowFeedback(true)}
-        onLogout={logout}
+        onLogout={isAuthenticated ? logout : undefined}
         userName={user?.displayName || user?.email}
+        isGuest={!isAuthenticated}
       />
-      {showSettings && (
+      {showSettings && isAuthenticated && (
         <SettingsModal
           currentGender={gender}
           currentCustomGender={customGender}
