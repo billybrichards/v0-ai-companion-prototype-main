@@ -7,6 +7,7 @@ interface User {
   email: string
   displayName: string
   isAdmin: boolean
+  subscriptionStatus?: "subscribed" | "not_subscribed"
 }
 
 interface AuthContextType {
