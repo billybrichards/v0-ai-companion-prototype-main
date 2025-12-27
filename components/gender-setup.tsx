@@ -125,8 +125,7 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
-            Note: If you update preferences to keep your<br />
-            aexnisias perocnsected.
+            You can update preferences anytime in settings
           </p>
         </div>
       </Card>

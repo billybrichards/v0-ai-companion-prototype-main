@@ -73,7 +73,14 @@ The Anplexa logo is a stylized drop/flame shape with purple gradient, available 
 - SVG file: `public/anplexa-logo.svg`
 - React component: `components/anplexa-logo.tsx`
 
+## Guest/Freemium Flow
+- Users can try 2 free messages without logging in
+- Guest preferences and messages stored in localStorage
+- After 2nd message, auth modal prompts sign up
+- Guest data migrates to user account on login
+
 ## Recent Changes
+- December 27, 2025: Added guest freemium flow (2 free messages before login required)
 - December 27, 2025: Updated UI to match Anplexa design samples
   - Added custom SVG logo component
   - Redesigned login page with rounded cards and password toggle
