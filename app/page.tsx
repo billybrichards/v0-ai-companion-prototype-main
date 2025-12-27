@@ -31,7 +31,7 @@ export default function LandingPage() {
       </header>
 
       <main className="pt-20">
-        <section className="relative overflow-hidden px-6 py-24 md:py-32">
+        <section className="relative overflow-hidden px-6 py-16 md:py-20">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
           <div className="relative mx-auto max-w-4xl text-center">
             <h1 className="mb-6 font-heading text-4xl font-light leading-tight tracking-tight md:text-6xl lg:text-7xl">
@@ -67,7 +67,7 @@ export default function LandingPage() {
           <div className="absolute bottom-0 left-1/2 h-px w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </section>
 
-        <section className="px-6 py-16 md:py-24">
+        <section className="px-6 py-10 md:py-14">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-lg leading-relaxed text-muted-foreground md:text-xl">
               Anplexa is an AI companion you can talk to — by text or voice —
@@ -82,9 +82,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24 bg-card/30">
+        <section className="px-6 py-10 md:py-14 bg-card/30">
           <div className="mx-auto max-w-3xl">
-            <h2 className="mb-12 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
+            <h2 className="mb-8 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
               Why people use it
             </h2>
             <div className="space-y-4 text-center">
@@ -107,9 +107,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24">
+        <section className="px-6 py-10 md:py-14">
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
+            <h2 className="mb-8 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
               How it works
             </h2>
             <div className="grid gap-8 md:grid-cols-3">
@@ -148,12 +148,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24 bg-card/30">
+        <section className="px-6 py-10 md:py-14 bg-card/30">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--security)]/10">
-              <Shield className="h-8 w-8 text-[var(--security)]" />
+            <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[var(--security)]/10">
+              <Shield className="h-7 w-7 text-[var(--security)]" />
             </div>
-            <h2 className="mb-8 font-heading text-2xl font-light md:text-3xl">
+            <h2 className="mb-6 font-heading text-2xl font-light md:text-3xl">
               Private by design.
             </h2>
             <div className="flex flex-wrap justify-center gap-4">
@@ -173,13 +173,13 @@ export default function LandingPage() {
                 </span>
               ))}
             </div>
-            <p className="mt-8 text-lg text-muted-foreground">
+            <p className="mt-6 text-lg text-muted-foreground">
               What happens here, stays here.
             </p>
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24">
+        <section className="px-6 py-8 md:py-10">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-muted-foreground">
               Anplexa is open and adult.
@@ -190,9 +190,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24 bg-card/30">
+        <section className="px-6 py-10 md:py-14 bg-card/30">
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
+            <h2 className="mb-8 text-center font-heading text-2xl font-light text-muted-foreground md:text-3xl">
               Simple pricing
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
@@ -262,7 +262,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-24 md:py-32">
+        <section className="px-6 py-14 md:py-20">
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-2 text-xl text-muted-foreground md:text-2xl">
               You don't need to explain yourself here.
@@ -293,7 +293,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border/50 px-6 py-8">
+      <footer className="border-t border-border/50 px-6 py-6">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <div className="flex items-center gap-2">
             <AnplexaLogo size={20} />
