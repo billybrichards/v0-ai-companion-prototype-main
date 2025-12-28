@@ -42,22 +42,33 @@ async function getStripeClient() {
   })
 }
 
-async function validateToken(authHeader: string): Promise<{ valid: boolean; userId?: string }> {
+async function validateToken(authHeader: string): Promise<{ valid: boolean; userId?: string; error?: string }> {
   try {
     const backendApiKey = process.env.BACKEND_API_KEY
+    console.log("[Checkout] Validating token against backend:", API_BASE)
+    console.log("[Checkout] Has BACKEND_API_KEY:", !!backendApiKey)
+    
     const response = await fetch(`${API_BASE}/api/auth/validate`, {
       headers: { 
         Authorization: authHeader,
         ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
       },
     })
+    
+    console.log("[Checkout] Backend response status:", response.status)
+    
     if (response.ok) {
       const data = await response.json()
+      console.log("[Checkout] Token valid, userId:", data.user?.id)
       return { valid: true, userId: data.user?.id }
     }
-    return { valid: false }
-  } catch {
-    return { valid: false }
+    
+    const errorText = await response.text()
+    console.log("[Checkout] Token validation failed:", errorText)
+    return { valid: false, error: errorText }
+  } catch (err) {
+    console.error("[Checkout] Token validation error:", err)
+    return { valid: false, error: String(err) }
   }
 }
 
@@ -72,7 +83,8 @@ export async function POST(req: NextRequest) {
     
     const validation = await validateToken(authHeader)
     if (!validation.valid) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      console.error("[Checkout] Token validation failed:", validation.error)
+      return NextResponse.json({ error: "Invalid token", details: validation.error }, { status: 401 })
     }
     
     const validatedUserId = validation.userId || userId
