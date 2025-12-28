@@ -44,3 +44,4 @@ build = ["npm", "run", "build"]
 [userenv.shared]
 API_URL = "https://2-terminal-companion--billy130.replit.app"
 NEXT_PUBLIC_API_URL = "https://2-terminal-companion--billy130.replit.app"
+STRIPE_PRICE_ID = "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"

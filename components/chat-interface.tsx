@@ -45,7 +45,6 @@ interface ChatInterfaceProps {
   isGuest?: boolean
 }
 
-const STRIPE_PRICE_ID = "price_1RqRH7DaGKR8CULJkPTJhNBv"
 const FREE_MESSAGE_LIMIT = 2
 
 const guestResponses = [
@@ -283,7 +282,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          priceId: STRIPE_PRICE_ID,
           userId: user.id,
         }),
       })

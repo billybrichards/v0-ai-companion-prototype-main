@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
+const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
 
 async function getStripeClient() {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { priceId, userId } = await req.json()
+    const { userId } = await req.json()
     
     if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: priceId,
+          price: STRIPE_PRICE_ID,
           quantity: 1,
         },
       ],
