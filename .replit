@@ -45,3 +45,5 @@ build = ["npm", "run", "build"]
 API_URL = "https://2-terminal-companion--billy130.replit.app"
 NEXT_PUBLIC_API_URL = "https://2-terminal-companion--billy130.replit.app"
 STRIPE_PRICE_ID = "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
+NEXT_PUBLIC_POSTHOG_KEY = "phc_C1LjmUzqb8VUi8PjuRthqXYQSyiVmCQDdsSLncytqBA"
+NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com"
