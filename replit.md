@@ -106,6 +106,12 @@ The app includes a full account settings page at `/account` with GDPR compliance
 - **Security**: Requires authentication, confirmation dialog for deletion with "DELETE" text input
 
 ## Recent Changes
+- December 28, 2025: Security hardening
+  - Added security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
+  - Removed ignoreBuildErrors from next.config.mjs
+  - Added Zod schema validation to chat and privacy API routes
+  - Removed unused gender/customGender variables from chat route
+  - Added release notes section to landing page footer
 - December 28, 2025: Added GDPR-compliant account/settings page
   - Profile section showing user info and subscription status
   - Privacy settings with toggles for analytics, personalized AI, marketing emails
