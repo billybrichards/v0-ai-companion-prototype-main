@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown } from "lucide-react"
+import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 import { useAuth } from "@/lib/auth-context"
@@ -32,6 +32,8 @@ export default function LandingPage() {
     if (upgradeIntent) {
       router.push("/dash?upgrade=true")
       setUpgradeIntent(false)
+    } else {
+      router.push("/dash")
     }
   }
 
@@ -43,13 +45,26 @@ export default function LandingPage() {
             <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
             <span className="text-base sm:text-lg font-heading font-light tracking-wide lowercase">anplexa</span>
           </div>
-          <Button
-            variant="ghost"
-            onClick={() => setShowAuthModal(true)}
-            className="text-muted-foreground hover:text-foreground hover:bg-primary/10 h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target"
-          >
-            Sign in
-          </Button>
+          {user ? (
+            <Link href="/dash">
+              <Button
+                variant="ghost"
+                className="text-foreground hover:bg-primary/10 h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">{user.displayName || user.email?.split("@")[0] || "Dashboard"}</span>
+                <span className="sm:hidden">Dashboard</span>
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => setShowAuthModal(true)}
+              className="text-muted-foreground hover:text-foreground hover:bg-primary/10 h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target"
+            >
+              Sign in
+            </Button>
+          )}
         </div>
       </header>
 
