@@ -333,15 +333,28 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border/50 px-4 sm:px-6 py-4 sm:py-6 safe-bottom">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 sm:gap-4 md:flex-row">
-          <div className="flex items-center gap-2">
-            <AnplexaLogo size={18} className="sm:w-5 sm:h-5" />
-            <span className="text-xs sm:text-sm text-muted-foreground">anplexa</span>
+      <footer className="border-t border-border/50 px-4 sm:px-6 py-6 sm:py-8 safe-bottom">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col items-center justify-between gap-4 sm:gap-6 md:flex-row">
+            <div className="flex items-center gap-2">
+              <AnplexaLogo size={18} className="sm:w-5 sm:h-5" />
+              <span className="text-xs sm:text-sm text-muted-foreground">anplexa</span>
+            </div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              The Private Pulse. 18+ only.
+            </p>
           </div>
-          <p className="text-[10px] sm:text-xs text-muted-foreground">
-            The Private Pulse. 18+ only.
-          </p>
+          
+          <div className="mt-6 pt-6 border-t border-border/30">
+            <div className="text-center">
+              <p className="text-xs font-medium text-muted-foreground mb-3">Release Notes</p>
+              <div className="space-y-2 text-[10px] sm:text-xs text-muted-foreground/70">
+                <p><span className="text-primary">v1.2.0</span> - GDPR account settings, data export, privacy controls</p>
+                <p><span className="text-primary">v1.1.0</span> - Mobile-first responsive design, fluid typography</p>
+                <p><span className="text-primary">v1.0.0</span> - Launch with guest access, PRO subscriptions, streaming chat</p>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
 

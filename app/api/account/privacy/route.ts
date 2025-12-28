@@ -1,6 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 
 const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
+
+const PrivacySettingsSchema = z.object({
+  analyticsOptIn: z.boolean().optional(),
+  personalizedAi: z.boolean().optional(),
+  marketingEmails: z.boolean().optional(),
+})
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -9,7 +16,13 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    let body: z.infer<typeof PrivacySettingsSchema>
+    try {
+      const rawBody = await req.json()
+      body = PrivacySettingsSchema.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    }
     const backendApiKey = process.env.BACKEND_API_KEY
 
     const response = await fetch(`${API_BASE}/api/users/privacy`, {

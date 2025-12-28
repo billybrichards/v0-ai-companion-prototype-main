@@ -1,39 +1,45 @@
 import { type NextRequest } from "next/server"
+import { z } from "zod"
 
 export const maxDuration = 60
 
 const API_BASE = process.env.API_URL || "http://localhost:3001"
 
-type ResponsePreference = {
-  length: "brief" | "moderate" | "detailed"
-  style: "casual" | "thoughtful" | "creative"
-}
+const MessagePartSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+})
 
-type GenderOption = "male" | "female" | "non-binary" | "custom"
+const UIMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(["user", "assistant", "system"]),
+  parts: z.array(MessagePartSchema),
+})
 
-interface UIMessage {
-  id: string
-  role: "user" | "assistant" | "system"
-  parts: Array<{ type: string; text?: string }>
-}
+const ChatRequestSchema = z.object({
+  messages: z.array(UIMessageSchema),
+  preferences: z.object({
+    length: z.enum(["brief", "moderate", "detailed"]).optional(),
+    style: z.enum(["casual", "thoughtful", "creative"]).optional(),
+  }).optional(),
+})
 
 export async function POST(req: NextRequest) {
-  const {
-    messages,
-    preferences,
-    gender,
-    customGender,
-  }: {
-    messages: UIMessage[]
-    preferences: ResponsePreference
-    gender: GenderOption
-    customGender?: string
-  } = await req.json()
+  let body: z.infer<typeof ChatRequestSchema>
+  
+  try {
+    const rawBody = await req.json()
+    body = ChatRequestSchema.parse(rawBody)
+  } catch (error) {
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
+  
+  const { messages, preferences } = body
 
-  // Get auth token from request headers
   const authHeader = req.headers.get("authorization")
-
-  // Get the last user message
   const lastUserMessage = messages.filter((m) => m.role === "user").pop()
   const messageText = lastUserMessage?.parts.find((p) => p.type === "text")?.text || ""
 
