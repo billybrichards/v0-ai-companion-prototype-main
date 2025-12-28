@@ -37,25 +37,25 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border border-border bg-card p-8 rounded-3xl shadow-[var(--shadow-card)]">
-        <div className="mb-8 text-center">
-          <div className="mb-6 flex justify-center">
-            <AnplexaLogo size={64} className="animate-pulse-glow" />
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background p-3 sm:p-4 safe-top safe-bottom">
+      <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)]">
+        <div className="mb-5 sm:mb-6 md:mb-8 text-center">
+          <div className="mb-4 sm:mb-6 flex justify-center">
+            <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
           </div>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <AnplexaLogo size={24} />
-            <h1 className="text-2xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</h1>
+          <div className="flex items-center justify-center gap-2 mb-1.5 sm:mb-2">
+            <AnplexaLogo size={20} className="sm:w-6 sm:h-6" />
+            <h1 className="text-xl sm:text-2xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</h1>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Private AI Companion
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           {!isLogin && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Display Name</label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-muted-foreground">Display Name</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -63,14 +63,14 @@ export default function AuthForm() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
-                  className="border border-border bg-background pl-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                  className="border border-border bg-background pl-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Email</label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm font-medium text-muted-foreground">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -79,13 +79,13 @@ export default function AuthForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 required
-                className="border border-border bg-background pl-10 pr-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                className="border border-border bg-background pl-10 pr-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Password</label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm font-medium text-muted-foreground">Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -95,12 +95,12 @@ export default function AuthForm() {
                 placeholder="Password"
                 required
                 minLength={6}
-                className="border border-border bg-background pl-10 pr-10 rounded-xl h-12 focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                className="border border-border bg-background pl-10 pr-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 min-touch-target"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -108,16 +108,16 @@ export default function AuthForm() {
           </div>
 
           {error && (
-            <div className="rounded-xl border border-destructive bg-destructive/10 p-3">
-              <p className="text-sm text-destructive">{error}</p>
+            <div className="rounded-lg sm:rounded-xl border border-destructive bg-destructive/10 p-2.5 sm:p-3">
+              <p className="text-xs sm:text-sm text-destructive">{error}</p>
             </div>
           )}
 
-          <Button type="submit" className="w-full gradient-primary glow-hover rounded-xl h-12 text-base font-medium" disabled={isLoading}>
+          <Button type="submit" className="w-full gradient-primary glow-hover rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base font-medium min-touch-target" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                {isLogin ? "Signing in..." : "Creating account..."}
+                <span className="text-sm">{isLogin ? "Signing in..." : "Creating account..."}</span>
               </span>
             ) : (
               <span className="uppercase tracking-wider">{isLogin ? "Login" : "Create Account"}</span>
@@ -125,22 +125,22 @@ export default function AuthForm() {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 sm:mt-6 text-center">
           <button
             type="button"
             onClick={() => {
               setIsLogin(!isLogin)
               setError("")
             }}
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors py-2 min-touch-target"
           >
             {isLogin ? "Need an account? Register" : "Already have an account? Sign in"}
           </button>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-2 text-muted-foreground">
-          <Lock className="h-4 w-4" />
-          <p className="text-xs">
+        <div className="mt-5 sm:mt-6 md:mt-8 flex items-center justify-center gap-2 text-muted-foreground">
+          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <p className="text-[10px] sm:text-xs">
             Your data is encrypted and stored privately
           </p>
         </div>

@@ -44,7 +44,7 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
     { value: "male", label: "Male", icon: <MaleIcon /> },
     { value: "female", label: "Female", icon: <FemaleIcon /> },
     { value: "non-binary", label: "Non-Binary", icon: <NonBinaryIcon /> },
-    { value: "custom", label: "Custom/Edit", icon: <Pencil className="h-8 w-8" strokeWidth={1.5} /> },
+    { value: "custom", label: "Custom/Edit", icon: <Pencil className="h-6 w-6 sm:h-8 sm:w-8" strokeWidth={1.5} /> },
   ]
 
   const handleGenderSelect = (gender: GenderOption) => {
@@ -64,35 +64,35 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-lg border border-border bg-card p-8 rounded-3xl shadow-[var(--shadow-card)]">
-        <div className="space-y-8">
-          <div className="space-y-4 text-center">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-3 sm:px-4 py-6 safe-top safe-bottom">
+      <Card className="w-full max-w-lg border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)]">
+        <div className="space-y-5 sm:space-y-6 md:space-y-8">
+          <div className="space-y-3 sm:space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
-              <AnplexaLogo size={28} />
-              <span className="text-xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</span>
+              <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
+              <span className="text-lg sm:text-xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</span>
             </div>
             <div>
-              <h2 className="text-xl font-medium text-foreground">Select companion gender</h2>
-              <p className="text-muted-foreground">identity to begin</p>
+              <h2 className="text-lg sm:text-xl font-medium text-foreground">Select companion gender</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">identity to begin</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
             {genderOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleGenderSelect(option.value)}
-                className={`flex flex-col items-center justify-center gap-3 rounded-2xl border p-6 transition-all hover:border-primary/50 ${
+                className={`flex flex-col items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border p-4 sm:p-5 md:p-6 transition-all hover:border-primary/50 min-touch-target ${
                   selectedGender === option.value 
                     ? "border-primary bg-primary/10 shadow-[0_0_15px_rgba(123,44,191,0.3)]" 
                     : "border-border bg-secondary/50"
                 }`}
               >
-                <div className={`${selectedGender === option.value ? "text-primary" : "text-muted-foreground"}`}>
+                <div className={`${selectedGender === option.value ? "text-primary" : "text-muted-foreground"} [&_svg]:w-6 [&_svg]:h-6 sm:[&_svg]:w-8 sm:[&_svg]:h-8`}>
                   {option.icon}
                 </div>
-                <span className={`text-sm font-medium ${selectedGender === option.value ? "text-foreground" : "text-muted-foreground"}`}>
+                <span className={`text-xs sm:text-sm font-medium ${selectedGender === option.value ? "text-foreground" : "text-muted-foreground"}`}>
                   {option.label}
                 </span>
               </button>
@@ -101,7 +101,7 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
 
           {showCustomInput && (
             <div className="space-y-2">
-              <label htmlFor="custom-gender" className="text-sm font-medium text-foreground">
+              <label htmlFor="custom-gender" className="text-xs sm:text-sm font-medium text-foreground">
                 Specify custom gender identity
               </label>
               <input
@@ -110,7 +110,7 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
                 value={customGender}
                 onChange={(e) => setCustomGender(e.target.value)}
                 placeholder="Enter gender identity"
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)]"
+                className="w-full rounded-lg sm:rounded-xl border border-border bg-background px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
               />
             </div>
           )}
@@ -118,13 +118,13 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
           <Button
             onClick={handleContinue}
             disabled={!selectedGender || (selectedGender === "custom" && !customGender.trim())}
-            className="w-full gradient-primary glow-hover rounded-xl h-12 text-base font-medium uppercase tracking-wider"
+            className="w-full gradient-primary glow-hover rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base font-medium uppercase tracking-wider min-touch-target"
             size="lg"
           >
             Initialize
           </Button>
 
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
             You can update preferences anytime in settings
           </p>
         </div>

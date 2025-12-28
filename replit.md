@@ -80,7 +80,30 @@ The Anplexa logo is a stylized drop/flame shape with purple gradient, available 
 - After 2nd message, auth modal prompts sign up
 - Guest data migrates to user account on login
 
+## Responsive Design
+The app is fully responsive with mobile-first design:
+- **Fluid Typography**: Uses clamp() for text sizes that scale smoothly (text-fluid-xs to text-fluid-5xl)
+- **Mobile Breakpoints**: sm (640px), md (768px), lg (1024px)
+- **Safe Area Insets**: Proper padding for iPhone notch and home indicator
+- **Touch Targets**: Minimum 44px touch targets for accessibility
+- **Dynamic Viewport**: Uses 100dvh for proper mobile viewport handling
+- **Sticky Composer**: Chat input stays at bottom on mobile
+
+## Performance Optimizations
+- **Dynamic Imports**: ThemeCustomizer lazy-loaded with next/dynamic
+- **SSR Disabled**: For client-only components like theme settings
+- **Accessibility**: VisuallyHidden components for screen reader support in dialogs
+
 ## Recent Changes
+- December 28, 2025: Major responsive design overhaul
+  - Added fluid typography system with clamp() utilities
+  - Mobile-first layouts across all pages (landing, chat, auth, gender setup)
+  - Safe-area inset padding for iPhone notch support
+  - Sticky bottom composer in chat interface
+  - Touch-friendly buttons with 44px minimum targets
+  - Responsive spacing and padding across all components
+  - Dynamic imports for theme customizer (bundle optimization)
+  - Added accessibility improvements (VisuallyHidden for dialog titles)
 - December 27, 2025: Added landing page at root with hero, features, privacy, and pricing sections
 - December 27, 2025: Moved chat interface to `/dash` route
 - December 27, 2025: Added guest freemium flow (2 free messages before login required)
