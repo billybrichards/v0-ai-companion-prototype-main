@@ -93,6 +93,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       refreshSubscriptionStatus()
       window.history.replaceState({}, "", window.location.pathname)
     }
+    if (urlParams.get("upgrade") === "true") {
+      setShowUpgradeModal(true)
+      window.history.replaceState({}, "", window.location.pathname)
+    }
   }, [refreshSubscriptionStatus])
   const [input, setInput] = useState("")
   const [showWelcome, setShowWelcome] = useState(true)

@@ -8,7 +8,11 @@ import { Card } from "@/components/ui/card"
 import { Lock, Mail, User, Eye, EyeOff } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 
-export default function AuthForm() {
+interface AuthFormProps {
+  onSuccess?: () => void
+}
+
+export default function AuthForm({ onSuccess }: AuthFormProps) {
   const { login, register } = useAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
@@ -29,6 +33,7 @@ export default function AuthForm() {
       } else {
         await register(email, password, displayName || undefined)
       }
+      onSuccess?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed")
     } finally {

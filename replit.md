@@ -95,6 +95,11 @@ The app is fully responsive with mobile-first design:
 - **Accessibility**: VisuallyHidden components for screen reader support in dialogs
 
 ## Recent Changes
+- December 28, 2025: Go Pro flow improvement
+  - "Get Pro" button on landing page now opens login modal first for unauthenticated users
+  - After successful login/signup, automatically redirects to /dash?upgrade=true
+  - Chat interface detects ?upgrade=true query param and shows upgrade modal
+  - Logged-in users clicking "Get Pro" go directly to upgrade modal
 - December 28, 2025: Major responsive design overhaul
   - Added fluid typography system with clamp() utilities
   - Mobile-first layouts across all pages (landing, chat, auth, gender setup)

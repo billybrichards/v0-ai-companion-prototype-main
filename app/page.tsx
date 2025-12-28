@@ -1,17 +1,39 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Shield, MessageSquare, Mic, Sparkles, Check } from "lucide-react"
+import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LandingPage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [upgradeIntent, setUpgradeIntent] = useState(false)
+  const { user } = useAuth()
+  const router = useRouter()
+
+  const handleGoProClick = () => {
+    if (user) {
+      router.push("/dash?upgrade=true")
+    } else {
+      setUpgradeIntent(true)
+      setShowAuthModal(true)
+    }
+  }
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false)
+    if (upgradeIntent) {
+      router.push("/dash?upgrade=true")
+      setUpgradeIntent(false)
+    }
+  }
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
@@ -250,11 +272,13 @@ export default function LandingPage() {
                     Priority responses
                   </li>
                 </ul>
-                <Link href="/dash" className="block mt-4 sm:mt-6">
-                  <Button className="w-full rounded-lg gradient-primary glow-hover h-10 sm:h-11 text-sm min-touch-target">
-                    Get Pro
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={handleGoProClick}
+                  className="w-full mt-4 sm:mt-6 rounded-lg gradient-primary glow-hover h-10 sm:h-11 text-sm min-touch-target"
+                >
+                  <Crown className="mr-2 h-4 w-4" />
+                  Get Pro
+                </Button>
                 <p className="mt-2 sm:mt-3 text-center text-[10px] sm:text-xs text-muted-foreground">
                   Cancel anytime.
                 </p>
@@ -306,13 +330,16 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+      <Dialog open={showAuthModal} onOpenChange={(open) => {
+        setShowAuthModal(open)
+        if (!open) setUpgradeIntent(false)
+      }}>
         <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden">
           <VisuallyHidden>
-            <DialogTitle>Sign in to Anplexa</DialogTitle>
+            <DialogTitle>{upgradeIntent ? "Sign in to upgrade to Pro" : "Sign in to Anplexa"}</DialogTitle>
             <DialogDescription>Create an account or sign in to access your private AI companion.</DialogDescription>
           </VisuallyHidden>
-          <AuthForm />
+          <AuthForm onSuccess={handleAuthSuccess} />
         </DialogContent>
       </Dialog>
     </div>
