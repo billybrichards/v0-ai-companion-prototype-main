@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { sendDataExportEmail } from "@/lib/email"
 
 const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
 
@@ -10,6 +11,24 @@ export async function POST(req: NextRequest) {
     }
 
     const backendApiKey = process.env.BACKEND_API_KEY
+    let userEmail: string | null = null
+    let userName: string | null = null
+
+    try {
+      const validateResponse = await fetch(`${API_BASE}/api/auth/validate`, {
+        headers: {
+          Authorization: authHeader,
+          ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
+        },
+      })
+      if (validateResponse.ok) {
+        const userData = await validateResponse.json()
+        userEmail = userData.user?.email || userData.email
+        userName = userData.user?.name || userData.name
+      }
+    } catch {
+      console.log("[Export] Could not fetch user email for notification")
+    }
 
     const response = await fetch(`${API_BASE}/api/users/export`, {
       method: "POST",
@@ -35,6 +54,12 @@ export async function POST(req: NextRequest) {
           }
         }
         
+        if (userEmail) {
+          sendDataExportEmail(userEmail, userName || undefined).catch(err => {
+            console.error("[Export] Failed to send confirmation email:", err)
+          })
+        }
+        
         return new NextResponse(JSON.stringify(userData, null, 2), {
           status: 200,
           headers: {
@@ -48,6 +73,12 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json()
+    
+    if (userEmail) {
+      sendDataExportEmail(userEmail, userName || undefined).catch(err => {
+        console.error("[Export] Failed to send confirmation email:", err)
+      })
+    }
     
     return new NextResponse(JSON.stringify(data, null, 2), {
       status: 200,

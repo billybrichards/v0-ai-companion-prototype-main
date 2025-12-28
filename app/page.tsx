@@ -339,10 +339,12 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <AnplexaLogo size={18} className="sm:w-5 sm:h-5" />
               <span className="text-xs sm:text-sm text-muted-foreground">anplexa</span>
+              <span className="text-sm ml-1" title="Made in the UK">🇬🇧</span>
             </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">
-              The Private Pulse. 18+ only.
-            </p>
+            <div className="flex items-center gap-4 text-[10px] sm:text-xs text-muted-foreground">
+              <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            </div>
           </div>
           
           <div className="mt-6 pt-6 border-t border-border/30">
@@ -353,6 +355,9 @@ export default function LandingPage() {
                 <p><span className="text-primary">v1.1.0</span> - Mobile-first responsive design, fluid typography</p>
                 <p><span className="text-primary">v1.0.0</span> - Launch with guest access, PRO subscriptions, streaming chat</p>
               </div>
+              <p className="mt-6 text-[10px] sm:text-xs text-muted-foreground/50">
+                © 2025 Anplexa. All rights reserved. 18+ only.
+              </p>
             </div>
           </div>
         </div>

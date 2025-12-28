@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { sendSubscriptionConfirmationEmail } from "@/lib/email"
 
 const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
 
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session
       const userId = session.client_reference_id || session.metadata?.userId
+      const customerEmail = session.customer_email || session.customer_details?.email
 
       if (userId) {
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
@@ -59,6 +61,13 @@ export async function POST(req: NextRequest) {
           console.error("Failed to update subscription status:", await response.text())
         } else {
           console.log(`Subscription updated for user ${userId}`)
+          
+          if (customerEmail) {
+            const customerName = session.customer_details?.name
+            sendSubscriptionConfirmationEmail(customerEmail, customerName || undefined).catch(err => {
+              console.error("Failed to send subscription confirmation email:", err)
+            })
+          }
         }
       }
     }

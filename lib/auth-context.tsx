@@ -97,6 +97,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", data.accessToken)
     localStorage.setItem("refreshToken", data.refreshToken)
     localStorage.setItem("user", JSON.stringify(data.user))
+
+    fetch("/api/send-welcome-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, name: displayName }),
+    }).catch(err => {
+      console.error("Failed to send welcome email:", err)
+    })
   }
 
   const logout = () => {
