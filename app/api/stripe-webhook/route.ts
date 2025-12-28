@@ -3,45 +3,19 @@ import Stripe from "stripe"
 
 const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
 
-async function getStripeClient() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? "repl " + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-      ? "depl " + process.env.WEB_REPL_RENEWAL
-      : null
-
-  if (!xReplitToken || !hostname) {
-    throw new Error("Stripe credentials not available")
+function getStripeClient() {
+  const stripeSecret = process.env.STRIPE_SECRET
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  
+  if (!stripeSecret) {
+    throw new Error("STRIPE_SECRET not configured")
   }
-
-  const isProduction = process.env.REPLIT_DEPLOYMENT === "1"
-  const targetEnvironment = isProduction ? "production" : "development"
-
-  const url = new URL(`https://${hostname}/api/v2/connection`)
-  url.searchParams.set("include_secrets", "true")
-  url.searchParams.set("connector_names", "stripe")
-  url.searchParams.set("environment", targetEnvironment)
-
-  const response = await fetch(url.toString(), {
-    headers: {
-      Accept: "application/json",
-      X_REPLIT_TOKEN: xReplitToken,
-    },
-  })
-
-  const data = await response.json()
-  const connectionSettings = data.items?.[0]
-
-  if (!connectionSettings?.settings?.secret) {
-    throw new Error("Stripe connection not found")
-  }
-
+  
   return {
-    stripe: new Stripe(connectionSettings.settings.secret, {
+    stripe: new Stripe(stripeSecret, {
       apiVersion: "2025-12-15.clover",
     }),
-    webhookSecret: connectionSettings.settings.webhookSecret,
+    webhookSecret: webhookSecret || "",
   }
 }
 
@@ -54,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 })
     }
 
-    const { stripe, webhookSecret } = await getStripeClient()
+    const { stripe, webhookSecret } = getStripeClient()
 
     let event: Stripe.Event
     try {
