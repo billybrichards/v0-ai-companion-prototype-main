@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, Check, Sparkles, User } from "lucide-react"
+import Link from "next/link"
 import dynamic from "next/dynamic"
 const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
   ssr: false,
@@ -378,9 +379,11 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 <Button variant="ghost" size="icon" onClick={onOpenFeedback} className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target hidden sm:flex" title="Feedback">
                   <MessageSquare className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={onOpenSettings} className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target" title="Settings">
-                  <Settings className="h-4 w-4" />
-                </Button>
+                <Link href="/account">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target" title="Account Settings">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </Link>
                 {onLogout && (
                   <Button variant="ghost" size="icon" onClick={onLogout} className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target hidden sm:flex" title="Logout">
                     <LogOut className="h-4 w-4" />

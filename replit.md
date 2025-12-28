@@ -94,7 +94,25 @@ The app is fully responsive with mobile-first design:
 - **SSR Disabled**: For client-only components like theme settings
 - **Accessibility**: VisuallyHidden components for screen reader support in dialogs
 
+## GDPR Account Settings
+The app includes a full account settings page at `/account` with GDPR compliance:
+- **Profile Section**: View account info and subscription status
+- **Privacy Settings**: Toggle analytics, personalized AI, and marketing preferences
+- **Data Management**: Export personal data as JSON, delete account permanently
+- **API Routes**:
+  - POST `/api/account/export` - Download user data
+  - DELETE `/api/account/delete` - Permanently delete account
+  - GET/PATCH `/api/account/privacy` - Manage privacy settings
+- **Security**: Requires authentication, confirmation dialog for deletion with "DELETE" text input
+
 ## Recent Changes
+- December 28, 2025: Added GDPR-compliant account/settings page
+  - Profile section showing user info and subscription status
+  - Privacy settings with toggles for analytics, personalized AI, marketing emails
+  - Data export functionality (download as JSON)
+  - Account deletion with double confirmation
+  - Added switch and alert-dialog UI components
+  - Settings icon in chat header links to /account page
 - December 28, 2025: Go Pro flow improvement
   - "Get Pro" button on landing page now opens login modal first for unauthenticated users
   - After successful login/signup, automatically redirects to /dash?upgrade=true
