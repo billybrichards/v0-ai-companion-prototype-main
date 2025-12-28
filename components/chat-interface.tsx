@@ -313,7 +313,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     <div className="flex h-[100dvh] flex-col">
       <header className="border-b border-border bg-card px-3 sm:px-6 py-3 sm:py-4 safe-top shrink-0">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 min-w-0 hover:opacity-80 transition-opacity">
             <AnplexaLogo size={28} className="shrink-0 sm:w-8 sm:h-8" />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -330,7 +330,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 The Private Pulse • {getPronounText()}
               </p>
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {isGuest ? (
               <Button
