@@ -106,6 +106,10 @@ The app includes a full account settings page at `/account` with GDPR compliance
 - **Security**: Requires authentication, confirmation dialog for deletion with "DELETE" text input
 
 ## Recent Changes
+- December 28, 2025: Added PostHog analytics integration
+  - Installed posthog-js package
+  - Created instrumentation-client.js for Next.js 15.3+ initialization
+  - Environment variables: NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST
 - December 28, 2025: Security hardening
   - Added security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
   - Removed ignoreBuildErrors from next.config.mjs
