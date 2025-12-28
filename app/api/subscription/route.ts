@@ -9,9 +9,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const backendApiKey = process.env.BACKEND_API_KEY
     const response = await fetch(`${API_BASE}/api/user/billing`, {
       headers: {
         Authorization: authHeader,
+        ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
       },
     })
 

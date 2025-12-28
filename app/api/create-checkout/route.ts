@@ -44,8 +44,12 @@ async function getStripeClient() {
 
 async function validateToken(authHeader: string): Promise<{ valid: boolean; userId?: string }> {
   try {
+    const backendApiKey = process.env.BACKEND_API_KEY
     const response = await fetch(`${API_BASE}/api/auth/validate`, {
-      headers: { Authorization: authHeader },
+      headers: { 
+        Authorization: authHeader,
+        ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
+      },
     })
     if (response.ok) {
       const data = await response.json()

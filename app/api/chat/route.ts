@@ -38,11 +38,13 @@ export async function POST(req: NextRequest) {
   const messageText = lastUserMessage?.parts.find((p) => p.type === "text")?.text || ""
 
   // Call the backend chat endpoint
+  const backendApiKey = process.env.BACKEND_API_KEY
   const response = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(authHeader ? { Authorization: authHeader } : {}),
+      ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
     },
     body: JSON.stringify({
       message: messageText,

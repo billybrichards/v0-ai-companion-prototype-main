@@ -70,11 +70,13 @@ export async function POST(req: NextRequest) {
 
       if (userId) {
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
+        const backendApiKey = process.env.BACKEND_API_KEY
         const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-Webhook-Secret": webhookSecret,
+            ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
           },
           body: JSON.stringify({ userId, subscriptionStatus: "subscribed" }),
         })
@@ -93,11 +95,13 @@ export async function POST(req: NextRequest) {
 
       if (userId) {
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
+        const backendApiKey = process.env.BACKEND_API_KEY
         const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-Webhook-Secret": webhookSecret,
+            ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
           },
           body: JSON.stringify({ userId, subscriptionStatus: "not_subscribed" }),
         })
