@@ -116,7 +116,7 @@ The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
   - Account deletion confirmation (GDPR)
   - Password reset (template ready)
 - **Utility File**: `lib/email.ts` with all email functions
-- **Reply-to**: support@anplexa.com
+- **Reply-to**: support@updates.anplexa.com
 
 ## Legal Pages
 - `/terms` - Terms & Conditions page

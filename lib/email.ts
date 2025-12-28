@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.ANPLEXA_RESEND_API_KEY);
 
 const FROM_EMAIL = 'Anplexa <noreply@updates.anplexa.com>';
-const SUPPORT_EMAIL = 'support@anplexa.com';
+const SUPPORT_EMAIL = 'support@updates.anplexa.com';
 
 export async function sendWelcomeEmail(to: string, name?: string) {
   const displayName = name || 'there';
