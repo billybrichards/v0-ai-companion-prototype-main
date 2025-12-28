@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
 import ChatInterface from "@/components/chat-interface"
+import AnplexaLogo from "@/components/anplexa-logo"
 import GenderSetup from "@/components/gender-setup"
 import SettingsModal from "@/components/settings-modal"
 import FeedbackModal from "@/components/feedback-modal"
@@ -122,10 +123,28 @@ export default function DashPage() {
 
   if (authLoading || isLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <div className="text-muted-foreground">Initializing...</div>
+      <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="absolute inset-0 blur-2xl opacity-60 animate-pulse">
+              <div className="h-20 w-20 rounded-full bg-primary" />
+            </div>
+            <div className="relative animate-[pulse_2s_ease-in-out_infinite]">
+              <AnplexaLogo size={80} className="drop-shadow-[0_0_20px_rgba(123,44,191,0.8)]" />
+            </div>
+            <div className="absolute -inset-4 rounded-full border-2 border-primary/30 animate-[ping_2s_ease-in-out_infinite]" />
+            <div className="absolute -inset-8 rounded-full border border-primary/20 animate-[ping_2s_ease-in-out_infinite_0.5s]" />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-xl font-heading font-light tracking-widest text-foreground lowercase animate-pulse">
+              anplexa
+            </span>
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-primary animate-[bounce_1s_ease-in-out_infinite]" />
+              <div className="h-2 w-2 rounded-full bg-primary animate-[bounce_1s_ease-in-out_infinite_0.2s]" />
+              <div className="h-2 w-2 rounded-full bg-primary animate-[bounce_1s_ease-in-out_infinite_0.4s]" />
+            </div>
+          </div>
         </div>
       </main>
     )
