@@ -105,7 +105,32 @@ The app includes a full account settings page at `/account` with GDPR compliance
   - GET/PATCH `/api/account/privacy` - Manage privacy settings
 - **Security**: Requires authentication, confirmation dialog for deletion with "DELETE" text input
 
+## Email Integration (Resend)
+The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
+- **Sending Domain**: updates.anplexa.com
+- **From Address**: noreply@updates.anplexa.com
+- **Email Types**:
+  - Welcome email (sent after user registration)
+  - PRO subscription confirmation (sent after Stripe checkout)
+  - Data export confirmation (GDPR)
+  - Account deletion confirmation (GDPR)
+  - Password reset (template ready)
+- **Utility File**: `lib/email.ts` with all email functions
+- **Reply-to**: support@anplexa.com
+
+## Legal Pages
+- `/terms` - Terms & Conditions page
+- `/privacy` - Privacy Policy page (GDPR compliant)
+- Footer includes links to both pages, UK flag, and © 2025 Anplexa
+
 ## Recent Changes
+- December 28, 2025: Added Resend email integration
+  - Welcome emails on user signup
+  - PRO subscription confirmation emails
+  - GDPR data export/deletion confirmation emails
+  - Created lib/email.ts with all email templates
+  - Added Terms & Conditions and Privacy Policy pages
+  - Updated footer with legal links, copyright, and UK flag
 - December 28, 2025: Added PostHog analytics integration
   - Installed posthog-js package
   - Created instrumentation-client.js for Next.js 15.3+ initialization
