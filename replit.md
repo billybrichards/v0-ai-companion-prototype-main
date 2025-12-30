@@ -124,6 +124,14 @@ The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
 - Footer includes links to both pages, UK flag, and © 2025 Anplexa
 
 ## Recent Changes
+- December 30, 2025: Mobile UI improvements
+  - Redesigned onboarding flow with 2-step name + gender selection
+  - Added chat name preference synced to backend via PUT /api/auth/chat-name
+  - Added gender preference synced to backend via PUT /api/auth/gender
+  - Added New Chat button (+) in header to start fresh conversations
+  - Added AI avatar (Anplexa logo) next to assistant messages
+  - Simplified mobile header by hiding some icons on small screens
+  - Improved message bubble styling with avatar positioning
 - December 28, 2025: Added Resend email integration
   - Welcome emails on user signup
   - PRO subscription confirmation emails

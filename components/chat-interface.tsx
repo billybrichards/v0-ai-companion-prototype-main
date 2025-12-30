@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, Check, Sparkles, User } from "lucide-react"
+import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, Check, Sparkles, User, Plus } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
@@ -41,6 +41,7 @@ interface ChatInterfaceProps {
   onOpenSettings: () => void
   onOpenFeedback: () => void
   onLogout?: () => void
+  onNewChat?: () => void
   userName?: string
   isGuest?: boolean
 }
@@ -52,7 +53,7 @@ const guestResponses = [
   "That's really interesting! I appreciate you sharing that with me. I'm here to listen and connect with you on a deeper level. Tell me more about what brings you here today.",
 ]
 
-export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, userName, isGuest = false }: ChatInterfaceProps) {
+export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
   const [isSubscribing, setIsSubscribing] = useState(false)
@@ -363,11 +364,22 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 )}
               </>
             )}
+            {onNewChat && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onNewChat}
+                className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target"
+                title="New Chat"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowThemeCustomizer(!showThemeCustomizer)}
-              className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target"
+              className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target hidden sm:flex"
               title="Theme"
             >
               <Palette className="h-4 w-4" />
@@ -422,9 +434,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
           {/* Render guest messages */}
           {isGuest && guestMessages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+              {message.role === "assistant" && (
+                <div className="shrink-0 mt-1">
+                  <AnplexaLogo size={24} className="drop-shadow-[0_0_6px_rgba(123,44,191,0.4)]" />
+                </div>
+              )}
               <div
-                className={`max-w-[90%] sm:max-w-[85%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
+                className={`max-w-[85%] sm:max-w-[80%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                   message.role === "user"
                     ? "bg-secondary text-muted-foreground"
                     : "bg-muted border-l-[3px] border-l-primary text-foreground"
@@ -437,9 +454,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
           {/* Render authenticated messages */}
           {!isGuest && messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+              {message.role === "assistant" && (
+                <div className="shrink-0 mt-1">
+                  <AnplexaLogo size={24} className="drop-shadow-[0_0_6px_rgba(123,44,191,0.4)]" />
+                </div>
+              )}
               <div
-                className={`max-w-[90%] sm:max-w-[85%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
+                className={`max-w-[85%] sm:max-w-[80%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                   message.role === "user"
                     ? "bg-secondary text-muted-foreground"
                     : "bg-muted border-l-[3px] border-l-primary text-foreground"
@@ -464,8 +486,11 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
           {!isGuest && status === "streaming" && messages.length > 0 && messages[messages.length - 1].role === "assistant" && 
            messages[messages.length - 1].parts.every(p => p.type !== "text" || !p.text) && (
-            <div className="flex justify-start">
-              <div className="max-w-[90%] sm:max-w-[85%] rounded-xl sm:rounded-2xl bg-muted border-l-[3px] border-l-primary px-3 sm:px-4 py-2.5 sm:py-3">
+            <div className="flex justify-start gap-2">
+              <div className="shrink-0 mt-1">
+                <AnplexaLogo size={24} className="drop-shadow-[0_0_6px_rgba(123,44,191,0.4)] animate-pulse" />
+              </div>
+              <div className="max-w-[85%] sm:max-w-[80%] rounded-xl sm:rounded-2xl bg-muted border-l-[3px] border-l-primary px-3 sm:px-4 py-2.5 sm:py-3">
                 <div className="flex gap-1.5">
                   <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
                   <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />

@@ -3,13 +3,13 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Pencil } from "lucide-react"
+import { Pencil, ArrowRight, ArrowLeft } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 
 interface GenderSetupProps {
-  onComplete: (gender: GenderOption, customGender?: string) => void
+  onComplete: (gender: GenderOption, customGender?: string, chatName?: string) => void
 }
 
 const MaleIcon = () => (
@@ -36,6 +36,8 @@ const NonBinaryIcon = () => (
 )
 
 export default function GenderSetup({ onComplete }: GenderSetupProps) {
+  const [step, setStep] = useState<1 | 2>(1)
+  const [chatName, setChatName] = useState("")
   const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null)
   const [customGender, setCustomGender] = useState("")
   const [showCustomInput, setShowCustomInput] = useState(false)
@@ -60,74 +62,146 @@ export default function GenderSetup({ onComplete }: GenderSetupProps) {
   const handleContinue = () => {
     if (!selectedGender) return
     if (selectedGender === "custom" && !customGender.trim()) return
-    onComplete(selectedGender, selectedGender === "custom" ? customGender : undefined)
+    onComplete(
+      selectedGender, 
+      selectedGender === "custom" ? customGender : undefined,
+      chatName.trim() || undefined
+    )
+  }
+
+  const handleNextStep = () => {
+    setStep(2)
   }
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-background px-3 sm:px-4 py-6 safe-top safe-bottom">
       <Card className="w-full max-w-lg border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)]">
-        <div className="space-y-5 sm:space-y-6 md:space-y-8">
-          <div className="space-y-3 sm:space-y-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
-              <span className="text-lg sm:text-xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</span>
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-medium text-foreground">Select companion gender</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">identity to begin</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-            {genderOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleGenderSelect(option.value)}
-                className={`flex flex-col items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border p-4 sm:p-5 md:p-6 transition-all hover:border-primary/50 min-touch-target ${
-                  selectedGender === option.value 
-                    ? "border-primary bg-primary/10 shadow-[0_0_15px_rgba(123,44,191,0.3)]" 
-                    : "border-border bg-secondary/50"
-                }`}
-              >
-                <div className={`${selectedGender === option.value ? "text-primary" : "text-muted-foreground"} [&_svg]:w-6 [&_svg]:h-6 sm:[&_svg]:w-8 sm:[&_svg]:h-8`}>
-                  {option.icon}
+        {step === 1 ? (
+          <div className="space-y-5 sm:space-y-6 md:space-y-8 animate-in fade-in duration-300">
+            <div className="space-y-4 sm:space-y-6 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative">
+                  <div className="absolute inset-0 blur-xl opacity-40">
+                    <div className="h-12 w-12 rounded-full bg-primary" />
+                  </div>
+                  <AnplexaLogo size={48} className="relative drop-shadow-[0_0_12px_rgba(123,44,191,0.6)]" />
                 </div>
-                <span className={`text-xs sm:text-sm font-medium ${selectedGender === option.value ? "text-foreground" : "text-muted-foreground"}`}>
-                  {option.label}
-                </span>
-              </button>
-            ))}
-          </div>
+                <span className="text-xl sm:text-2xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</span>
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-medium text-foreground">What should I call you?</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1">A name, nickname, or nothing at all</p>
+              </div>
+            </div>
 
-          {showCustomInput && (
             <div className="space-y-2">
-              <label htmlFor="custom-gender" className="text-xs sm:text-sm font-medium text-foreground">
-                Specify custom gender identity
-              </label>
               <input
-                id="custom-gender"
                 type="text"
-                value={customGender}
-                onChange={(e) => setCustomGender(e.target.value)}
-                placeholder="Enter gender identity"
-                className="w-full rounded-lg sm:rounded-xl border border-border bg-background px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
+                value={chatName}
+                onChange={(e) => setChatName(e.target.value)}
+                placeholder="Enter your name (optional)"
+                autoFocus
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 sm:py-4 text-base sm:text-lg text-center text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_12px_rgba(123,44,191,0.3)] transition-all"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleNextStep()
+                  }
+                }}
               />
             </div>
-          )}
 
-          <Button
-            onClick={handleContinue}
-            disabled={!selectedGender || (selectedGender === "custom" && !customGender.trim())}
-            className="w-full gradient-primary glow-hover rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base font-medium uppercase tracking-wider min-touch-target"
-            size="lg"
-          >
-            Initialize
-          </Button>
+            <Button
+              onClick={handleNextStep}
+              className="w-full gradient-primary glow-hover rounded-xl h-12 sm:h-14 text-sm sm:text-base font-medium min-touch-target group"
+              size="lg"
+            >
+              <span>Continue</span>
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
 
-          <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
-            You can update preferences anytime in settings
-          </p>
-        </div>
+            <div className="flex justify-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary" />
+              <div className="h-2 w-2 rounded-full bg-border" />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-5 sm:space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="space-y-3 sm:space-y-4 text-center">
+              <button 
+                onClick={() => setStep(1)}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+              <div className="flex items-center justify-center gap-2">
+                <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
+                <span className="text-lg sm:text-xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</span>
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-medium text-foreground">
+                  {chatName.trim() ? `Hi ${chatName.trim()}!` : "Almost there!"}
+                </h2>
+                <p className="text-sm sm:text-base text-muted-foreground">Select companion gender</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              {genderOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleGenderSelect(option.value)}
+                  className={`flex flex-col items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border p-4 sm:p-5 md:p-6 transition-all hover:border-primary/50 min-touch-target ${
+                    selectedGender === option.value 
+                      ? "border-primary bg-primary/10 shadow-[0_0_15px_rgba(123,44,191,0.3)]" 
+                      : "border-border bg-secondary/50"
+                  }`}
+                >
+                  <div className={`${selectedGender === option.value ? "text-primary" : "text-muted-foreground"} [&_svg]:w-6 [&_svg]:h-6 sm:[&_svg]:w-8 sm:[&_svg]:h-8`}>
+                    {option.icon}
+                  </div>
+                  <span className={`text-xs sm:text-sm font-medium ${selectedGender === option.value ? "text-foreground" : "text-muted-foreground"}`}>
+                    {option.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {showCustomInput && (
+              <div className="space-y-2 animate-in fade-in duration-200">
+                <label htmlFor="custom-gender" className="text-xs sm:text-sm font-medium text-foreground">
+                  Specify custom gender identity
+                </label>
+                <input
+                  id="custom-gender"
+                  type="text"
+                  value={customGender}
+                  onChange={(e) => setCustomGender(e.target.value)}
+                  placeholder="Enter gender identity"
+                  className="w-full rounded-lg sm:rounded-xl border border-border bg-background px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
+                />
+              </div>
+            )}
+
+            <Button
+              onClick={handleContinue}
+              disabled={!selectedGender || (selectedGender === "custom" && !customGender.trim())}
+              className="w-full gradient-primary glow-hover rounded-xl h-12 sm:h-14 text-sm sm:text-base font-medium uppercase tracking-wider min-touch-target"
+              size="lg"
+            >
+              Start Chatting
+            </Button>
+
+            <div className="flex justify-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary/50" />
+              <div className="h-2 w-2 rounded-full bg-primary" />
+            </div>
+
+            <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
+              You can update preferences anytime in settings
+            </p>
+          </div>
+        )}
       </Card>
     </div>
   )
