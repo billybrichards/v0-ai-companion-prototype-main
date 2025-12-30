@@ -174,29 +174,42 @@ export default function LandingPage() {
                   title: "Open Anplexa",
                   description: "No account needed to start.",
                   icon: Sparkles,
+                  image: "/images/how-it-works-1.png",
                 },
                 {
                   step: "2",
                   title: "Choose a presence",
                   description: "Friend, lover, muse, or something unnamed.",
                   icon: MessageSquare,
+                  image: "/images/how-it-works-2.png",
                 },
                 {
                   step: "3",
                   title: "Talk — or listen",
                   description: "Text or voice. Slow or intense. You decide.",
                   icon: Mic,
+                  image: "/images/how-it-works-3.png",
                 },
               ].map((item) => (
                 <Card
                   key={item.step}
-                  className="border-border/50 bg-card/50 p-4 sm:p-6 text-center rounded-xl sm:rounded-2xl"
+                  className="border-border/50 bg-card/50 overflow-hidden rounded-xl sm:rounded-2xl group hover:border-primary/50 transition-all duration-300"
                 >
-                  <div className="mb-3 sm:mb-4 inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <item.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <div className="relative h-32 sm:h-40 overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary">
+                      <item.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                    </div>
                   </div>
-                  <h3 className="mb-1.5 sm:mb-2 font-heading text-base sm:text-lg font-medium">{item.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
+                  <div className="p-4 sm:p-5 text-center">
+                    <h3 className="mb-1.5 sm:mb-2 font-heading text-base sm:text-lg font-medium">{item.title}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
+                  </div>
                 </Card>
               ))}
             </div>
