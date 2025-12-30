@@ -123,7 +123,21 @@ The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
 - `/privacy` - Privacy Policy page (GDPR compliant)
 - Footer includes links to both pages, UK flag, and © 2025 Anplexa
 
+## Funnel Query String Handling
+The app handles incoming traffic from marketing funnels with query parameters:
+- **URL Format**: `/dash?email=user@example.com&Funnel=QuietlyLonely&subscription=unlimited`
+- **Flow**:
+  1. Check if email exists in backend via `/api/check-email`
+  2. If user exists WITH password → Show login form (prefilled email)
+  3. If user exists WITHOUT password → Show signup form (prefilled email)
+  4. If user doesn't exist → Proceed directly to /dash
+
 ## Recent Changes
+- December 30, 2025: Funnel query string routing
+  - Added /api/check-email endpoint to verify user status
+  - Dash page now detects email/Funnel/subscription query params
+  - Routes users to appropriate auth flow based on DB status
+  - AuthForm supports prefillEmail and defaultMode props
 - December 30, 2025: Mobile UI improvements
   - Redesigned onboarding flow with 2-step name + gender selection
   - Added chat name preference synced to backend via PUT /api/auth/chat-name

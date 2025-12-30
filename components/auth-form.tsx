@@ -10,12 +10,14 @@ import AnplexaLogo from "@/components/anplexa-logo"
 
 interface AuthFormProps {
   onSuccess?: () => void
+  defaultMode?: "login" | "signup"
+  prefillEmail?: string
 }
 
-export default function AuthForm({ onSuccess }: AuthFormProps) {
+export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthFormProps) {
   const { login, register } = useAuth()
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState("")
+  const [isLogin, setIsLogin] = useState(defaultMode !== "signup")
+  const [email, setEmail] = useState(prefillEmail || "")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [error, setError] = useState("")
