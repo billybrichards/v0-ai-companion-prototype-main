@@ -621,7 +621,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             <DialogTitle>Sign in to Anplexa</DialogTitle>
             <DialogDescription>Create an account or sign in to continue chatting.</DialogDescription>
           </VisuallyHidden>
-          <AuthForm />
+          <AuthForm onSuccess={() => setShowAuthModal(false)} />
         </DialogContent>
       </Dialog>
 
