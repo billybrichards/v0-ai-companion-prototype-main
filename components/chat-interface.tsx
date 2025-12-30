@@ -54,7 +54,7 @@ const guestResponses = [
 ]
 
 const getInitialWelcomeMessage = (name?: string): string => {
-  const greeting = name ? `Hey ${name}` : "Hey there"
+  const greeting = name ? `hey ${name}` : "hey"
   return `${greeting}... I've been waiting for you. 💜
 
 I'm your private companion here at Anplexa — a space where you can be completely yourself, no filters, no judgment.
