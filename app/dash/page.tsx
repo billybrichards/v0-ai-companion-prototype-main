@@ -33,40 +33,58 @@ function DashContent() {
   const [funnelChecked, setFunnelChecked] = useState(false)
 
   useEffect(() => {
-    const checkFunnelEmail = async () => {
+    const checkFunnelParams = async () => {
       const email = searchParams.get("email")
-      const funnel = searchParams.get("Funnel")
+      const uid = searchParams.get("uid")
       
-      if (!email || isAuthenticated) {
+      if (isAuthenticated) {
         setFunnelChecked(true)
         return
       }
 
-      setFunnelEmail(email)
-
-      try {
-        const response = await fetch("/api/check-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        })
-        
-        const data = await response.json()
-
-        if (data.exists && data.hasPassword) {
-          setFunnelAuthMode("login")
-        } else if (data.exists && !data.hasPassword) {
-          setFunnelAuthMode("signup")
+      if (email) {
+        setFunnelEmail(email)
+        try {
+          const response = await fetch("/api/check-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          })
+          const data = await response.json()
+          if (data.exists && data.hasPassword) {
+            setFunnelAuthMode("login")
+          } else if (data.exists && !data.hasPassword) {
+            setFunnelAuthMode("signup")
+          }
+        } catch (error) {
+          console.error("Failed to check funnel email:", error)
         }
-      } catch (error) {
-        console.error("Failed to check funnel email:", error)
+      } else if (uid) {
+        try {
+          const response = await fetch("/api/check-uid", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid }),
+          })
+          const data = await response.json()
+          if (data.exists && data.email) {
+            setFunnelEmail(data.email)
+            if (data.hasPassword) {
+              setFunnelAuthMode("login")
+            } else {
+              setFunnelAuthMode("signup")
+            }
+          }
+        } catch (error) {
+          console.error("Failed to check funnel uid:", error)
+        }
       }
       
       setFunnelChecked(true)
     }
 
     if (!authLoading) {
-      checkFunnelEmail()
+      checkFunnelParams()
     }
   }, [searchParams, authLoading, isAuthenticated])
 

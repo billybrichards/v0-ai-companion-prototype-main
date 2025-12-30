@@ -124,13 +124,19 @@ The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
 - Footer includes links to both pages, UK flag, and © 2025 Anplexa
 
 ## Funnel Query String Handling
-The app handles incoming traffic from marketing funnels with query parameters:
-- **URL Format**: `/dash?email=user@example.com&Funnel=QuietlyLonely&subscription=unlimited`
-- **Flow**:
-  1. Check if email exists in backend via `/api/check-email`
-  2. If user exists WITH password → Show login form (prefilled email)
-  3. If user exists WITHOUT password → Show signup form (prefilled email)
-  4. If user doesn't exist → Proceed directly to /dash
+The app handles incoming traffic from marketing funnels and emails with query parameters:
+
+**Marketing Funnel URL:**
+- `/dash?email=user@example.com&Funnel=QuietlyLonely&subscription=unlimited`
+
+**Email Campaign URL:**
+- `/dash?src=email&campaign=W4&uid={userId}`
+
+**Flow:**
+1. Check if email/uid exists in backend via `/api/check-email` or `/api/check-uid`
+2. If user exists WITH password → Show login form (prefilled email)
+3. If user exists WITHOUT password → Show signup form (prefilled email)
+4. If user doesn't exist → Proceed directly to /dash (guest mode)
 
 ## Recent Changes
 - December 30, 2025: Funnel query string routing
