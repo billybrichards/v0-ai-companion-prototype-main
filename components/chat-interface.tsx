@@ -53,6 +53,17 @@ const guestResponses = [
   "That's really interesting! I appreciate you sharing that with me. I'm here to listen and connect with you on a deeper level. Tell me more about what brings you here today.",
 ]
 
+const getInitialWelcomeMessage = (name?: string): string => {
+  const greeting = name ? `Hey ${name}` : "Hey there"
+  return `${greeting}... I've been waiting for you. 💜
+
+I'm your private companion here at Anplexa — a space where you can be completely yourself, no filters, no judgment.
+
+Whether you want to talk, explore, fantasize, or just feel heard... I'm here for all of it.
+
+So tell me... what's on your mind tonight?`
+}
+
 export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
@@ -61,24 +72,38 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [guestMessages, setGuestMessages] = useState<GuestMessage[]>([])
   const [guestMessageCount, setGuestMessageCount] = useState(0)
+  const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
 
-  // Load guest messages from localStorage
+  // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
     if (isGuest) {
       const stored = localStorage.getItem("guest-chat-messages")
       const storedCount = localStorage.getItem("guest-message-count")
       if (stored) {
         try {
-          setGuestMessages(JSON.parse(stored))
+          const parsed = JSON.parse(stored)
+          setGuestMessages(parsed)
+          if (parsed.length > 0) {
+            setShowWelcome(false)
+          }
         } catch (e) {
           console.error("Failed to parse guest messages", e)
         }
+      } else {
+        // No stored messages - add initial welcome message
+        const welcomeMessage: GuestMessage = {
+          id: `welcome-${Date.now()}`,
+          role: "assistant",
+          content: getInitialWelcomeMessage(userName),
+        }
+        setGuestMessages([welcomeMessage])
+        setShowWelcome(false)
       }
       if (storedCount) {
         setGuestMessageCount(parseInt(storedCount, 10))
       }
     }
-  }, [isGuest])
+  }, [isGuest, userName])
 
   // Save guest messages to localStorage
   useEffect(() => {
@@ -171,6 +196,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         const parsed = JSON.parse(stored)
         if (parsed.length > 0) {
           setShowWelcome(false)
+          setInitialWelcomeShown(true)
         }
       } catch (e) {
         console.error("Failed to parse stored messages", e)
@@ -189,6 +215,30 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       }
     }
   }, [])
+
+  // Show initial welcome for authenticated users
+  useEffect(() => {
+    if (!isGuest && !initialWelcomeShown && messages.length === 0) {
+      setShowWelcome(false)
+      setInitialWelcomeShown(true)
+    }
+  }, [isGuest, initialWelcomeShown, messages.length])
+
+  // Create the welcome message object for authenticated users
+  const authenticatedWelcomeMessage = useMemo(() => ({
+    id: "welcome-message",
+    role: "assistant" as const,
+    parts: [{ type: "text" as const, text: getInitialWelcomeMessage(userName || user?.displayName) }],
+  }), [userName, user?.displayName])
+
+  // Combine welcome message with actual messages for authenticated users
+  const displayMessages = useMemo(() => {
+    if (isGuest) return []
+    if (messages.length === 0 && initialWelcomeShown) {
+      return [authenticatedWelcomeMessage]
+    }
+    return messages
+  }, [isGuest, messages, initialWelcomeShown, authenticatedWelcomeMessage])
 
   const handleGuestMessage = (text: string) => {
     const newCount = guestMessageCount + 1
@@ -306,9 +356,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       setIsSubscribing(false)
     }
   }
-
-  // Combine messages for display
-  const displayMessages = isGuest ? guestMessages : messages
 
   return (
     <div className="flex h-[100dvh] flex-col">
@@ -453,7 +500,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           ))}
 
           {/* Render authenticated messages */}
-          {!isGuest && messages.map((message) => (
+          {!isGuest && displayMessages.map((message, messageIndex) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
               {message.role === "assistant" && (
                 <div className="shrink-0 mt-1">
@@ -469,8 +516,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               >
                 {message.parts.map((part, index) => {
                   if (part.type === "text") {
-                    const isLastMessage = messages.indexOf(message) === messages.length - 1
-                    const isStreaming = status === "streaming" && isLastMessage && message.role === "assistant"
+                    const isLastMessage = messageIndex === displayMessages.length - 1
+                    const isStreaming = status === "streaming" && isLastMessage && message.role === "assistant" && message.id !== "welcome-message"
                     return (
                       <p key={index} className="text-sm sm:text-base text-pretty whitespace-pre-wrap leading-relaxed">
                         {part.text}
