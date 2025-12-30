@@ -57,13 +57,21 @@ export default function LandingPage() {
               </Button>
             </Link>
           ) : (
-            <Button
-              variant="ghost"
-              onClick={() => setShowAuthModal(true)}
-              className="text-muted-foreground hover:text-foreground hover:bg-primary/10 h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target"
-            >
-              Sign in
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setShowAuthModal(true)}
+                className="text-muted-foreground hover:text-foreground hover:bg-primary/10 h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target"
+              >
+                Sign in
+              </Button>
+              <Button
+                onClick={() => setShowAuthModal(true)}
+                className="gradient-primary glow-hover h-9 sm:h-10 px-3 sm:px-4 text-sm min-touch-target rounded-full"
+              >
+                Create account
+              </Button>
+            </div>
           )}
         </div>
       </header>
