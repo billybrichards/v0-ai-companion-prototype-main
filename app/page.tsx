@@ -94,12 +94,21 @@ export default function LandingPage() {
               <p className="text-xs sm:text-sm text-muted-foreground">No login required</p>
             </div>
 
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="mt-4 sm:mt-6 text-xs sm:text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors min-touch-target py-2"
-            >
-              Sign in
-            </button>
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="text-xs sm:text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors min-touch-target py-2"
+              >
+                Sign in
+              </button>
+              <span className="text-muted-foreground/50">•</span>
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="text-xs sm:text-sm text-primary underline-offset-4 hover:underline transition-colors min-touch-target py-2 font-medium"
+              >
+                Create account
+              </button>
+            </div>
           </div>
 
           <div className="absolute bottom-0 left-1/2 h-px w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
