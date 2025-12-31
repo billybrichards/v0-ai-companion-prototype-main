@@ -449,7 +449,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                   </Button>
                 </Link>
                 {onLogout && (
-                  <Button variant="ghost" size="icon" onClick={onLogout} className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target hidden sm:flex" title="Logout">
+                  <Button variant="ghost" size="icon" onClick={onLogout} className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:text-primary min-touch-target" title="Sign Out">
                     <LogOut className="h-4 w-4" />
                   </Button>
                 )}
