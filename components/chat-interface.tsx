@@ -232,13 +232,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   }), [userName, user?.displayName])
 
   // Combine welcome message with actual messages for authenticated users
+  // Always prepend welcome message to new conversations
   const displayMessages = useMemo(() => {
     if (isGuest) return []
-    if (messages.length === 0 && initialWelcomeShown) {
+    if (messages.length === 0) {
       return [authenticatedWelcomeMessage]
     }
-    return messages
-  }, [isGuest, messages, initialWelcomeShown, authenticatedWelcomeMessage])
+    return [authenticatedWelcomeMessage, ...messages]
+  }, [isGuest, messages, authenticatedWelcomeMessage])
 
   const handleGuestMessage = (text: string) => {
     const newCount = guestMessageCount + 1
