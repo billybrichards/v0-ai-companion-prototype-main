@@ -340,6 +340,7 @@ function DashContent() {
       )}
       <ChatInterface
         key={conversationKey}
+        chatId={`chat-${conversationKey}`}
         gender={gender}
         customGender={customGender}
         onOpenSettings={() => setShowSettings(true)}

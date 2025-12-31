@@ -44,6 +44,7 @@ interface ChatInterfaceProps {
   onNewChat?: () => void
   userName?: string
   isGuest?: boolean
+  chatId?: string
 }
 
 const FREE_MESSAGE_LIMIT = 2
@@ -64,7 +65,7 @@ Whether you want to talk, explore, fantasize, or just feel heard... I'm here for
 So tell me... what's on your mind tonight?`
 }
 
-export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false }: ChatInterfaceProps) {
+export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
   const [isSubscribing, setIsSubscribing] = useState(false)
@@ -138,6 +139,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const genderRef = useRef(gender)
   const customGenderRef = useRef(customGender)
   const accessTokenRef = useRef(accessToken)
+  const isNewChatRef = useRef(true)
   
   // Keep refs in sync with state
   useEffect(() => {
@@ -146,7 +148,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     customGenderRef.current = customGender
     accessTokenRef.current = accessToken
   }, [preferences, gender, customGender, accessToken])
-
+  
   // Create transport with auth headers and dynamic body
   const transport = useMemo(() => {
     return new DefaultChatTransport({
@@ -158,20 +160,35 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         }
         return headers
       },
-      prepareSendMessagesRequest: ({ messages }) => ({
-        body: {
-          messages,
-          preferences: preferencesRef.current,
-          gender: genderRef.current,
-          customGender: customGenderRef.current,
-        },
-      }),
+      prepareSendMessagesRequest: ({ messages }) => {
+        const isNew = isNewChatRef.current
+        if (isNew) {
+          isNewChatRef.current = false
+        }
+        return {
+          body: {
+            messages,
+            preferences: preferencesRef.current,
+            gender: genderRef.current,
+            customGender: customGenderRef.current,
+            newChat: isNew,
+          },
+        }
+      },
     })
   }, [])
 
   const { messages, sendMessage, status, stop, error } = useChat({
+    id: chatId || "default",
     transport,
   })
+
+  // Reset isNewChatRef when messages become empty (new conversation started)
+  useEffect(() => {
+    if (messages.length === 0) {
+      isNewChatRef.current = true
+    }
+  }, [messages.length])
 
   // Debug: log status changes
   useEffect(() => {
@@ -224,22 +241,11 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [isGuest, initialWelcomeShown, messages.length])
 
-  // Create the welcome message object for authenticated users
-  const authenticatedWelcomeMessage = useMemo(() => ({
-    id: "welcome-message",
-    role: "assistant" as const,
-    parts: [{ type: "text" as const, text: getInitialWelcomeMessage(userName || user?.displayName) }],
-  }), [userName, user?.displayName])
-
-  // Combine welcome message with actual messages for authenticated users
-  // Always prepend welcome message to new conversations
+  // Display messages directly for authenticated users (no static welcome prepending)
   const displayMessages = useMemo(() => {
     if (isGuest) return []
-    if (messages.length === 0) {
-      return [authenticatedWelcomeMessage]
-    }
-    return [authenticatedWelcomeMessage, ...messages]
-  }, [isGuest, messages, authenticatedWelcomeMessage])
+    return messages
+  }, [isGuest, messages])
 
   const handleGuestMessage = (text: string) => {
     const newCount = guestMessageCount + 1

@@ -138,7 +138,21 @@ The app handles incoming traffic from marketing funnels and emails with query pa
 3. If user exists WITHOUT password → Show signup form (prefilled email)
 4. If user doesn't exist → Proceed directly to /dash (guest mode)
 
+## New Chat Ice-Breaker Flow
+The app uses the backend's `newChat: true` feature for natural conversation starters:
+- First message in a new conversation automatically includes `newChat: true` flag
+- Backend wraps the user's message with context internally (not visible to user)
+- AI generates warm, natural ice-breaker responses personalized to the user
+- User's original message stored in history, not the hidden context
+- No static frontend welcome message - backend provides dynamic ice-breaker
+
 ## Recent Changes
+- December 31, 2025: Backend-driven new chat ice-breaker flow
+  - Removed static frontend welcome message prepending
+  - Added isNewChatRef to track first message in conversations
+  - Frontend sends newChat: true on first message to backend
+  - Chat API route forwards newChat parameter to backend
+  - Backend provides contextual ice-breaker responses
 - December 30, 2025: Funnel query string routing
   - Added /api/check-email endpoint to verify user status
   - Dash page now detects email/Funnel/subscription query params

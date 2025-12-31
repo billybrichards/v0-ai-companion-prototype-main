@@ -22,6 +22,7 @@ const ChatRequestSchema = z.object({
     length: z.enum(["brief", "moderate", "detailed"]).optional(),
     style: z.enum(["casual", "thoughtful", "creative"]).optional(),
   }).optional(),
+  newChat: z.boolean().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     })
   }
   
-  const { messages, preferences } = body
+  const { messages, preferences, newChat } = body
 
   const authHeader = req.headers.get("authorization")
   const lastUserMessage = messages.filter((m) => m.role === "user").pop()
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
         style: preferences?.style || "thoughtful",
       },
       storeLocally: !authHeader, // Store locally if not authenticated
+      newChat: newChat || false, // Pass newChat flag for ice-breaker context
     }),
     signal: req.signal,
   })
