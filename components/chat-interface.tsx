@@ -466,23 +466,23 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col">
-      <header className="border-b border-border bg-card px-3 sm:px-6 py-3 sm:py-4 safe-top shrink-0">
+    <div className="flex h-[100dvh] flex-col overflow-hidden">
+      <header className="border-b border-border bg-card px-2 sm:px-6 py-2 sm:py-4 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2">
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 min-w-0 hover:opacity-80 transition-opacity">
-            <AnplexaLogo size={28} className="shrink-0 sm:w-8 sm:h-8" />
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-3 min-w-0 hover:opacity-80 transition-opacity">
+            <AnplexaLogo size={24} className="shrink-0 sm:w-8 sm:h-8" />
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-xl font-heading font-light tracking-wide text-foreground lowercase truncate">anplexa</h1>
-                <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary shrink-0">BETA</span>
+              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-heading font-light tracking-wide text-foreground lowercase truncate">anplexa</h1>
+                <span className="rounded-full bg-primary/20 border border-primary/50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-primary shrink-0">BETA</span>
                 {isSubscribed && (
-                  <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary glow shrink-0">
-                    <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <span className="flex items-center gap-0.5 rounded-full bg-primary/20 border border-primary/50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-primary glow shrink-0">
+                    <Crown className="h-2 w-2 sm:h-3 sm:w-3" />
                     PRO
                   </span>
                 )}
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                 The Private Pulse • {getPronounText()}
               </p>
             </div>
@@ -561,7 +561,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         {showThemeCustomizer && <ThemeCustomizer />}
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6">
+      <div className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6">
         <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
           {showWelcome && displayMessages.length === 0 && (
             <Card className="border border-border bg-card/50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow-card)]">
@@ -678,10 +678,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         </div>
       </div>
 
-      <div className="border-t border-border bg-card px-3 sm:px-4 py-3 sm:py-4 safe-bottom shrink-0 sticky bottom-0">
+      <div className="border-t border-border bg-card px-3 sm:px-4 py-2 sm:py-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
         <div className="mx-auto max-w-4xl space-y-2 sm:space-y-3">
           {!isGuest && (
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <div className="hidden sm:flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground shrink-0">Length:</span>
                 <Select
@@ -727,7 +727,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           )}
 
           {isGuest && guestMessageCount >= FREE_MESSAGE_LIMIT && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
               <Card className="mx-4 max-w-md w-full border-2 border-primary/50 bg-card p-6 sm:p-8 rounded-2xl shadow-[0_0_40px_rgba(123,44,191,0.3)]">
                 <div className="space-y-6 text-center">
                   <div className="relative mx-auto w-fit">
@@ -791,7 +791,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               onChange={(e) => setInput(e.target.value)}
               placeholder="Hello, Anplexa..."
               disabled={isGuest && guestMessageCount >= FREE_MESSAGE_LIMIT}
-              className="min-h-[48px] sm:min-h-[56px] resize-none border border-border bg-background rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] disabled:opacity-50 text-sm sm:text-base"
+              className="min-h-[44px] sm:min-h-[56px] max-h-[120px] resize-none border border-border bg-background rounded-lg focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] disabled:opacity-50 text-sm sm:text-base py-2.5 px-3"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
@@ -805,7 +805,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 onClick={() => stop()}
                 size="icon"
                 variant="destructive"
-                className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-lg min-touch-target"
+                className="h-11 w-11 sm:h-14 sm:w-14 shrink-0 rounded-lg min-touch-target"
               >
                 <Square className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
@@ -814,7 +814,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 type="submit"
                 disabled={!input.trim() || (!isGuest && status !== "ready" && status !== "error") || (isGuest && guestMessageCount >= FREE_MESSAGE_LIMIT)}
                 size="icon"
-                className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-lg gradient-primary glow-hover min-touch-target"
+                className="h-11 w-11 sm:h-14 sm:w-14 shrink-0 rounded-lg gradient-primary glow-hover min-touch-target"
                 title={isGuest ? `${FREE_MESSAGE_LIMIT - guestMessageCount} free messages left` : `Status: ${status}`}
               >
                 <Send className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -822,7 +822,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             )}
           </form>
 
-          <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
+          <p className="hidden sm:block text-center text-[10px] sm:text-xs text-muted-foreground">
             {isGuest 
               ? `${Math.max(0, FREE_MESSAGE_LIMIT - guestMessageCount)} free message${FREE_MESSAGE_LIMIT - guestMessageCount !== 1 ? 's' : ''} remaining • Sign up for unlimited`
               : "Press Enter to send • Shift+Enter for new line"
