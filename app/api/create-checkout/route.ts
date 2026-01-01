@@ -1,12 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
+const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || "price_1SkkrmB6IBiJ6M2wKHKGA2WV"
+const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkkrmB6IBiJ6M2wj4cbn7Hq"
 
 function getStripeClient() {
-  const stripeSecret = process.env.STRIPE_SECRET
+  // Use sandbox secret if available, otherwise fall back to production
+  const stripeSecret = process.env.STRIPE_SANDBOX_SECRET || process.env.STRIPE_SECRET
   if (!stripeSecret) {
-    throw new Error("STRIPE_SECRET not configured")
+    throw new Error("Stripe secret not configured")
   }
   return new Stripe(stripeSecret, {
     apiVersion: "2025-12-15.clover",
@@ -20,13 +22,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { userId } = await req.json()
+    const { userId, plan } = await req.json()
     
     if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
     }
     
-    const stripe = await getStripeClient()
+    // Select price based on plan
+    const priceId = plan === "yearly" ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY
+    
+    const stripe = getStripeClient()
     
     const origin = req.headers.get("origin") || req.nextUrl.origin
 
@@ -35,7 +40,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: STRIPE_PRICE_ID,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -43,6 +48,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${origin}/dash?canceled=true`,
       metadata: {
         userId,
+        plan: plan || "monthly",
       },
       client_reference_id: userId,
     })

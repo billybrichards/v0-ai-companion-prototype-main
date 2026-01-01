@@ -48,6 +48,7 @@ interface ChatInterfaceProps {
 }
 
 const FREE_MESSAGE_LIMIT = 2
+const AUTH_FREE_MESSAGE_LIMIT = 3
 
 const guestResponses = [
   "I'm so glad you reached out! I'd love to continue our conversation, but first let me learn a bit more about you. What's been on your mind lately?",
@@ -64,6 +65,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [guestMessages, setGuestMessages] = useState<GuestMessage[]>([])
   const [guestMessageCount, setGuestMessageCount] = useState(0)
   const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
+  const [authMessageCount, setAuthMessageCount] = useState(0)
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
@@ -291,6 +294,18 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [messages])
 
+  // Track authenticated user message count (only user messages count toward limit)
+  useEffect(() => {
+    if (!isGuest && !isSubscribed) {
+      const userMessageCount = messages.filter(m => m.role === "user").length
+      setAuthMessageCount(userMessageCount)
+      // Show upgrade modal when limit reached
+      if (userMessageCount >= AUTH_FREE_MESSAGE_LIMIT) {
+        setShowUpgradeModal(true)
+      }
+    }
+  }, [messages, isGuest, isSubscribed])
+
   useEffect(() => {
     const stored = localStorage.getItem("chat-messages")
     if (stored) {
@@ -409,14 +424,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     return customGender || "Custom"
   }
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (plan: "monthly" | "yearly" = "yearly") => {
     if (!accessToken || !user) {
       console.log("[Subscribe] Missing accessToken or user", { hasToken: !!accessToken, hasUser: !!user })
       return
     }
     
     setIsSubscribing(true)
-    console.log("[Subscribe] Starting checkout...")
+    console.log("[Subscribe] Starting checkout with plan:", plan)
     try {
       const response = await fetch("/api/create-checkout", {
         method: "POST",
@@ -426,6 +441,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         },
         body: JSON.stringify({
           userId: user.id,
+          plan,
         }),
       })
 
@@ -828,63 +844,96 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
       {/* Upgrade Modal for Authenticated Users */}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="sm:max-w-md bg-popover border-border p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl font-heading font-medium">
-              <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              Upgrade to PRO
-            </DialogTitle>
-            <DialogDescription className="text-sm">
-              Unlock the full Anplexa experience
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-foreground">
-                $4.99
-                <span className="text-base sm:text-lg font-normal text-muted-foreground">/month</span>
+        <DialogContent className="sm:max-w-md bg-card border-border p-5 sm:p-6">
+          <div className="space-y-5">
+            <div className="text-center space-y-2">
+              <div className="mx-auto w-fit relative">
+                <div className="absolute inset-0 blur-xl opacity-50">
+                  <div className="h-12 w-12 rounded-full bg-primary" />
+                </div>
+                <AnplexaLogo size={48} className="relative drop-shadow-[0_0_12px_rgba(123,44,191,0.6)]" />
               </div>
+              <DialogHeader>
+                <DialogTitle className="text-xl sm:text-2xl font-heading font-semibold text-foreground">
+                  You&apos;ve reached your limit
+                </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Subscribe now to continue your private conversations.
+                </DialogDescription>
+              </DialogHeader>
             </div>
 
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                <span className="text-sm sm:text-base">Unlimited messages</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                <span className="text-sm sm:text-base">Priority response times</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                <span className="text-sm sm:text-base">Access to all companion personalities</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                <span className="text-sm sm:text-base">Extended conversation memory</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                <span className="text-sm sm:text-base">Early access to new features</span>
-              </div>
+            <div className="space-y-3">
+              {/* Monthly Plan */}
+              <button
+                onClick={() => setSelectedPlan("monthly")}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                  selectedPlan === "monthly" 
+                    ? "border-primary bg-primary/10" 
+                    : "border-border bg-background hover:border-primary/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-foreground">Monthly</div>
+                    <div className="text-sm text-muted-foreground">Cancel anytime</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-foreground">£2.99</div>
+                    <div className="text-sm text-muted-foreground">/month</div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Yearly Plan (Best Value) */}
+              <button
+                onClick={() => setSelectedPlan("yearly")}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
+                  selectedPlan === "yearly" 
+                    ? "border-primary bg-primary/10" 
+                    : "border-border bg-background hover:border-primary/50"
+                }`}
+              >
+                <div className="absolute -top-3 right-4 px-2 py-0.5 bg-primary text-white text-xs font-semibold rounded flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  BEST VALUE
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-foreground">Early Believer</div>
+                    <div className="text-sm text-primary">Locked in forever</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-foreground">£0.99</div>
+                    <div className="text-sm text-muted-foreground">/month</div>
+                    <div className="text-xs text-muted-foreground">Billed £11.99/year</div>
+                  </div>
+                </div>
+              </button>
             </div>
 
             <Button
               onClick={() => {
-                setShowUpgradeModal(false)
-                handleSubscribe()
+                handleSubscribe(selectedPlan)
               }}
               disabled={isSubscribing}
-              className="w-full h-11 sm:h-12 text-base sm:text-lg gradient-primary glow-hover text-white rounded-lg min-touch-target"
+              className="w-full h-12 text-base font-medium gradient-primary glow-hover text-white rounded-xl min-touch-target"
             >
-              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               {isSubscribing ? "Processing..." : "Subscribe Now"}
             </Button>
 
-            <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
-              Cancel anytime. Secure payment via Stripe.
-            </p>
+            <div className="text-center space-y-2">
+              <button 
+                onClick={() => setShowUpgradeModal(false)}
+                className="text-sm text-muted-foreground hover:text-foreground underline"
+              >
+                Or continue with free trial
+              </button>
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <Lock className="h-3 w-3" />
+                <span>Your email is kept private.</span>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
