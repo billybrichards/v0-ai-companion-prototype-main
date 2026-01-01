@@ -43,7 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(storedToken)
       setRefreshTokenValue(storedRefresh)
       try {
-        setUser(JSON.parse(storedUser))
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+        // Refresh status immediately on mount if user exists
+        setTimeout(() => refreshSubscriptionStatus(storedToken, parsedUser), 100)
       } catch {
         // Invalid stored user, clear everything
         localStorage.removeItem("accessToken")
@@ -120,6 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (refreshTokenParam) {
       localStorage.setItem("refreshToken", refreshTokenParam)
     }
+    
+    // Refresh subscription status immediately after login with token
+    setTimeout(() => refreshSubscriptionStatus(token, userData), 100)
   }
 
   const logout = () => {
@@ -162,18 +168,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const refreshSubscriptionStatus = async (): Promise<void> => {
-    if (!accessToken) return
+  const refreshSubscriptionStatus = async (tokenOverride?: string, userOverride?: User | null): Promise<void> => {
+    const activeToken = tokenOverride || accessToken
+    const activeUser = userOverride === undefined ? user : userOverride
+    if (!activeToken) return
 
     try {
       const response = await fetch("/api/subscription", {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${activeToken}` },
       })
 
       if (response.ok) {
         const data = await response.json()
-        if (data.subscriptionStatus && user) {
-          const updatedUser = { ...user, subscriptionStatus: data.subscriptionStatus }
+        if (data.subscriptionStatus && activeUser) {
+          const updatedUser = { ...activeUser, subscriptionStatus: data.subscriptionStatus }
           setUser(updatedUser)
           localStorage.setItem("user", JSON.stringify(updatedUser))
         }

@@ -474,12 +474,13 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             <div className="min-w-0">
               <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                 <h1 className="text-base sm:text-xl font-heading font-light tracking-wide text-foreground lowercase truncate">anplexa</h1>
-                <span className="rounded-full bg-primary/20 border border-primary/50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-primary shrink-0">BETA</span>
-                {isSubscribed && (
-                  <span className="flex items-center gap-0.5 rounded-full bg-primary/20 border border-primary/50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-primary glow shrink-0">
-                    <Crown className="h-2 w-2 sm:h-3 sm:w-3" />
-                    PRO
+                {isSubscribed ? (
+                  <span className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-primary border border-primary/50 px-3 sm:px-4 py-1.5 text-[11px] sm:text-sm font-black text-white glow shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse">
+                    <Crown className="h-3 w-3 sm:h-4 sm:w-4 fill-white" />
+                    PRO MEMBER
                   </span>
+                ) : (
+                  <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-primary shrink-0">BETA</span>
                 )}
               </div>
               <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
@@ -507,14 +508,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 )}
                 {!isSubscribed && (
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
                     onClick={() => setShowUpgradeModal(true)}
-                    className="h-8 sm:h-9 gap-1 text-xs border-primary/50 text-primary hover:bg-primary/10 glow-hover min-touch-target"
+                    className="h-9 sm:h-11 gap-2 text-sm font-black bg-gradient-to-r from-primary to-purple-600 text-white hover:scale-105 active:scale-95 transition-all glow shadow-[0_0_25px_rgba(123,44,191,0.6)] px-5 rounded-full shrink-0 border-2 border-white/20"
                     title="Upgrade to Pro"
                   >
-                    <Crown className="h-3 w-3" />
-                    <span className="hidden sm:inline">Upgrade</span>
+                    <Crown className="h-4 w-4 fill-white" />
+                    UPGRADE
                   </Button>
                 )}
               </>
