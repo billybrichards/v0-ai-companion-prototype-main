@@ -1,276 +1,58 @@
 # Anplexa - The Private Pulse
 
 ## Overview
-A Next.js 16 frontend application with Anplexa branding - a private AI companion for meaningful adult conversations. Uses Tailwind CSS and shadcn/ui components with a custom dark theme.
+Anplexa is a Next.js 16 frontend application designed as a private AI companion for meaningful adult conversations. It aims to provide a luxury/wellness experience, offering a secure and personalized environment for users. The project includes features for user authentication, subscription management, GDPR-compliant account settings, and a responsive chat interface with AI-driven conversation starters. Its business vision is to offer a unique, private AI interaction experience, targeting a market seeking personal and secure AI companionship.
 
-## Design System
-Anplexa uses a luxury/wellness aesthetic with:
-- **Primary Color**: Anplexa Purple (#7B2CBF)
-- **Background**: Midnight Void (#121212)
-- **Text**: Ghost Silver (#E0E1DD)
-- **Typography**: Montserrat (headings), Inter (body), Fira Code (mono)
-- **Effects**: Purple glow shadows, gradient buttons
+## User Preferences
+I prefer detailed explanations. Ask before making major changes. I want iterative development. I prefer simple language. I like functional programming.
 
-## Backend API
-The app connects to the backend at: `https://2-terminal-companion--billy130.replit.app`
+## System Architecture
+The application is built with Next.js 16, React 19, and TypeScript, utilizing Tailwind CSS 4 and shadcn/ui components for a custom dark theme.
 
-Environment variables:
-- `API_URL` - Backend URL for server-side API calls
-- `NEXT_PUBLIC_API_URL` - Backend URL for client-side API calls
+**UI/UX Decisions:**
+- **Aesthetic:** Luxury/wellness with a custom dark theme.
+- **Color Palette:** Primary Anplexa Purple (#7B2CBF), Midnight Void (#121212) background, Ghost Silver (#E0E1DD) text.
+- **Typography:** Montserrat (headings), Inter (body), Fira Code (monospace).
+- **Effects:** Purple glow shadows, gradient buttons.
+- **Responsive Design:** Mobile-first approach with fluid typography (clamp()), safe area insets, 100dvh for viewport handling, and minimum 44px touch targets.
+- **Components:** Uses shadcn/ui (based on Radix UI) for a consistent and accessible UI.
 
-## Project Structure
-- `app/` - Next.js App Router pages and API routes
-  - `page.tsx` - Landing page (marketing/conversion)
-  - `dash/page.tsx` - Main chat interface (gender setup + chat)
-  - `layout.tsx` - Root layout
-  - `globals.css` - Global styles
-  - `api/chat/route.ts` - Chat API endpoint
-- `components/` - React UI components (shadcn/ui)
-- `lib/` - Utility functions
-- `public/` - Static assets
-- `styles/` - Additional styles
+**Technical Implementations & Feature Specifications:**
+- **Project Structure:**
+    - `app/`: Next.js App Router for pages and API routes (e.g., `page.tsx` for landing, `dash/page.tsx` for chat, `api/chat/route.ts`).
+    - `components/`: Reusable React UI components.
+    - `lib/`: Utility functions.
+    - `public/`: Static assets.
+- **Authentication & Authorization:**
+    - Guest/Freemium flow: 2 free messages, then prompts for sign-up/login; guest data migrates on login.
+    - Magic Link Authentication: Password-less login option.
+    - Funnel Query String Handling: Supports various query parameters (`email`, `Funnel`, `subscription`, `plan`, `magic`) for directing users through different onboarding and subscription flows.
+- **Chat Interface:**
+    - AI SDK v5 for streaming responses (token-by-token display, stop button, loading indicators).
+    - Backend-driven new chat ice-breaker flow for dynamic conversation starters.
+    - Responsive sticky composer for mobile.
+    - PRO badge and upgrade button for subscription status.
+- **Subscription Management (Stripe Integration):**
+    - Checkout API, Webhook Handler, Verify Checkout API, and Subscription Status API for managing PRO subscriptions.
+    - Fallback mechanism for webhook failures.
+- **GDPR-compliant Account Settings (`/account`):**
+    - Profile, Privacy Settings (analytics, personalized AI, marketing), Data Management (export JSON, delete account).
+- **Email Integration:** Uses Resend for transactional emails (welcome, subscription confirmation, data export/deletion, password reset).
+- **SEO & Metadata:** Comprehensive Open Graph, Twitter card meta tags, JSON-LD, PWA manifest, `robots.txt`, dynamic `sitemap.ts`.
+- **Performance:** Dynamic imports for lazy loading, SSR disabled for client-only components.
+- **Security:** Bearer token validation, webhook secrets, Zod schema validation for API routes, security headers.
+- **Legal Pages:** `/terms` and `/privacy` pages with links in the footer.
 
-## Tech Stack
-- Next.js 16 with Turbopack
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- shadcn/ui components (Radix UI)
-- Vercel Analytics
-- AI SDK (@ai-sdk/react)
+**System Design Choices:**
+- **Next.js App Router:** For modern routing and API routes.
+- **TypeScript:** For type safety and improved developer experience.
+- **Tailwind CSS:** For utility-first styling.
+- **shadcn/ui:** For accessible and customizable UI components.
+- **Vercel Analytics:** For monitoring.
+- **AI SDK (@ai-sdk/react):** For integrating AI functionalities.
 
-## Development
-The development server runs on port 5000:
-```bash
-npm run dev -- -p 5000 -H 0.0.0.0
-```
-
-## Deployment
-Configured for autoscale deployment with:
-- Build: `npm run build`
-- Run: `npm run start -- -p 5000 -H 0.0.0.0`
-
-## Stripe Subscription Integration
-The app includes PRO subscription functionality via Stripe:
-- **Checkout API** (`app/api/create-checkout/route.ts`): Creates Stripe checkout sessions with token validation
-- **Webhook Handler** (`app/api/stripe-webhook/route.ts`): Processes checkout.session.completed events
-- **Subscription Status API** (`app/api/subscription/route.ts`): Fetches user subscription status
-- **PRO Badge**: Displays in chat header when user.subscriptionStatus === "subscribed"
-- **Upgrade Button**: Shows for non-subscribed users, triggers Stripe checkout
-
-Security:
-- Checkout API validates bearer tokens via backend /api/auth/validate endpoint
-- Webhook uses X-Webhook-Secret header for backend authentication
-
-## Chat Streaming
-The chat interface uses AI SDK v5 with streaming responses:
-- Text appears progressively (token by token) like ChatGPT/Claude
-- Blinking cursor indicator while streaming
-- Stop button (square icon) to cancel mid-generation
-- Bouncing dots shown only before first text arrives
-
-## Logo
-The Anplexa logo is a stylized drop/flame shape with purple gradient, available as:
-- SVG file: `public/anplexa-logo.svg`
-- React component: `components/anplexa-logo.tsx`
-
-## Guest/Freemium Flow
-- Users can try 2 free messages without logging in
-- Guest preferences and messages stored in localStorage
-- After 2nd message, auth modal prompts sign up
-- Guest data migrates to user account on login
-
-## Responsive Design
-The app is fully responsive with mobile-first design:
-- **Fluid Typography**: Uses clamp() for text sizes that scale smoothly (text-fluid-xs to text-fluid-5xl)
-- **Mobile Breakpoints**: sm (640px), md (768px), lg (1024px)
-- **Safe Area Insets**: Proper padding for iPhone notch and home indicator
-- **Touch Targets**: Minimum 44px touch targets for accessibility
-- **Dynamic Viewport**: Uses 100dvh for proper mobile viewport handling
-- **Sticky Composer**: Chat input stays at bottom on mobile
-
-## Performance Optimizations
-- **Dynamic Imports**: ThemeCustomizer lazy-loaded with next/dynamic
-- **SSR Disabled**: For client-only components like theme settings
-- **Accessibility**: VisuallyHidden components for screen reader support in dialogs
-
-## GDPR Account Settings
-The app includes a full account settings page at `/account` with GDPR compliance:
-- **Profile Section**: View account info and subscription status
-- **Privacy Settings**: Toggle analytics, personalized AI, and marketing preferences
-- **Data Management**: Export personal data as JSON, delete account permanently
-- **API Routes**:
-  - POST `/api/account/export` - Download user data
-  - DELETE `/api/account/delete` - Permanently delete account
-  - GET/PATCH `/api/account/privacy` - Manage privacy settings
-- **Security**: Requires authentication, confirmation dialog for deletion with "DELETE" text input
-
-## Email Integration (Resend)
-The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
-- **Sending Domain**: updates.anplexa.com
-- **From Address**: noreply@updates.anplexa.com
-- **Email Types**:
-  - Welcome email (sent after user registration)
-  - PRO subscription confirmation (sent after Stripe checkout)
-  - Data export confirmation (GDPR)
-  - Account deletion confirmation (GDPR)
-  - Password reset (template ready)
-- **Utility File**: `lib/email.ts` with all email functions
-- **Reply-to**: support@updates.anplexa.com
-
-## Legal Pages
-- `/terms` - Terms & Conditions page
-- `/privacy` - Privacy Policy page (GDPR compliant)
-- Footer includes links to both pages, UK flag, and © 2025 Anplexa
-
-## Funnel Query String Handling
-The app handles incoming traffic from marketing funnels with comprehensive query parameter support:
-
-**Free Access URLs:**
-- `/dash?email={email}&Funnel={persona}` - From funnel flow (personas A-F)
-- `/dash?email={email}&Funnel=Initial` - From waitlist
-
-**Paid Access URLs:**
-- `/dash?email={email}&Funnel={persona}&subscription=active&plan={plan}` - After payment
-- `/dash?email={email}&Funnel=Direct&subscription=active&plan={plan}` - Direct purchase
-
-**Query Parameters:**
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| email | URL-encoded email | User's email address |
-| Funnel | A, B, C, D, E, F, Initial, Direct | Funnel source/persona |
-| subscription | active | Subscription status (paid only) |
-| plan | early_believer, monthly | Plan type (paid only) |
-| magic | token | Magic link login token |
-
-**Funnel Persona Mapping:**
-- A: Quietly Lonely (Connection)
-- B: Curious/Fantasy-Open (Exploration)
-- C: Privacy-First/Neurodivergent (Safety)
-- D: Late Night Thinker (Processing)
-- E: Emotional Explorer (Understanding)
-- F: Creative Seeker (Imagination)
-
-**Flow:**
-1. Check for magic link token → auto-login if valid
-2. Check if email/uid exists in backend via `/api/check-email` or `/api/check-uid`
-3. If user exists WITH password → Show login form (prefilled email) with magic link option
-4. If user exists WITHOUT password → Show signup form (prefilled email)
-5. After auth: verify subscription if `subscription=active`
-6. Force name/gender setup if not set
-7. Proceed to chat
-
-**Magic Link Authentication:**
-- Alternative to password login for convenience
-- API: POST `/api/magic-link/send` - Generates and emails login link
-- API: POST `/api/magic-link/verify` - Validates token and returns session
-- Links expire in 15 minutes
-
-## New Chat Ice-Breaker Flow
-The app uses the backend's `newChat: true` feature for natural conversation starters:
-- First message in a new conversation automatically includes `newChat: true` flag
-- Backend wraps the user's message with context internally (not visible to user)
-- AI generates warm, natural ice-breaker responses personalized to the user
-- User's original message stored in history, not the hidden context
-- No static frontend welcome message - backend provides dynamic ice-breaker
-
-## Recent Changes
-- January 1, 2026: SEO optimization and metadata enhancement
-  - Comprehensive Open Graph and Twitter card meta tags
-  - JSON-LD structured data for WebApplication and Organization
-  - Generated OG image for social sharing (1200x630)
-  - Proper favicon setup: .ico, .svg, multiple PNG sizes
-  - PWA manifest (site.webmanifest) with app icons
-  - robots.txt blocking /api/, /dash, /account from crawling
-  - Dynamic sitemap.ts for main pages
-  - browserconfig.xml for Windows tiles
-  - Safari pinned tab SVG
-  - Viewport and theme-color meta tags
-- January 1, 2026: Enhanced funnel query string handling
-  - Added complete support for all funnel parameters (email, Funnel, subscription, plan)
-  - Added magic link authentication as alternative to password login
-  - Created /api/magic-link/send and /api/magic-link/verify endpoints
-  - Added sendMagicLinkEmail function in lib/email.ts
-  - Subscription verification with backend when subscription=active
-  - Added loginWithToken function to auth context for magic link sessions
-  - Stores funnel persona and plan in localStorage for analytics
-  - Ensures name/gender setup before chat initiation
-- January 1, 2026: Subscription modal with two pricing options
-  - Monthly: £2.99/month
-  - Early Believer: £0.99/month (billed £11.99/year)
-  - 3-message limit for authenticated non-subscribed users
-  - Modal displays after limit reached (no dismiss option)
-- December 31, 2025: Backend-driven new chat ice-breaker flow
-  - Removed static frontend welcome message prepending
-  - Added isNewChatRef to track first message in conversations
-  - Frontend sends newChat: true on first message to backend
-  - Chat API route forwards newChat parameter to backend
-  - Backend provides contextual ice-breaker responses
-- December 30, 2025: Funnel query string routing
-  - Added /api/check-email endpoint to verify user status
-  - Dash page now detects email/Funnel/subscription query params
-  - Routes users to appropriate auth flow based on DB status
-  - AuthForm supports prefillEmail and defaultMode props
-- December 30, 2025: Mobile UI improvements
-  - Redesigned onboarding flow with 2-step name + gender selection
-  - Added chat name preference synced to backend via PUT /api/auth/chat-name
-  - Added gender preference synced to backend via PUT /api/auth/gender
-  - Added New Chat button (+) in header to start fresh conversations
-  - Added AI avatar (Anplexa logo) next to assistant messages
-  - Simplified mobile header by hiding some icons on small screens
-  - Improved message bubble styling with avatar positioning
-- December 28, 2025: Added Resend email integration
-  - Welcome emails on user signup
-  - PRO subscription confirmation emails
-  - GDPR data export/deletion confirmation emails
-  - Created lib/email.ts with all email templates
-  - Added Terms & Conditions and Privacy Policy pages
-  - Updated footer with legal links, copyright, and UK flag
-- December 28, 2025: Added PostHog analytics integration
-  - Installed posthog-js package
-  - Created instrumentation-client.js for Next.js 15.3+ initialization
-  - Environment variables: NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST
-- December 28, 2025: Security hardening
-  - Added security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
-  - Removed ignoreBuildErrors from next.config.mjs
-  - Added Zod schema validation to chat and privacy API routes
-  - Removed unused gender/customGender variables from chat route
-  - Added release notes section to landing page footer
-- December 28, 2025: Added GDPR-compliant account/settings page
-  - Profile section showing user info and subscription status
-  - Privacy settings with toggles for analytics, personalized AI, marketing emails
-  - Data export functionality (download as JSON)
-  - Account deletion with double confirmation
-  - Added switch and alert-dialog UI components
-  - Settings icon in chat header links to /account page
-- December 28, 2025: Go Pro flow improvement
-  - "Get Pro" button on landing page now opens login modal first for unauthenticated users
-  - After successful login/signup, automatically redirects to /dash?upgrade=true
-  - Chat interface detects ?upgrade=true query param and shows upgrade modal
-  - Logged-in users clicking "Get Pro" go directly to upgrade modal
-- December 28, 2025: Major responsive design overhaul
-  - Added fluid typography system with clamp() utilities
-  - Mobile-first layouts across all pages (landing, chat, auth, gender setup)
-  - Safe-area inset padding for iPhone notch support
-  - Sticky bottom composer in chat interface
-  - Touch-friendly buttons with 44px minimum targets
-  - Responsive spacing and padding across all components
-  - Dynamic imports for theme customizer (bundle optimization)
-  - Added accessibility improvements (VisuallyHidden for dialog titles)
-- December 27, 2025: Added landing page at root with hero, features, privacy, and pricing sections
-- December 27, 2025: Moved chat interface to `/dash` route
-- December 27, 2025: Added guest freemium flow (2 free messages before login required)
-- December 27, 2025: Updated UI to match Anplexa design samples
-  - Added custom SVG logo component
-  - Redesigned login page with rounded cards and password toggle
-  - Updated gender selection with icon-based options
-  - Added logo to chat header
-- December 27, 2025: Added Stripe subscription integration
-  - Created checkout, webhook, and subscription status API routes
-  - Added PRO badge with Crown icon and Upgrade button to chat interface
-  - Implemented refreshSubscriptionStatus in AuthContext for UI state sync
-  - Token validation on checkout API to prevent spoofing
-- December 27, 2025: Initial import and Replit environment setup
-  - Configured Next.js allowedDevOrigins for Replit proxy
-  - Set up workflow for development server on port 5000
-  - Installed dependencies with --legacy-peer-deps due to React 19 peer dependency conflicts
+## External Dependencies
+- **Backend API:** `https://2-terminal-companion--billy130.replit.app`
+- **Stripe:** For subscription management and payment processing.
+- **Resend:** For sending transactional emails.
+- **Vercel Analytics:** For application analytics.

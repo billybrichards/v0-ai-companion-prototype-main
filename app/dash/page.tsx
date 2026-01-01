@@ -48,6 +48,61 @@ function DashContent() {
   const [magicLinkProcessing, setMagicLinkProcessing] = useState(false)
   const magicLinkProcessed = useRef(false)
   const pendingSubscriptionCheck = useRef(false)
+  const checkoutVerified = useRef(false)
+  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id")
+    const success = searchParams.get("success")
+    
+    if (sessionId && success === "true" && !pendingSessionId) {
+      setPendingSessionId(sessionId)
+      console.log("[Checkout] Pending session ID stored for verification")
+    }
+  }, [searchParams, pendingSessionId])
+
+  useEffect(() => {
+    const verifyCheckout = async () => {
+      if (!pendingSessionId || checkoutVerified.current || !isAuthenticated || !accessToken || !user || authLoading) {
+        return
+      }
+      
+      checkoutVerified.current = true
+      console.log("[Checkout] Verifying successful checkout session...")
+      
+      try {
+        const response = await fetch("/api/verify-checkout", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({ 
+            sessionId: pendingSessionId, 
+            userId: user.id 
+          }),
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log("[Checkout] Subscription verified:", data)
+          await refreshSubscriptionStatus()
+        } else {
+          const errorData = await response.json()
+          console.error("[Checkout] Verification failed:", errorData)
+          checkoutVerified.current = false
+        }
+      } catch (error) {
+        console.error("[Checkout] Verification error:", error)
+        checkoutVerified.current = false
+      }
+      
+      setPendingSessionId(null)
+      window.history.replaceState({}, "", window.location.pathname)
+    }
+    
+    verifyCheckout()
+  }, [pendingSessionId, isAuthenticated, accessToken, user, authLoading, refreshSubscriptionStatus])
 
   useEffect(() => {
     const processMagicLink = async () => {

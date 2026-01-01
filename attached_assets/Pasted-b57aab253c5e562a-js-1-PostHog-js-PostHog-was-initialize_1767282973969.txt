@@ -1,0 +1,826 @@
+b57aab253c5e562a.js:1 [PostHog.js] PostHog was initialized without a token. This likely indicates a misconfiguration. Please check the first argument passed to posthog.init()
+critical @ b57aab253c5e562a.js:1
+_init @ b57aab253c5e562a.js:1
+init @ b57aab253c5e562a.js:1
+module evaluation @ b57aab253c5e562a.js:1
+L @ turbopack-f3a74ae95360ba7f.js:3
+N @ turbopack-f3a74ae95360ba7f.js:3
+(anonymous) @ turbopack-f3a74ae95360ba7f.js:1
+module @ b57aab253c5e562a.js:1
+t @ turbopack-f3a74ae95360ba7f.js:1
+module evaluation @ b57aab253c5e562a.js:1
+L @ turbopack-f3a74ae95360ba7f.js:3
+N @ turbopack-f3a74ae95360ba7f.js:3
+(anonymous) @ turbopack-f3a74ae95360ba7f.js:1
+module evaluation @ b57aab253c5e562a.js:1
+L @ turbopack-f3a74ae95360ba7f.js:3
+(anonymous) @ turbopack-f3a74ae95360ba7f.js:3
+registerChunk @ turbopack-f3a74ae95360ba7f.js:3
+await in registerChunk
+q @ turbopack-f3a74ae95360ba7f.js:3
+(anonymous) @ turbopack-f3a74ae95360ba7f.js:3
+(anonymous) @ turbopack-f3a74ae95360ba7f.js:3
+0e404aedd53c6fb8.js:51 [Chat] Triggering ice-breaker for authenticated user
+0e404aedd53c6fb8.js:51 [Chat] Status changed: ready Error: undefined
+0e404aedd53c6fb8.js:51 [Chat] Status changed: submitted Error: undefined
+f4b397c3df5865e1.js:1  GET https://anplexa.com/_vercel/insights/script.js net::ERR_ABORTED 404 (Not Found)
+(anonymous) @ f4b397c3df5865e1.js:1
+(anonymous) @ f4b397c3df5865e1.js:1
+og @ b57aab253c5e562a.js:1
+e @ b57aab253c5e562a.js:1
+e @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+lc @ b57aab253c5e562a.js:1
+ld @ b57aab253c5e562a.js:1
+uS @ b57aab253c5e562a.js:1
+(anonymous) @ b57aab253c5e562a.js:1
+O @ b57aab253c5e562a.js:1
+/dash:1 Refused to execute script from 'https://anplexa.com/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+f4b397c3df5865e1.js:1 [Vercel Web Analytics] Failed to load script from /_vercel/insights/script.js. Be sure to enable Web Analytics for your project and deploy again. See https://vercel.com/docs/analytics/quickstart for more information.
+0e404aedd53c6fb8.js:51 [Chat] Status changed: streaming Error: undefined
+0e404aedd53c6fb8.js:51 [Chat] Status changed: error Error: AI_TypeValidationError: Type validation failed: Value: {"type":"finish","finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}.
+Error message: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "text-start"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"text-start\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "text-delta"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"text-delta\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "delta"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "text-end"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"text-end\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "error"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"error\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "errorText"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-input-start"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-input-start\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolName"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-input-delta"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-input-delta\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "inputTextDelta"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-input-available"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-input-available\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolName"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-input-error"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-input-error\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolName"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "errorText"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-output-available"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-output-available\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "tool-output-error"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"tool-output-error\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "toolCallId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "errorText"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "reasoning-start"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"reasoning-start\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "reasoning-delta"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"reasoning-delta\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "delta"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "reasoning-end"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"reasoning-end\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "id"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "source-url"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"source-url\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "sourceId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "url"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "source-document"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"source-document\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "sourceId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "mediaType"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "title"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "file"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"file\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "url"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "mediaType"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "custom",
+          "path": [
+            "type"
+          ],
+          "message": "Type must start with \"data-\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "start-step"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"start-step\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "finish-step"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"finish-step\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "start"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"start\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "abort"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"abort\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "message-metadata"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \"message-metadata\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "finishReason",
+            "usage"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"finishReason\", \"usage\""
+        }
+      ]
+    ],
+    "path": [],
+    "message": "Invalid input"
+  }
+]
+    at e.wrap (0e404aedd53c6fb8.js:3:176)
+    at nc (0e404aedd53c6fb8.js:9:62926)
+    at async nm (0e404aedd53c6fb8.js:9:63340)
+    at async Object.transform (0e404aedd53c6fb8.js:9:63646)Caused by: ZodError
+    at new ZodError (0e404aedd53c6fb8.js:7:693)
+    at 0e404aedd53c6fb8.js:7:12193
+    at Object.validate (0e404aedd53c6fb8.js:13:9591)
+    at nc (0e404aedd53c6fb8.js:9:62830)
+    at nm (0e404aedd53c6fb8.js:9:63346)
+    at Object.transform (0e404aedd53c6fb8.js:9:63652)
+0e404aedd53c6fb8.js:51 [Chat] Status changed: submitted Error: undefined
+0e404aedd53c6fb8.js:51  POST https://anplexa.com/api/chat 403 (Forbidden)
+sendMessages @ 0e404aedd53c6fb8.js:51
+await in sendMessages
+makeRequest @ 0e404aedd53c6fb8.js:51
+sendMessage @ 0e404aedd53c6fb8.js:51
+await in sendMessage
+et @ 0e404aedd53c6fb8.js:51
+onKeyDown @ 0e404aedd53c6fb8.js:51
+uX @ b57aab253c5e562a.js:1
+(anonymous) @ b57aab253c5e562a.js:1
+tz @ b57aab253c5e562a.js:1
+u3 @ b57aab253c5e562a.js:1
+dN @ b57aab253c5e562a.js:1
+dC @ b57aab253c5e562a.js:1
+0e404aedd53c6fb8.js:51 [Chat] Status changed: error Error: Error: {"error":"{\"error\":\"Message limit reached\",\"message\":\"All used up, please subscribe for unlimited messages and audio. Your limit will reset next week.\",\"limit\":3,\"used\":4,\"resetsAt\":\"2026-01-05T00:00:00.000Z\"}"}
+    at fj.sendMessages (0e404aedd53c6fb8.js:51:35991)
+    at async mh.makeRequest (0e404aedd53c6fb8.js:51:41137)
+    at async sendMessage (0e404aedd53c6fb8.js:51:38292)
