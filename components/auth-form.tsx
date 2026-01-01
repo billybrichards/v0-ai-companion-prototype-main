@@ -5,16 +5,17 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { Lock, Mail, User, Eye, EyeOff } from "lucide-react"
+import { Lock, Mail, User, Eye, EyeOff, Wand2, Check } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 
 interface AuthFormProps {
   onSuccess?: () => void
   defaultMode?: "login" | "signup"
   prefillEmail?: string
+  showMagicLink?: boolean
 }
 
-export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthFormProps) {
+export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMagicLink = true }: AuthFormProps) {
   const { login, register } = useAuth()
   const [isLogin, setIsLogin] = useState(defaultMode !== "signup")
   const [email, setEmail] = useState(prefillEmail || "")
@@ -23,6 +24,8 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthF
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [isSendingMagicLink, setIsSendingMagicLink] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,6 +43,35 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthF
       setError(err instanceof Error ? err.message : "Authentication failed")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleSendMagicLink = async () => {
+    if (!email) {
+      setError("Please enter your email first")
+      return
+    }
+    
+    setError("")
+    setIsSendingMagicLink(true)
+    
+    try {
+      const response = await fetch("/api/magic-link/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to send magic link")
+      }
+      
+      setMagicLinkSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send magic link")
+    } finally {
+      setIsSendingMagicLink(false)
     }
   }
 
@@ -130,6 +162,46 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthF
               <span className="uppercase tracking-wider">{isLogin ? "Login" : "Create Account"}</span>
             )}
           </Button>
+
+          {isLogin && showMagicLink && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-2 text-muted-foreground">or</span>
+                </div>
+              </div>
+
+              {magicLinkSent ? (
+                <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                  <Check className="h-4 w-4 text-primary" />
+                  <span className="text-sm text-foreground">Check your email for the login link!</span>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSendMagicLink}
+                  disabled={isSendingMagicLink || !email}
+                  className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium rounded-lg sm:rounded-xl border-border hover:bg-primary/10 hover:border-primary min-touch-target"
+                >
+                  {isSendingMagicLink ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      <span>Sending...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Wand2 className="h-4 w-4" />
+                      <span>Send me a login link</span>
+                    </span>
+                  )}
+                </Button>
+              )}
+            </>
+          )}
         </form>
 
         <div className="mt-4 sm:mt-6 text-center">
@@ -138,6 +210,7 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail }: AuthF
             onClick={() => {
               setIsLogin(!isLogin)
               setError("")
+              setMagicLinkSent(false)
             }}
             className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors py-2 min-touch-target"
           >

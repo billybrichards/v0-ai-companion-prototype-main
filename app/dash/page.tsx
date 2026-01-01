@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
@@ -13,12 +13,24 @@ import AuthForm from "@/components/auth-form"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 type FunnelAuthMode = "login" | "signup" | null
+type FunnelPersona = "A" | "B" | "C" | "D" | "E" | "F" | "Initial" | "Direct" | null
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
 
+const FUNNEL_PERSONA_NAMES: Record<string, string> = {
+  "A": "Quietly Lonely",
+  "B": "Curious/Fantasy-Open", 
+  "C": "Privacy-First/Neurodivergent",
+  "D": "Late Night Thinker",
+  "E": "Emotional Explorer",
+  "F": "Creative Seeker",
+  "Initial": "Waitlist",
+  "Direct": "Direct",
+}
+
 function DashContent() {
   const searchParams = useSearchParams()
-  const { isAuthenticated, isLoading: authLoading, user, logout, accessToken } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, user, logout, accessToken, loginWithToken, refreshSubscriptionStatus } = useAuth()
   const [setupComplete, setSetupComplete] = useState(false)
   const [gender, setGender] = useState<GenderOption>("female")
   const [customGender, setCustomGender] = useState<string | undefined>()
@@ -31,13 +43,92 @@ function DashContent() {
   const [funnelAuthMode, setFunnelAuthMode] = useState<FunnelAuthMode>(null)
   const [funnelEmail, setFunnelEmail] = useState<string | null>(null)
   const [funnelChecked, setFunnelChecked] = useState(false)
+  const [funnelPersona, setFunnelPersona] = useState<FunnelPersona>(null)
+  const [funnelPlan, setFunnelPlan] = useState<string | null>(null)
+  const [magicLinkProcessing, setMagicLinkProcessing] = useState(false)
+  const magicLinkProcessed = useRef(false)
+  const pendingSubscriptionCheck = useRef(false)
 
   useEffect(() => {
+    const processMagicLink = async () => {
+      const magicToken = searchParams.get("magic")
+      
+      if (!magicToken || magicLinkProcessed.current || isAuthenticated) {
+        return false
+      }
+      
+      magicLinkProcessed.current = true
+      setMagicLinkProcessing(true)
+      
+      try {
+        const response = await fetch("/api/magic-link/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: magicToken }),
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.accessToken && data.user) {
+            await loginWithToken(data.accessToken, data.user, data.refreshToken)
+            
+            if (pendingSubscriptionCheck.current) {
+              console.log("[Magic Link] Verifying subscription status after login...")
+              try {
+                await refreshSubscriptionStatus()
+              } catch (error) {
+                console.error("[Magic Link] Subscription verification failed:", error)
+              }
+              pendingSubscriptionCheck.current = false
+            }
+            
+            window.history.replaceState({}, "", window.location.pathname)
+            return true
+          }
+        }
+      } catch (error) {
+        console.error("Magic link verification failed:", error)
+      } finally {
+        setMagicLinkProcessing(false)
+      }
+      
+      return false
+    }
+
     const checkFunnelParams = async () => {
       const email = searchParams.get("email")
       const uid = searchParams.get("uid")
+      const funnel = searchParams.get("Funnel")
+      const subscription = searchParams.get("subscription")
+      const plan = searchParams.get("plan")
+      
+      if (funnel && Object.keys(FUNNEL_PERSONA_NAMES).includes(funnel)) {
+        setFunnelPersona(funnel as FunnelPersona)
+        localStorage.setItem("funnel-persona", funnel)
+        console.log("[Funnel] Persona:", funnel, "-", FUNNEL_PERSONA_NAMES[funnel])
+      }
+      
+      if (plan) {
+        setFunnelPlan(plan)
+        localStorage.setItem("funnel-plan", plan)
+        console.log("[Funnel] Plan:", plan)
+      }
+      
+      if (subscription === "active") {
+        pendingSubscriptionCheck.current = true
+      }
       
       if (isAuthenticated) {
+        if (subscription === "active" && accessToken) {
+          console.log("[Funnel] Verifying subscription status...")
+          try {
+            await refreshSubscriptionStatus()
+          } catch (error) {
+            console.error("[Funnel] Subscription verification failed:", error)
+          }
+          pendingSubscriptionCheck.current = false
+        }
+        window.history.replaceState({}, "", window.location.pathname)
         setFunnelChecked(true)
         return
       }
@@ -83,10 +174,19 @@ function DashContent() {
       setFunnelChecked(true)
     }
 
-    if (!authLoading) {
-      checkFunnelParams()
+    const init = async () => {
+      if (authLoading) return
+      
+      const magicHandled = await processMagicLink()
+      if (!magicHandled) {
+        await checkFunnelParams()
+      } else {
+        setFunnelChecked(true)
+      }
     }
-  }, [searchParams, authLoading, isAuthenticated])
+    
+    init()
+  }, [searchParams, authLoading, isAuthenticated, accessToken, loginWithToken, refreshSubscriptionStatus])
 
   const userId = user?.id
   useEffect(() => {
@@ -290,7 +390,7 @@ function DashContent() {
     setFunnelEmail(null)
   }
 
-  if (authLoading || isLoading || !funnelChecked) {
+  if (authLoading || isLoading || !funnelChecked || magicLinkProcessing) {
     return (
       <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-6">

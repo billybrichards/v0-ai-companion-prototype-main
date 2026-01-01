@@ -17,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName?: string) => Promise<void>
+  loginWithToken: (token: string, userData: User, refreshToken?: string) => Promise<void>
   logout: () => void
   refreshToken: () => Promise<boolean>
   refreshSubscriptionStatus: () => Promise<void>
@@ -107,6 +108,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  const loginWithToken = async (token: string, userData: User, refreshTokenParam?: string) => {
+    setUser(userData)
+    setAccessToken(token)
+    if (refreshTokenParam) {
+      setRefreshTokenValue(refreshTokenParam)
+    }
+    
+    localStorage.setItem("accessToken", token)
+    localStorage.setItem("user", JSON.stringify(userData))
+    if (refreshTokenParam) {
+      localStorage.setItem("refreshToken", refreshTokenParam)
+    }
+  }
+
   const logout = () => {
     setUser(null)
     setAccessToken(null)
@@ -177,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user && !!accessToken,
         login,
         register,
+        loginWithToken,
         logout,
         refreshToken,
         refreshSubscriptionStatus,

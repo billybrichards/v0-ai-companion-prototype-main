@@ -302,6 +302,83 @@ export async function sendAccountDeletionEmail(to: string, name?: string) {
   }
 }
 
+export async function sendMagicLinkEmail(to: string, token: string, name?: string) {
+  const displayName = name || 'there';
+  const loginUrl = `https://anplexa.com/dash?magic=${token}`;
+  
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Your Anplexa login link',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #121212; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #121212; padding: 40px 20px;">
+            <tr>
+              <td align="center">
+                <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #1a1a1a; border-radius: 16px; overflow: hidden;">
+                  <tr>
+                    <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #7B2CBF 0%, #9D4EDD 100%);">
+                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">Your Login Link</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      <p style="margin: 0 0 20px; color: #E0E1DD; font-size: 16px; line-height: 1.6;">
+                        Hi ${displayName},
+                      </p>
+                      <p style="margin: 0 0 20px; color: #E0E1DD; font-size: 16px; line-height: 1.6;">
+                        Click the button below to sign in to Anplexa. No password needed!
+                      </p>
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" style="padding: 20px 0;">
+                            <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #7B2CBF 0%, #9D4EDD 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px;">
+                              Sign In to Anplexa
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin: 20px 0 0; color: #888; font-size: 14px; line-height: 1.6;">
+                        This link expires in 15 minutes. If you didn't request this, you can safely ignore this email.
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 20px 30px; border-top: 1px solid #333; text-align: center;">
+                      <p style="margin: 0; color: #888; font-size: 12px;">
+                        © 2025 Anplexa. Made with care in the UK
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+      replyTo: SUPPORT_EMAIL,
+    });
+
+    if (error) {
+      console.error('Failed to send magic link email:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error('Error sending magic link email:', err);
+    return { success: false, error: err };
+  }
+}
+
 export async function sendSubscriptionConfirmationEmail(to: string, name?: string) {
   const displayName = name || 'there';
   

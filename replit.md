@@ -124,19 +124,47 @@ The app uses Resend for transactional emails via `ANPLEXA_RESEND_API_KEY`:
 - Footer includes links to both pages, UK flag, and © 2025 Anplexa
 
 ## Funnel Query String Handling
-The app handles incoming traffic from marketing funnels and emails with query parameters:
+The app handles incoming traffic from marketing funnels with comprehensive query parameter support:
 
-**Marketing Funnel URL:**
-- `/dash?email=user@example.com&Funnel=QuietlyLonely&subscription=unlimited`
+**Free Access URLs:**
+- `/dash?email={email}&Funnel={persona}` - From funnel flow (personas A-F)
+- `/dash?email={email}&Funnel=Initial` - From waitlist
 
-**Email Campaign URL:**
-- `/dash?src=email&campaign=W4&uid={userId}`
+**Paid Access URLs:**
+- `/dash?email={email}&Funnel={persona}&subscription=active&plan={plan}` - After payment
+- `/dash?email={email}&Funnel=Direct&subscription=active&plan={plan}` - Direct purchase
+
+**Query Parameters:**
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| email | URL-encoded email | User's email address |
+| Funnel | A, B, C, D, E, F, Initial, Direct | Funnel source/persona |
+| subscription | active | Subscription status (paid only) |
+| plan | early_believer, monthly | Plan type (paid only) |
+| magic | token | Magic link login token |
+
+**Funnel Persona Mapping:**
+- A: Quietly Lonely (Connection)
+- B: Curious/Fantasy-Open (Exploration)
+- C: Privacy-First/Neurodivergent (Safety)
+- D: Late Night Thinker (Processing)
+- E: Emotional Explorer (Understanding)
+- F: Creative Seeker (Imagination)
 
 **Flow:**
-1. Check if email/uid exists in backend via `/api/check-email` or `/api/check-uid`
-2. If user exists WITH password → Show login form (prefilled email)
-3. If user exists WITHOUT password → Show signup form (prefilled email)
-4. If user doesn't exist → Proceed directly to /dash (guest mode)
+1. Check for magic link token → auto-login if valid
+2. Check if email/uid exists in backend via `/api/check-email` or `/api/check-uid`
+3. If user exists WITH password → Show login form (prefilled email) with magic link option
+4. If user exists WITHOUT password → Show signup form (prefilled email)
+5. After auth: verify subscription if `subscription=active`
+6. Force name/gender setup if not set
+7. Proceed to chat
+
+**Magic Link Authentication:**
+- Alternative to password login for convenience
+- API: POST `/api/magic-link/send` - Generates and emails login link
+- API: POST `/api/magic-link/verify` - Validates token and returns session
+- Links expire in 15 minutes
 
 ## New Chat Ice-Breaker Flow
 The app uses the backend's `newChat: true` feature for natural conversation starters:
@@ -147,6 +175,20 @@ The app uses the backend's `newChat: true` feature for natural conversation star
 - No static frontend welcome message - backend provides dynamic ice-breaker
 
 ## Recent Changes
+- January 1, 2026: Enhanced funnel query string handling
+  - Added complete support for all funnel parameters (email, Funnel, subscription, plan)
+  - Added magic link authentication as alternative to password login
+  - Created /api/magic-link/send and /api/magic-link/verify endpoints
+  - Added sendMagicLinkEmail function in lib/email.ts
+  - Subscription verification with backend when subscription=active
+  - Added loginWithToken function to auth context for magic link sessions
+  - Stores funnel persona and plan in localStorage for analytics
+  - Ensures name/gender setup before chat initiation
+- January 1, 2026: Subscription modal with two pricing options
+  - Monthly: £2.99/month
+  - Early Believer: £0.99/month (billed £11.99/year)
+  - 3-message limit for authenticated non-subscribed users
+  - Modal displays after limit reached (no dismiss option)
 - December 31, 2025: Backend-driven new chat ice-breaker flow
   - Removed static frontend welcome message prepending
   - Added isNewChatRef to track first message in conversations
