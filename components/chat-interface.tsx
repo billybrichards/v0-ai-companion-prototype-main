@@ -711,18 +711,61 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           )}
 
           {isGuest && guestMessageCount >= FREE_MESSAGE_LIMIT && (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground bg-primary/10 rounded-lg p-2 sm:p-3">
-              <div className="flex items-center gap-2">
-                <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span>Sign up to continue chatting</span>
-              </div>
-              <Button
-                size="sm"
-                onClick={() => setShowAuthModal(true)}
-                className="gradient-primary glow-hover h-8 px-4 text-xs min-touch-target w-full sm:w-auto"
-              >
-                Sign Up Free
-              </Button>
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
+              <Card className="mx-4 max-w-md w-full border-2 border-primary/50 bg-card p-6 sm:p-8 rounded-2xl shadow-[0_0_40px_rgba(123,44,191,0.3)]">
+                <div className="space-y-6 text-center">
+                  <div className="relative mx-auto w-fit">
+                    <div className="absolute inset-0 blur-2xl opacity-60">
+                      <div className="h-16 w-16 rounded-full bg-primary" />
+                    </div>
+                    <div className="relative">
+                      <AnplexaLogo size={64} className="drop-shadow-[0_0_20px_rgba(123,44,191,0.8)]" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h2 className="text-xl sm:text-2xl font-heading font-semibold text-foreground">
+                      You've reached your free limit
+                    </h2>
+                    <p className="text-sm sm:text-base text-muted-foreground">
+                      Create a free account to continue your private conversation with unlimited messages.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 text-left bg-primary/10 rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="h-5 w-5 text-primary shrink-0" />
+                      <span className="text-sm text-foreground">Unlimited private conversations</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Lock className="h-5 w-5 text-primary shrink-0" />
+                      <span className="text-sm text-foreground">100% private & judgment-free</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="h-5 w-5 text-primary shrink-0" />
+                      <span className="text-sm text-foreground">Save your chat history</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => setShowAuthModal(true)}
+                      className="w-full gradient-primary glow-hover h-12 sm:h-14 text-base sm:text-lg font-medium rounded-xl"
+                    >
+                      Sign Up Free
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Already have an account?{" "}
+                      <button 
+                        onClick={() => setShowAuthModal(true)}
+                        className="text-primary hover:underline font-medium"
+                      >
+                        Log in
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </div>
           )}
 
