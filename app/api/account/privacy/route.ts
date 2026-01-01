@@ -25,8 +25,8 @@ export async function PATCH(req: NextRequest) {
     }
     const backendApiKey = process.env.BACKEND_API_KEY
 
-    const response = await fetch(`${API_BASE}/api/users/privacy`, {
-      method: "PATCH",
+    const response = await fetch(`${API_BASE}/api/settings/preferences`, {
+      method: "PUT",
       headers: {
         Authorization: authHeader,
         "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
 
     const backendApiKey = process.env.BACKEND_API_KEY
 
-    const response = await fetch(`${API_BASE}/api/users/privacy`, {
+    const response = await fetch(`${API_BASE}/api/settings/preferences`, {
       method: "GET",
       headers: {
         Authorization: authHeader,

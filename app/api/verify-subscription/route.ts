@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const response = await fetch(`${API_BASE}/api/auth/subscription-status`, {
+    const response = await fetch(`${API_BASE}/api/auth/me`, {
       method: "GET",
       headers: { 
         "Content-Type": "application/json",
