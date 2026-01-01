@@ -48,11 +48,18 @@ The application is built with Next.js 16, React 19, and TypeScript, utilizing Ta
 - **TypeScript:** For type safety and improved developer experience.
 - **Tailwind CSS:** For utility-first styling.
 - **shadcn/ui:** For accessible and customizable UI components.
-- **Vercel Analytics:** For monitoring.
+- **PostHog Analytics:** For comprehensive event tracking and user behavior analysis.
 - **AI SDK (@ai-sdk/react):** For integrating AI functionalities.
 
+**Analytics (PostHog):**
+- Provider: `lib/posthog.tsx` wraps the app with PostHog context
+- Events tracked: `user_signed_up`, `user_logged_in`, `user_logged_out`, `magic_link_verified`, `checkout_started`, `checkout_completed`, `subscription_verified`, `upgrade_modal_shown`, `upgrade_clicked`, `message_sent`, `ai_response_received`, `gender_selected`, `companion_name_set`, `onboarding_completed`, `funnel_detected`
+- User identification: Called on login/register/magic link verification with email, plan, and subscription status
+- Page views: Automatic capture on navigation
+- Environment: `NEXT_PUBLIC_POSTHOG_KEY` (secret), `NEXT_PUBLIC_POSTHOG_HOST` (https://us.i.posthog.com)
+
 ## External Dependencies
-- **Backend API:** `https://2-terminal-companion--billy130.replit.app`
+- **Backend API:** `https://api.anplexa.com` (with `/api/stripe/verify-checkout` for checkout verification)
 - **Stripe:** For subscription management and payment processing.
 - **Resend:** For sending transactional emails.
-- **Vercel Analytics:** For application analytics.
+- **PostHog:** For product analytics and event tracking.
