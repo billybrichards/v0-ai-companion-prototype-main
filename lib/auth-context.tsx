@@ -174,17 +174,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!activeToken) return
 
     try {
+      console.log("[Auth] Refreshing subscription status...")
       const response = await fetch("/api/subscription", {
         headers: { Authorization: `Bearer ${activeToken}` },
+        cache: 'no-store'
       })
 
       if (response.ok) {
         const data = await response.json()
+        console.log("[Auth] Subscription data received:", data)
         if (data.subscriptionStatus && activeUser) {
           const updatedUser = { ...activeUser, subscriptionStatus: data.subscriptionStatus }
           setUser(updatedUser)
           localStorage.setItem("user", JSON.stringify(updatedUser))
+          console.log("[Auth] Updated user status to:", data.subscriptionStatus)
         }
+      } else {
+        console.error("[Auth] Subscription refresh failed:", response.status)
       }
     } catch (error) {
       console.error("Failed to refresh subscription status:", error)

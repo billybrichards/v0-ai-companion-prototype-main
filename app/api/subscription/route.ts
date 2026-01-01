@@ -16,6 +16,8 @@ export async function GET(req: NextRequest) {
         Authorization: authHeader,
         ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
       },
+      next: { revalidate: 0 },
+      cache: 'no-store'
     })
 
     if (!response.ok) {
