@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
-const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkBhsHf3F7YsE79UDhlyjdG"
+const STRIPE_PRICE_MONTHLY = "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
+const STRIPE_PRICE_YEARLY = "price_1SkBhsHf3F7YsE79UDhlyjdG"
 
 function getStripeClient() {
   const stripeSecret = process.env.STRIPE_SECRET
