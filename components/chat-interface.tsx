@@ -46,6 +46,8 @@ interface ChatInterfaceProps {
   userName?: string
   isGuest?: boolean
   chatId?: string
+  initialConversationId?: string
+  initialMessages?: Array<{ id: string; role: "user" | "assistant"; parts: Array<{ type: string; text?: string }> }>
 }
 
 const FREE_MESSAGE_LIMIT = 2
@@ -57,7 +59,7 @@ const guestResponses = [
 ]
 
 
-export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId }: ChatInterfaceProps) {
+export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId, initialConversationId, initialMessages }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
   const [isSubscribing, setIsSubscribing] = useState(false)
@@ -68,6 +70,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
   const [authMessageCount, setAuthMessageCount] = useState(0)
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
+  const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null)
+  const [isLoadingConversation, setIsLoadingConversation] = useState(!isGuest)
+  const pendingSaveRef = useRef(false)
+  const lastSavedMessagesRef = useRef<string>("")
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
@@ -122,6 +128,58 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       window.history.replaceState({}, "", window.location.pathname)
     }
   }, [refreshSubscriptionStatus])
+
+  // Load most recent conversation from backend for authenticated users
+  useEffect(() => {
+    if (isGuest || !accessToken || initialMessages) {
+      setIsLoadingConversation(false)
+      return
+    }
+
+    const loadConversation = async () => {
+      try {
+        console.log("[Chat] Loading conversations from backend...")
+        const response = await fetch("/api/conversations", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          cache: "no-store",
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("[Chat] Conversations loaded:", data)
+
+          // Get the most recent conversation
+          if (data.conversations && data.conversations.length > 0) {
+            const mostRecent = data.conversations[0]
+            console.log("[Chat] Loading most recent conversation:", mostRecent.id)
+
+            setConversationId(mostRecent.id)
+
+            // Store in localStorage as backup and for the useChat hook
+            if (mostRecent.messages && mostRecent.messages.length > 0) {
+              localStorage.setItem("chat-messages", JSON.stringify(mostRecent.messages))
+              lastSavedMessagesRef.current = JSON.stringify(mostRecent.messages)
+              hasTriggeredIcebreaker.current = true
+              setShowWelcome(false)
+            }
+          } else {
+            console.log("[Chat] No existing conversations found")
+          }
+        } else {
+          console.error("[Chat] Failed to load conversations:", response.status)
+        }
+      } catch (error) {
+        console.error("[Chat] Error loading conversations:", error)
+      } finally {
+        setIsLoadingConversation(false)
+      }
+    }
+
+    loadConversation()
+  }, [isGuest, accessToken, initialMessages])
+
   const [input, setInput] = useState("")
   const [showWelcome, setShowWelcome] = useState(true)
   const [preferences, setPreferences] = useState<ResponsePreference>({
@@ -187,12 +245,78 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [messages.length])
 
+  // Save conversation to backend when messages change (for authenticated users)
+  useEffect(() => {
+    if (isGuest || !accessToken || messages.length === 0 || status === "streaming" || pendingSaveRef.current) {
+      return
+    }
+
+    const messagesJson = JSON.stringify(messages)
+
+    // Only save if messages have actually changed
+    if (messagesJson === lastSavedMessagesRef.current) {
+      return
+    }
+
+    const saveConversation = async () => {
+      pendingSaveRef.current = true
+      try {
+        console.log("[Chat] Saving conversation to backend...")
+
+        // Generate a title from the first user message
+        const firstUserMessage = messages.find(m => m.role === "user")
+        const titleText = firstUserMessage?.parts?.find(p => p.type === "text")?.text || ""
+        const title = titleText.substring(0, 50) + (titleText.length > 50 ? "..." : "")
+
+        const response = await fetch("/api/conversations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            conversationId,
+            messages,
+            title: title || "New Conversation",
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("[Chat] Conversation saved:", data)
+
+          // Update conversation ID if this was a new conversation
+          if (data.conversationId && !conversationId) {
+            setConversationId(data.conversationId)
+          }
+
+          lastSavedMessagesRef.current = messagesJson
+        } else {
+          console.error("[Chat] Failed to save conversation:", response.status)
+        }
+      } catch (error) {
+        console.error("[Chat] Error saving conversation:", error)
+      } finally {
+        pendingSaveRef.current = false
+      }
+    }
+
+    // Debounce the save to avoid too many requests
+    const timeoutId = setTimeout(saveConversation, 1000)
+    return () => clearTimeout(timeoutId)
+  }, [isGuest, accessToken, messages, conversationId, status])
+
   // Auto-trigger ice-breaker for new conversations (both guests and authenticated)
   const hasTriggeredIcebreaker = useRef(false)
   const [isLoadingIcebreaker, setIsLoadingIcebreaker] = useState(false)
 
   // For authenticated users - use the AI SDK
   useEffect(() => {
+    // Wait for conversation loading to complete
+    if (isLoadingConversation) {
+      return
+    }
+
     if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current) {
       // Check if we have stored messages to prevent starting a new chat
       const stored = localStorage.getItem("chat-messages")
@@ -213,7 +337,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       console.log("[Chat] Triggering ice-breaker for authenticated user")
       sendMessage({ text: "[start conversation]" })
     }
-  }, [isGuest, messages.length, status, sendMessage])
+  }, [isGuest, messages.length, status, sendMessage, isLoadingConversation])
 
   // For guests - call the API directly to get ice-breaker
   useEffect(() => {
@@ -599,7 +723,21 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
       <div className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6">
         <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
-          {showWelcome && displayMessages.length === 0 && (
+          {/* Loading indicator for conversation sync */}
+          {!isGuest && isLoadingConversation && (
+            <div className="flex justify-center py-8">
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+                <span className="text-sm text-muted-foreground">Loading your conversation...</span>
+              </div>
+            </div>
+          )}
+
+          {showWelcome && displayMessages.length === 0 && !isLoadingConversation && (
             <Card className="border border-border bg-card/50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow-card)]">
               <div className="space-y-4 sm:space-y-6">
                 <p className="text-sm sm:text-base text-pretty leading-relaxed text-muted-foreground border-l-[3px] border-l-primary pl-3 sm:pl-4">

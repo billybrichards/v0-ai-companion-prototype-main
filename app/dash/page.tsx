@@ -451,6 +451,8 @@ function DashContent() {
       localStorage.removeItem("guest-message-count")
     }
     localStorage.removeItem("chat-messages")
+    // Clear currentConversationId in localStorage to force new conversation
+    localStorage.removeItem("currentConversationId")
     setConversationKey(prev => prev + 1)
     analytics.newConversationStarted(!isAuthenticated)
   }
