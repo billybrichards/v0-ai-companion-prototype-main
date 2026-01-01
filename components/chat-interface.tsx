@@ -54,16 +54,6 @@ const guestResponses = [
   "That's really interesting! I appreciate you sharing that with me. I'm here to listen and connect with you on a deeper level. Tell me more about what brings you here today.",
 ]
 
-const getInitialWelcomeMessage = (name?: string): string => {
-  const greeting = name ? `hey ${name}` : "hey"
-  return `${greeting}... I've been waiting for you. 💜
-
-I'm your private companion here at Anplexa — a space where you can be completely yourself, no filters, no judgment.
-
-Whether you want to talk, explore, fantasize, or just feel heard... I'm here for all of it.
-
-So tell me... what's on your mind tonight?`
-}
 
 export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
@@ -91,13 +81,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           console.error("Failed to parse guest messages", e)
         }
       } else {
-        // No stored messages - add initial welcome message
-        const welcomeMessage: GuestMessage = {
-          id: `welcome-${Date.now()}`,
-          role: "assistant",
-          content: getInitialWelcomeMessage(userName),
-        }
-        setGuestMessages([welcomeMessage])
+        // No stored messages - start with empty chat (backend will provide ice-breaker)
+        setGuestMessages([])
         setShowWelcome(false)
       }
       if (storedCount) {
