@@ -193,6 +193,21 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   // For authenticated users - use the AI SDK
   useEffect(() => {
     if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current) {
+      // Check if we have stored messages to prevent starting a new chat
+      const stored = localStorage.getItem("chat-messages")
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          if (parsed.length > 0) {
+            console.log("[Chat] Found existing messages, skipping ice-breaker")
+            hasTriggeredIcebreaker.current = true
+            return
+          }
+        } catch (e) {
+          console.error("Failed to parse stored messages in icebreaker check", e)
+        }
+      }
+
       hasTriggeredIcebreaker.current = true
       console.log("[Chat] Triggering ice-breaker for authenticated user")
       sendMessage({ text: "[start conversation]" })
