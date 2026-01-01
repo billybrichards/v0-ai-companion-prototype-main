@@ -10,7 +10,8 @@ export async function GET(req: NextRequest) {
     }
 
     const backendApiKey = process.env.BACKEND_API_KEY
-    const response = await fetch(`${API_BASE}/api/user/billing`, {
+    
+    const response = await fetch(`${API_BASE}/api/auth/me`, {
       headers: {
         Authorization: authHeader,
         ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
@@ -22,8 +23,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error }, { status: response.status })
     }
 
-    const data = await response.json()
-    return NextResponse.json(data)
+    const userData = await response.json()
+    
+    return NextResponse.json({
+      subscriptionStatus: userData.subscriptionStatus || "not_subscribed",
+      plan: userData.plan,
+      credits: userData.credits,
+    })
   } catch (error: unknown) {
     console.error("Subscription status error:", error)
     const message = error instanceof Error ? error.message : "Failed to get subscription status"
