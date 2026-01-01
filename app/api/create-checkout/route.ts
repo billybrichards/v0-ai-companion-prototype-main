@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const STRIPE_PRICE_MONTHLY = "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
-const STRIPE_PRICE_YEARLY = "price_1SkBhsHf3F7YsE79UDhlyjdG"
+const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
+const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkBhsHf3F7YsE79UDhlyjdG"
 
 function getStripeClient() {
   const stripeSecret = process.env.STRIPE_SECRET
@@ -27,8 +27,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
     }
     
-    // Select price based on plan
     const priceId = plan === "yearly" ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY
+    console.log(`[Checkout] Creating session for user ${userId}, plan: ${plan}, priceId: ${priceId}`)
     
     const stripe = getStripeClient()
     
@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       client_reference_id: userId,
     })
 
+    console.log(`[Checkout] Session created: ${session.id}`)
     return NextResponse.json({ url: session.url })
   } catch (error: unknown) {
     console.error("Checkout error:", error)

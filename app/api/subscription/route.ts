@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
+const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://api.anplexa.com"
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const backendApiKey = process.env.BACKEND_API_KEY
     
-    const response = await fetch(`${API_BASE}/api/auth/me`, {
+    const response = await fetch(`${API_BASE}/api/stripe/subscription`, {
       headers: {
         Authorization: authHeader,
         ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
@@ -22,15 +22,19 @@ export async function GET(req: NextRequest) {
 
     if (!response.ok) {
       const error = await response.text()
+      console.error("[Subscription] Backend error:", response.status, error)
       return NextResponse.json({ error }, { status: response.status })
     }
 
-    const userData = await response.json()
+    const data = await response.json()
+    console.log("[Subscription] Backend response:", JSON.stringify(data))
     
     return NextResponse.json({
-      subscriptionStatus: userData.subscriptionStatus || "not_subscribed",
-      plan: userData.plan,
-      credits: userData.credits,
+      subscriptionStatus: data.subscriptionStatus || data.status || "not_subscribed",
+      plan: data.plan,
+      credits: data.credits,
+      stripeCustomerId: data.stripeCustomerId,
+      subscriptionId: data.subscriptionId,
     })
   } catch (error: unknown) {
     console.error("Subscription status error:", error)
