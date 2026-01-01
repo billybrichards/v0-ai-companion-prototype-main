@@ -40,6 +40,8 @@ export async function POST(req: NextRequest) {
   
   const { messages, preferences, newChat } = body
 
+  // Prepend NSFW/Adult friendly instruction to the system prompt if needed
+  const nsfwInstruction = "You are an NSFW and Adult friendly AI companion. "
   const authHeader = req.headers.get("authorization")
   const lastUserMessage = messages.filter((m) => m.role === "user").pop()
   const messageText = lastUserMessage?.parts.find((p) => p.type === "text")?.text || ""
@@ -55,6 +57,7 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       message: messageText,
+      systemPrompt: nsfwInstruction, // Pass the NSFW/Adult friendly instruction
       preferences: {
         length: preferences?.length || "moderate",
         style: preferences?.style || "thoughtful",
