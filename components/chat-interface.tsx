@@ -19,6 +19,7 @@ const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
   loading: () => <div className="mx-auto mt-4 max-w-4xl border-2 border-border bg-background p-4 text-center text-muted-foreground text-sm">Loading theme settings...</div>
 })
 import { useAuth } from "@/lib/auth-context"
+import { analytics } from "@/lib/analytics"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 
@@ -293,10 +294,18 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     setIsLoadingIcebreaker(false)
   }, [chatId])
 
-  // Debug: log status changes
+  // Debug: log status changes and track AI response completion
+  const prevStatusRef = useRef<string>("")
   useEffect(() => {
     console.log("[Chat] Status changed:", status, "Error:", error)
-  }, [status, error])
+    if (prevStatusRef.current === "streaming" && status === "ready" && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      if (lastMessage.role === "assistant") {
+        analytics.aiResponseReceived(lastMessage.content?.length || 0, 0, false)
+      }
+    }
+    prevStatusRef.current = status
+  }, [status, error, messages])
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -317,6 +326,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       // Show upgrade modal when limit reached
       if (userMessageCount >= AUTH_FREE_MESSAGE_LIMIT) {
         setShowUpgradeModal(true)
+        analytics.upgradeModalShown(userMessageCount, !isGuest)
       }
     }
   }, [messages, isGuest, isSubscribed])
@@ -381,6 +391,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     setGuestMessageCount(newCount)
     setGuestMessages(prev => [...prev, userMessage])
     setShowWelcome(false)
+    analytics.messageSent(text.length, true, newCount)
     
     // Simulate AI response after a short delay
     setTimeout(() => {
@@ -391,6 +402,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
         content: guestResponses[responseIndex],
       }
       setGuestMessages(prev => [...prev, assistantMessage])
+      analytics.aiResponseReceived(guestResponses[responseIndex].length, 1000, true)
       
       // Show auth modal after the 2nd message response
       if (newCount >= FREE_MESSAGE_LIMIT) {
@@ -416,6 +428,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     if (status !== "ready" && status !== "error") return
 
     setShowWelcome(false)
+    const messageCount = messages.filter(m => m.role === "user").length + 1
+    analytics.messageSent(input.length, false, messageCount)
     sendMessage({ text: input })
     setInput("")
   }
@@ -447,6 +461,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     
     setIsSubscribing(true)
     console.log("[Subscribe] Starting checkout with plan:", plan)
+    analytics.upgradeClicked("upgrade_modal", plan)
+    analytics.checkoutStarted(plan, plan === "yearly" ? 11.99 : 2.99, "GBP")
     try {
       const response = await fetch("/api/create-checkout", {
         method: "POST",

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense, useRef } from "react"
+import { analytics } from "@/lib/analytics"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
@@ -90,6 +91,8 @@ function DashContent() {
           if (data.subscriptionStatus === "subscribed") {
             checkoutSubscribed.current = true
             updateSubscriptionStatus("subscribed")
+            analytics.checkoutCompleted(data.plan || "monthly", data.customerId, data.subscriptionId)
+            analytics.subscriptionVerified(data.plan || "monthly")
           }
         } else {
           const errorData = await response.json()
@@ -165,6 +168,7 @@ function DashContent() {
         setFunnelPersona(funnel as FunnelPersona)
         localStorage.setItem("funnel-persona", funnel)
         console.log("[Funnel] Persona:", funnel, "-", FUNNEL_PERSONA_NAMES[funnel])
+        analytics.funnelDetected(funnel, plan || undefined)
       }
       
       if (plan) {
@@ -409,6 +413,12 @@ function DashContent() {
       }
     }
     setSetupComplete(true)
+    
+    analytics.genderSelected(selectedGender === "custom" && selectedCustomGender ? selectedCustomGender : selectedGender, selectedGender === "custom")
+    if (selectedChatName) {
+      analytics.companionNameSet(true)
+    }
+    analytics.onboardingCompleted(selectedGender, !!selectedChatName)
   }
 
   const handleSettingsSave = async (selectedGender: GenderOption, selectedCustomGender?: string) => {
@@ -442,6 +452,7 @@ function DashContent() {
     }
     localStorage.removeItem("chat-messages")
     setConversationKey(prev => prev + 1)
+    analytics.newConversationStarted(!isAuthenticated)
   }
 
   const handleFunnelAuthClose = () => {

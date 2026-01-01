@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { analytics } from "./analytics"
 
 interface User {
   id: string
@@ -80,6 +81,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", data.accessToken)
     localStorage.setItem("refreshToken", data.refreshToken)
     localStorage.setItem("user", JSON.stringify(data.user))
+
+    analytics.identify(data.user.id, {
+      email: data.user.email,
+      displayName: data.user.displayName,
+      subscriptionStatus: data.user.subscriptionStatus,
+    })
+    analytics.userLoggedIn(email, "email")
   }
 
   const register = async (email: string, password: string, displayName?: string) => {
@@ -104,6 +112,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("refreshToken", data.refreshToken)
     localStorage.setItem("user", JSON.stringify(data.user))
 
+    analytics.identify(data.user.id, {
+      email: data.user.email,
+      displayName: data.user.displayName,
+      subscriptionStatus: data.user.subscriptionStatus,
+    })
+    analytics.userSignedUp(email, "email")
+
     fetch("/api/send-welcome-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -126,11 +141,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("refreshToken", refreshTokenParam)
     }
     
+    analytics.identify(userData.id, {
+      email: userData.email,
+      displayName: userData.displayName,
+      subscriptionStatus: userData.subscriptionStatus,
+    })
+    analytics.magicLinkVerified(userData.email)
+
     // Refresh subscription status immediately after login with token
     setTimeout(() => refreshSubscriptionStatus(token, userData), 100)
   }
 
   const logout = () => {
+    analytics.userLoggedOut()
+
     setUser(null)
     setAccessToken(null)
     setRefreshTokenValue(null)

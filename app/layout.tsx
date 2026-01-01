@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Montserrat, Fira_Code } from "next/font/google"
 import { AuthProvider } from "@/lib/auth-context"
+import { PostHogProvider } from "@/lib/posthog"
 import "./globals.css"
 
 const inter = Inter({ 
@@ -203,9 +204,11 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </PostHogProvider>
       </body>
     </html>
   )
