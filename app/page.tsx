@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User } from "lucide-react"
+import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User, Image, Video, Headphones } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 import { useAuth } from "@/lib/auth-context"
@@ -212,6 +212,39 @@ export default function LandingPage() {
                     <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
                   </div>
                 </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 sm:px-6 py-8 sm:py-10 md:py-14">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-4 py-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Coming Soon</span>
+            </div>
+            <h2 className="mb-4 sm:mb-6 font-heading text-xl sm:text-2xl md:text-3xl font-light">
+              More ways to connect
+            </h2>
+            <p className="mb-6 sm:mb-8 text-muted-foreground text-sm sm:text-base">
+              We're building new experiences to deepen your connection
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+              {[
+                { icon: Image, label: "Image Generation", description: "Visual experiences" },
+                { icon: Video, label: "Video Chat", description: "Face-to-face moments" },
+                { icon: Headphones, label: "Voice & Audio", description: "Intimate conversations" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex flex-col items-center gap-2 p-4 sm:p-6 rounded-xl bg-card/50 border border-border/50 min-w-[120px] sm:min-w-[140px]"
+                >
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                    <item.icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary/70" />
+                  </div>
+                  <span className="text-sm sm:text-base font-medium text-foreground">{item.label}</span>
+                  <span className="text-xs text-muted-foreground">{item.description}</span>
+                </div>
               ))}
             </div>
           </div>
