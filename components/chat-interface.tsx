@@ -922,17 +922,9 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               {isSubscribing ? "Processing..." : "Subscribe Now"}
             </Button>
 
-            <div className="text-center space-y-2">
-              <button 
-                onClick={() => setShowUpgradeModal(false)}
-                className="text-sm text-muted-foreground hover:text-foreground underline"
-              >
-                Or continue with free trial
-              </button>
-              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                <Lock className="h-3 w-3" />
-                <span>Your email is kept private.</span>
-              </div>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              <span>Your email is kept private.</span>
             </div>
           </div>
         </DialogContent>
