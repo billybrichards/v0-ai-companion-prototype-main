@@ -175,6 +175,21 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [messages.length])
 
+  // Auto-trigger ice-breaker for new conversations (authenticated users only)
+  const hasTriggeredIcebreaker = useRef(false)
+  useEffect(() => {
+    if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current) {
+      hasTriggeredIcebreaker.current = true
+      // Send a hidden trigger message to get the backend ice-breaker
+      sendMessage({ text: "[start conversation]" })
+    }
+  }, [isGuest, messages.length, status, sendMessage])
+
+  // Reset ice-breaker trigger when chatId changes (new chat started)
+  useEffect(() => {
+    hasTriggeredIcebreaker.current = false
+  }, [chatId])
+
   // Debug: log status changes
   useEffect(() => {
     console.log("[Chat] Status changed:", status, "Error:", error)
