@@ -5,7 +5,7 @@ import { sendSubscriptionConfirmationEmail } from "@/lib/email"
 const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://2-terminal-companion--billy130.replit.app"
 
 function getStripeClient() {
-  const stripeSecret = process.env.STRIPE_SANDBOX_SECRET || process.env.STRIPE_SECRET
+  const stripeSecret = process.env.STRIPE_SECRET
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   
   if (!stripeSecret) {

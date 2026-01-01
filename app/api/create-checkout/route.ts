@@ -1,12 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || "price_1SkkrmB6IBiJ6M2wKHKGA2WV"
-const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkkrmB6IBiJ6M2wj4cbn7Hq"
+const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
+const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkBhsHf3F7YsE79UDhlyjdG"
 
 function getStripeClient() {
-  // Use sandbox secret if available, otherwise fall back to production
-  const stripeSecret = process.env.STRIPE_SANDBOX_SECRET || process.env.STRIPE_SECRET
+  const stripeSecret = process.env.STRIPE_SECRET
   if (!stripeSecret) {
     throw new Error("Stripe secret not configured")
   }
