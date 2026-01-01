@@ -107,11 +107,12 @@ export const analytics = {
     })
   },
 
-  aiResponseReceived: (responseLength: number, responseTime?: number) => {
+  aiResponseReceived: (responseLength: number, responseTime?: number, isGuest?: boolean) => {
     if (typeof window === "undefined") return
     posthog.capture("ai_response_received", {
       response_length: responseLength,
       response_time_ms: responseTime,
+      is_guest: isGuest,
     })
   },
 

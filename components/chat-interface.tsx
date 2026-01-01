@@ -301,7 +301,11 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     if (prevStatusRef.current === "streaming" && status === "ready" && messages.length > 0) {
       const lastMessage = messages[messages.length - 1]
       if (lastMessage.role === "assistant") {
-        analytics.aiResponseReceived(lastMessage.content?.length || 0, 0, false)
+        const textContent = lastMessage.parts
+          ?.filter((p): p is { type: "text"; text: string } => p.type === "text")
+          .map(p => p.text)
+          .join("") || ""
+        analytics.aiResponseReceived(textContent.length, 0, false)
       }
     }
     prevStatusRef.current = status
