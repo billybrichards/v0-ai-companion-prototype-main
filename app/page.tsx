@@ -44,6 +44,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
             <span className="text-base sm:text-lg font-heading font-light tracking-wide lowercase">anplexa</span>
+            <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">BETA</span>
           </div>
           {user ? (
             <Link href="/dash">

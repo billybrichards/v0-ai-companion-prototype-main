@@ -187,6 +187,7 @@ export default function AccountPage() {
             <div className="flex items-center gap-2">
               <AnplexaLogo size={24} />
               <span className="text-base font-heading font-light tracking-wide lowercase hidden sm:inline">settings</span>
+              <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">BETA</span>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

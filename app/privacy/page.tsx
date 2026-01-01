@@ -13,6 +13,7 @@ export default function PrivacyPage() {
             <ArrowLeft className="w-4 h-4" />
             <AnplexaLogo size={24} />
             <span className="font-heading text-lg sm:text-xl lowercase">anplexa</span>
+            <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">BETA</span>
           </Link>
         </div>
       </header>
