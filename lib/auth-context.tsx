@@ -8,6 +8,7 @@ interface User {
   displayName: string
   isAdmin: boolean
   subscriptionStatus?: "subscribed" | "not_subscribed"
+  subscriptionVerifiedAt?: number
 }
 
 interface AuthContextType {
@@ -21,6 +22,7 @@ interface AuthContextType {
   logout: () => void
   refreshToken: () => Promise<boolean>
   refreshSubscriptionStatus: () => Promise<void>
+  updateSubscriptionStatus: (status: "subscribed" | "not_subscribed") => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -184,6 +186,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await response.json()
         console.log("[Auth] Subscription data received:", data)
         if (data.subscriptionStatus && activeUser) {
+          const CHECKOUT_GRACE_PERIOD = 5 * 60 * 1000
+          const isRecentCheckout = activeUser.subscriptionVerifiedAt && 
+            (Date.now() - activeUser.subscriptionVerifiedAt) < CHECKOUT_GRACE_PERIOD
+          
+          if (activeUser.subscriptionStatus === "subscribed" && data.subscriptionStatus === "not_subscribed" && isRecentCheckout) {
+            console.log("[Auth] Ignoring backend downgrade during grace period - checkout verified recently")
+            return
+          }
           const updatedUser = { ...activeUser, subscriptionStatus: data.subscriptionStatus }
           setUser(updatedUser)
           localStorage.setItem("user", JSON.stringify(updatedUser))
@@ -195,6 +205,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Failed to refresh subscription status:", error)
     }
+  }
+
+  const updateSubscriptionStatus = (status: "subscribed" | "not_subscribed") => {
+    if (!user) return
+    console.log("[Auth] Directly updating subscription status to:", status)
+    const updatedUser = { 
+      ...user, 
+      subscriptionStatus: status,
+      subscriptionVerifiedAt: status === "subscribed" ? Date.now() : undefined
+    }
+    setUser(updatedUser)
+    localStorage.setItem("user", JSON.stringify(updatedUser))
   }
 
   return (
@@ -210,6 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         refreshToken,
         refreshSubscriptionStatus,
+        updateSubscriptionStatus,
       }}
     >
       {children}

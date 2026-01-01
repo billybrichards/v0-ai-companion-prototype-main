@@ -30,7 +30,7 @@ const FUNNEL_PERSONA_NAMES: Record<string, string> = {
 
 function DashContent() {
   const searchParams = useSearchParams()
-  const { isAuthenticated, isLoading: authLoading, user, logout, accessToken, loginWithToken, refreshSubscriptionStatus } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, user, logout, accessToken, loginWithToken, refreshSubscriptionStatus, updateSubscriptionStatus } = useAuth()
   const [setupComplete, setSetupComplete] = useState(false)
   const [gender, setGender] = useState<GenderOption>("female")
   const [customGender, setCustomGender] = useState<string | undefined>()
@@ -49,6 +49,7 @@ function DashContent() {
   const magicLinkProcessed = useRef(false)
   const pendingSubscriptionCheck = useRef(false)
   const checkoutVerified = useRef(false)
+  const checkoutSubscribed = useRef(false)
   const [pendingSessionId, setPendingSessionId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -86,7 +87,10 @@ function DashContent() {
         if (response.ok) {
           const data = await response.json()
           console.log("[Checkout] Subscription verified:", data)
-          await refreshSubscriptionStatus()
+          if (data.subscriptionStatus === "subscribed") {
+            checkoutSubscribed.current = true
+            updateSubscriptionStatus("subscribed")
+          }
         } else {
           const errorData = await response.json()
           console.error("[Checkout] Verification failed:", errorData)
@@ -102,7 +106,7 @@ function DashContent() {
     }
     
     verifyCheckout()
-  }, [pendingSessionId, isAuthenticated, accessToken, user, authLoading, refreshSubscriptionStatus])
+  }, [pendingSessionId, isAuthenticated, accessToken, user, authLoading, updateSubscriptionStatus])
 
   useEffect(() => {
     const processMagicLink = async () => {
@@ -127,7 +131,7 @@ function DashContent() {
           if (data.accessToken && data.user) {
             await loginWithToken(data.accessToken, data.user, data.refreshToken)
             
-            if (pendingSubscriptionCheck.current) {
+            if (pendingSubscriptionCheck.current && !checkoutSubscribed.current) {
               console.log("[Magic Link] Verifying subscription status after login...")
               try {
                 await refreshSubscriptionStatus()
@@ -174,7 +178,7 @@ function DashContent() {
       }
       
       if (isAuthenticated) {
-        if (subscription === "active" && accessToken) {
+        if (subscription === "active" && accessToken && !checkoutSubscribed.current) {
           console.log("[Funnel] Verifying subscription status...")
           try {
             await refreshSubscriptionStatus()
