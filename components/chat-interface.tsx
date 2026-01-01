@@ -183,19 +183,96 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [messages.length])
 
-  // Auto-trigger ice-breaker for new conversations (authenticated users only)
+  // Auto-trigger ice-breaker for new conversations (both guests and authenticated)
   const hasTriggeredIcebreaker = useRef(false)
+  const [isLoadingIcebreaker, setIsLoadingIcebreaker] = useState(false)
+
+  // For authenticated users - use the AI SDK
   useEffect(() => {
     if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current) {
       hasTriggeredIcebreaker.current = true
-      // Send a hidden trigger message to get the backend ice-breaker
+      console.log("[Chat] Triggering ice-breaker for authenticated user")
       sendMessage({ text: "[start conversation]" })
     }
   }, [isGuest, messages.length, status, sendMessage])
 
+  // For guests - call the API directly to get ice-breaker
+  useEffect(() => {
+    if (isGuest && guestMessages.length === 0 && !hasTriggeredIcebreaker.current) {
+      hasTriggeredIcebreaker.current = true
+      setIsLoadingIcebreaker(true)
+      console.log("[Chat] Triggering ice-breaker for guest user")
+      
+      // Call API to get ice-breaker
+      fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{
+            id: `init-${Date.now()}`,
+            role: "user",
+            parts: [{ type: "text", text: "[start conversation]" }]
+          }],
+          preferences: { length: "moderate", style: "thoughtful" },
+          newChat: true,
+        }),
+      })
+        .then(async (response) => {
+          console.log("[Chat] Ice-breaker API response status:", response.status)
+          if (!response.ok) throw new Error("Failed to get ice-breaker")
+          
+          // Parse SSE stream
+          const reader = response.body?.getReader()
+          if (!reader) throw new Error("No response body")
+          
+          const decoder = new TextDecoder()
+          let fullText = ""
+          
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            
+            const chunk = decoder.decode(value, { stream: true })
+            const lines = chunk.split("\n")
+            
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6))
+                  if (data.type === "text-delta" && data.delta) {
+                    fullText += data.delta
+                  }
+                } catch (e) {
+                  // Ignore parse errors
+                }
+              }
+            }
+          }
+          
+          console.log("[Chat] Ice-breaker received:", fullText.substring(0, 50) + "...")
+          
+          if (fullText) {
+            const assistantMessage: GuestMessage = {
+              id: `icebreaker-${Date.now()}`,
+              role: "assistant",
+              content: fullText,
+            }
+            setGuestMessages([assistantMessage])
+          }
+        })
+        .catch((error) => {
+          console.error("[Chat] Ice-breaker error:", error)
+        })
+        .finally(() => {
+          setIsLoadingIcebreaker(false)
+        })
+    }
+  }, [isGuest, guestMessages.length])
+
   // Reset ice-breaker trigger when chatId changes (new chat started)
   useEffect(() => {
     hasTriggeredIcebreaker.current = false
+    setIsLoadingIcebreaker(false)
   }, [chatId])
 
   // Debug: log status changes
@@ -492,6 +569,25 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
                 </div>
               </div>
             </Card>
+          )}
+
+          {/* Loading indicator for ice-breaker */}
+          {isGuest && isLoadingIcebreaker && guestMessages.length === 0 && (
+            <div className="flex justify-start gap-2">
+              <div className="shrink-0 mt-1">
+                <AnplexaLogo size={24} className="drop-shadow-[0_0_6px_rgba(123,44,191,0.4)] animate-pulse" />
+              </div>
+              <div className="max-w-[85%] sm:max-w-[80%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 bg-card text-foreground border-l-2 border-primary shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-sm text-muted-foreground">Connecting...</span>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Render guest messages */}
