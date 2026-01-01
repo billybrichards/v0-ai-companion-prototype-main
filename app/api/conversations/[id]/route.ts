@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const API_BASE = process.env.API_URL || "http://localhost:3001"
+const API_BASE = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://api.anplexa.com"
 
 // GET /api/conversations/[id] - Get a specific conversation
 export async function GET(
