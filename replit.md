@@ -175,6 +175,17 @@ The app uses the backend's `newChat: true` feature for natural conversation star
 - No static frontend welcome message - backend provides dynamic ice-breaker
 
 ## Recent Changes
+- January 1, 2026: SEO optimization and metadata enhancement
+  - Comprehensive Open Graph and Twitter card meta tags
+  - JSON-LD structured data for WebApplication and Organization
+  - Generated OG image for social sharing (1200x630)
+  - Proper favicon setup: .ico, .svg, multiple PNG sizes
+  - PWA manifest (site.webmanifest) with app icons
+  - robots.txt blocking /api/, /dash, /account from crawling
+  - Dynamic sitemap.ts for main pages
+  - browserconfig.xml for Windows tiles
+  - Safari pinned tab SVG
+  - Viewport and theme-color meta tags
 - January 1, 2026: Enhanced funnel query string handling
   - Added complete support for all funnel parameters (email, Funnel, subscription, plan)
   - Added magic link authentication as alternative to password login
