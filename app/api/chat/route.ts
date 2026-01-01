@@ -124,14 +124,20 @@ export async function POST(req: NextRequest) {
                 const data = JSON.parse(dataStr)
 
                 if (data.type === "text" && data.content) {
-                  // AI SDK v5 SSE format: text-delta
-                  controller.enqueue(
-                    encoder.encode(`data: ${JSON.stringify({ 
-                      type: "text-delta", 
-                      id: textId, 
-                      delta: data.content 
-                    })}\n\n`)
-                  )
+                  // Filter out backend metadata artifacts (exact pattern: "| <digits> |<")
+                  let content = data.content
+                  content = content.replace(/\s*\|\s*\d+\s*\|\s*<$/g, '')
+                  
+                  if (content) {
+                    // AI SDK v5 SSE format: text-delta
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ 
+                        type: "text-delta", 
+                        id: textId, 
+                        delta: content 
+                      })}\n\n`)
+                    )
+                  }
                 }
               } catch {
                 // Ignore invalid JSON
@@ -148,13 +154,19 @@ export async function POST(req: NextRequest) {
             try {
               const data = JSON.parse(dataStr)
               if (data.type === "text" && data.content) {
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ 
-                    type: "text-delta", 
-                    id: textId, 
-                    delta: data.content 
-                  })}\n\n`)
-                )
+                // Filter out backend metadata artifacts (exact pattern: "| <digits> |<")
+                let content = data.content
+                content = content.replace(/\s*\|\s*\d+\s*\|\s*<$/g, '')
+                
+                if (content) {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ 
+                      type: "text-delta", 
+                      id: textId, 
+                      delta: content 
+                    })}\n\n`)
+                  )
+                }
               }
             } catch {
               // Ignore invalid JSON
