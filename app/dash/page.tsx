@@ -94,6 +94,7 @@ function DashContent() {
       return
     }
     
+    // For guests (not authenticated)
     if (!isAuthenticated || !userId) {
       const guestGender = localStorage.getItem("guest-companion-gender")
       const guestName = localStorage.getItem("guest-chat-name")
@@ -107,11 +108,15 @@ function DashContent() {
           setChatName(guestName)
         }
         setSetupComplete(true)
+      } else {
+        // No stored gender - force setup
+        setSetupComplete(false)
       }
       setIsLoading(false)
       return
     }
 
+    // For authenticated users
     const userGenderKey = `companion-gender-${userId}`
     const userCustomGenderKey = `companion-custom-gender-${userId}`
     const userChatNameKey = `chat-name-${userId}`
@@ -130,6 +135,7 @@ function DashContent() {
       }
       setSetupComplete(true)
     } else {
+      // Check for guest data to migrate
       const guestGender = localStorage.getItem("guest-companion-gender")
       if (guestGender) {
         setGender(guestGender as GenderOption)
@@ -153,6 +159,8 @@ function DashContent() {
         localStorage.removeItem("guest-chat-name")
         setSetupComplete(true)
       } else {
+        // No stored gender - force setup even for authenticated users from funnel
+        console.log("[Dash] User has no stored gender, forcing setup")
         setSetupComplete(false)
       }
     }
