@@ -73,9 +73,17 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       if (stored) {
         try {
           const parsed = JSON.parse(stored)
-          setGuestMessages(parsed)
-          if (parsed.length > 0) {
+          // Filter out old static welcome messages that contain the legacy greeting
+          const filteredMessages = parsed.filter((msg: GuestMessage) => 
+            !(msg.role === "assistant" && msg.id?.startsWith("welcome-") && msg.content?.includes("been waiting for you"))
+          )
+          setGuestMessages(filteredMessages)
+          if (filteredMessages.length > 0) {
             setShowWelcome(false)
+          }
+          // If we filtered out messages, update localStorage
+          if (filteredMessages.length !== parsed.length) {
+            localStorage.setItem("guest-chat-messages", JSON.stringify(filteredMessages))
           }
         } catch (e) {
           console.error("Failed to parse guest messages", e)
