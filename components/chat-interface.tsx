@@ -72,8 +72,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
   const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null)
   const [isLoadingConversation, setIsLoadingConversation] = useState(!isGuest)
-  const pendingSaveRef = useRef(false)
-  const lastSavedMessagesRef = useRef<string>("")
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
@@ -160,7 +158,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             // Store in localStorage as backup and for the useChat hook
             if (mostRecent.messages && mostRecent.messages.length > 0) {
               localStorage.setItem("chat-messages", JSON.stringify(mostRecent.messages))
-              lastSavedMessagesRef.current = JSON.stringify(mostRecent.messages)
               hasTriggeredIcebreaker.current = true
               setShowWelcome(false)
             }
@@ -245,66 +242,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     }
   }, [messages.length])
 
-  // Save conversation to backend when messages change (for authenticated users)
-  useEffect(() => {
-    if (isGuest || !accessToken || messages.length === 0 || status === "streaming" || pendingSaveRef.current) {
-      return
-    }
-
-    const messagesJson = JSON.stringify(messages)
-
-    // Only save if messages have actually changed
-    if (messagesJson === lastSavedMessagesRef.current) {
-      return
-    }
-
-    const saveConversation = async () => {
-      pendingSaveRef.current = true
-      try {
-        console.log("[Chat] Saving conversation to backend...")
-
-        // Generate a title from the first user message
-        const firstUserMessage = messages.find(m => m.role === "user")
-        const titleText = firstUserMessage?.parts?.find(p => p.type === "text")?.text || ""
-        const title = titleText.substring(0, 50) + (titleText.length > 50 ? "..." : "")
-
-        const response = await fetch("/api/conversations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            conversationId,
-            messages,
-            title: title || "New Conversation",
-          }),
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          console.log("[Chat] Conversation saved:", data)
-
-          // Update conversation ID if this was a new conversation
-          if (data.conversationId && !conversationId) {
-            setConversationId(data.conversationId)
-          }
-
-          lastSavedMessagesRef.current = messagesJson
-        } else {
-          console.error("[Chat] Failed to save conversation:", response.status)
-        }
-      } catch (error) {
-        console.error("[Chat] Error saving conversation:", error)
-      } finally {
-        pendingSaveRef.current = false
-      }
-    }
-
-    // Debounce the save to avoid too many requests
-    const timeoutId = setTimeout(saveConversation, 1000)
-    return () => clearTimeout(timeoutId)
-  }, [isGuest, accessToken, messages, conversationId, status])
+  // Note: Conversations are auto-saved by the backend via /api/chat endpoint
+  // We only need to track the conversation ID for loading purposes
 
   // Auto-trigger ice-breaker for new conversations (both guests and authenticated)
   const hasTriggeredIcebreaker = useRef(false)
