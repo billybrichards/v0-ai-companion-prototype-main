@@ -64,6 +64,12 @@ The application is built with Next.js 16, React 19, and TypeScript, utilizing Ta
 - Features: Session replays, heatmaps, behavior insights
 - Helper functions: `identifyClarity()`, `setClarityTag()`, `trackClarityEvent()` available for custom tracking
 
+**Analytics (Meta Pixel):**
+- Location: `app/layout.tsx` in the `<head>` section
+- Pixel ID: `2042123676520826`
+- Events: Automatic PageView tracking on every page load
+- Includes noscript fallback for users with JavaScript disabled
+
 ## External Dependencies
 - **Backend API:** `https://api.anplexa.com` (with `/api/stripe/verify-checkout` for checkout verification)
 - **Stripe:** For subscription management and payment processing.
