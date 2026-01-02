@@ -25,10 +25,15 @@ import AuthForm from "@/components/auth-form"
 
 type ResponsePreference = {
   length: "brief" | "moderate" | "detailed"
-  style: "casual" | "thoughtful" | "creative"
 }
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
+
+interface PersonalityMode {
+  id: string
+  name: string
+  description: string
+}
 
 interface GuestMessage {
   id: string
@@ -68,6 +73,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
   const [authMessageCount, setAuthMessageCount] = useState(0)
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
+  const [personalityModes, setPersonalityModes] = useState<PersonalityMode[]>([])
+  const [selectedPersonalityMode, setSelectedPersonalityMode] = useState<string>("nurturing")
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
@@ -126,7 +133,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [showWelcome, setShowWelcome] = useState(true)
   const [preferences, setPreferences] = useState<ResponsePreference>({
     length: "moderate",
-    style: "thoughtful",
   })
   const [showThemeCustomizer, setShowThemeCustomizer] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -136,6 +142,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const genderRef = useRef(gender)
   const customGenderRef = useRef(customGender)
   const accessTokenRef = useRef(accessToken)
+  const personalityModeRef = useRef(selectedPersonalityMode)
   const isNewChatRef = useRef(true)
   
   // Keep refs in sync with state
@@ -144,7 +151,35 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     genderRef.current = gender
     customGenderRef.current = customGender
     accessTokenRef.current = accessToken
-  }, [preferences, gender, customGender, accessToken])
+    personalityModeRef.current = selectedPersonalityMode
+  }, [preferences, gender, customGender, accessToken, selectedPersonalityMode])
+
+  // Fetch personality modes from API
+  useEffect(() => {
+    const fetchPersonalityModes = async () => {
+      try {
+        const headers: Record<string, string> = {}
+        if (accessToken) {
+          headers.Authorization = `Bearer ${accessToken}`
+        }
+        const response = await fetch("/api/personality-modes", { headers })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.modes && Array.isArray(data.modes)) {
+            setPersonalityModes(data.modes)
+            if (data.currentMode) {
+              setSelectedPersonalityMode(data.currentMode)
+            } else if (data.modes.length > 0) {
+              setSelectedPersonalityMode(data.modes[0].id)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[Chat] Failed to fetch personality modes:", error)
+      }
+    }
+    fetchPersonalityModes()
+  }, [accessToken])
   
   // Create transport with auth headers and dynamic body
   const transport = useMemo(() => {
@@ -168,6 +203,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             preferences: preferencesRef.current,
             gender: genderRef.current,
             customGender: customGenderRef.current,
+            personalityMode: personalityModeRef.current,
             newChat: isNew,
           },
         }
@@ -232,7 +268,8 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             role: "user",
             parts: [{ type: "text", text: "[start conversation]" }]
           }],
-          preferences: { length: "moderate", style: "thoughtful" },
+          preferences: { length: "moderate" },
+          personalityMode: selectedPersonalityMode,
           newChat: true,
         }),
       })
@@ -442,12 +479,6 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     brief: "Quick responses",
     moderate: "Balanced length",
     detailed: "In-depth responses",
-  }
-
-  const styleDescriptions = {
-    casual: "Relaxed & friendly",
-    thoughtful: "Reflective & empathetic",
-    creative: "Imaginative & expressive",
   }
 
   const getPronounText = () => {
@@ -740,22 +771,40 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
               </div>
 
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground shrink-0">Style:</span>
+                <span className="text-xs sm:text-sm font-medium text-muted-foreground shrink-0">Personality:</span>
                 <Select
-                  value={preferences.style}
-                  onValueChange={(value) =>
-                    setPreferences({ ...preferences, style: value as ResponsePreference["style"] })
-                  }
+                  value={selectedPersonalityMode}
+                  onValueChange={async (value) => {
+                    setSelectedPersonalityMode(value)
+                    if (accessToken) {
+                      try {
+                        await fetch("/api/personality-modes", {
+                          method: "PUT",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                          },
+                          body: JSON.stringify({ personalityMode: value }),
+                        })
+                      } catch (error) {
+                        console.error("[Chat] Failed to save personality mode:", error)
+                      }
+                    }
+                  }}
                 >
                   <SelectTrigger className="h-9 sm:h-10 flex-1 sm:w-[180px] sm:flex-none border border-border bg-background rounded-lg focus:border-primary focus:ring-primary/30 text-xs sm:text-sm min-touch-target">
-                    <SelectValue />
+                    <SelectValue placeholder="Select personality" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(styleDescriptions).map(([key, desc]) => (
-                      <SelectItem key={key} value={key} className="text-xs sm:text-sm">
-                        {desc}
-                      </SelectItem>
-                    ))}
+                    {personalityModes.length > 0 ? (
+                      personalityModes.map((mode) => (
+                        <SelectItem key={mode.id} value={mode.id} className="text-xs sm:text-sm">
+                          {mode.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="nurturing" className="text-xs sm:text-sm">Nurturing</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

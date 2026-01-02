@@ -32,6 +32,7 @@ The application is built with Next.js 16, React 19, and TypeScript, utilizing Ta
     - Backend-driven new chat ice-breaker flow for dynamic conversation starters.
     - Responsive sticky composer for mobile.
     - PRO badge and upgrade button for subscription status.
+    - Dynamic personality modes fetched from API (`/api/personality-modes`) with selector dropdown on desktop.
 - **Subscription Management (Stripe Integration):**
     - Checkout API, Webhook Handler, Verify Checkout API, and Subscription Status API for managing PRO subscriptions.
     - Fallback mechanism for webhook failures.
