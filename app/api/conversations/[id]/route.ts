@@ -87,3 +87,48 @@ export async function DELETE(
     )
   }
 }
+
+// PUT /api/conversations/[id] - Update a conversation
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authHeader = req.headers.get("authorization")
+  const { id } = await params
+
+  if (!authHeader) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const body = await req.json()
+    const backendApiKey = process.env.BACKEND_API_KEY
+    const response = await fetch(`${API_BASE}/api/conversations/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader,
+        ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error("[Conversations] PUT error:", response.status, error)
+      return NextResponse.json(
+        { error: "Failed to update conversation" },
+        { status: response.status }
+      )
+    }
+
+    const data = await response.json()
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("[Conversations] PUT exception:", error)
+    return NextResponse.json(
+      { error: "Failed to update conversation" },
+      { status: 500 }
+    )
+  }
+}
