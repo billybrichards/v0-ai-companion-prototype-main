@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Montserrat, Fira_Code } from "next/font/google"
 import { AuthProvider } from "@/lib/auth-context"
 import { PostHogProvider } from "@/lib/posthog"
+import { ClarityProvider } from "@/lib/clarity"
 import "./globals.css"
 
 const inter = Inter({ 
@@ -205,9 +206,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <PostHogProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <ClarityProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ClarityProvider>
         </PostHogProvider>
       </body>
     </html>

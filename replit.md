@@ -58,6 +58,12 @@ The application is built with Next.js 16, React 19, and TypeScript, utilizing Ta
 - Page views: Automatic capture on navigation
 - Environment: `NEXT_PUBLIC_POSTHOG_KEY` (secret), `NEXT_PUBLIC_POSTHOG_HOST` (https://us.i.posthog.com)
 
+**Analytics (Microsoft Clarity):**
+- Provider: `lib/clarity.tsx` wraps the app with Clarity initialization
+- Project ID: `uv8hptph57` (hardcoded)
+- Features: Session replays, heatmaps, behavior insights
+- Helper functions: `identifyClarity()`, `setClarityTag()`, `trackClarityEvent()` available for custom tracking
+
 ## External Dependencies
 - **Backend API:** `https://api.anplexa.com` (with `/api/stripe/verify-checkout` for checkout verification)
 - **Stripe:** For subscription management and payment processing.
