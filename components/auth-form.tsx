@@ -107,8 +107,8 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
   }, [email])
 
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background p-3 sm:p-4 safe-top safe-bottom">
-      <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] max-h-[90vh] overflow-y-auto">
         <div className="mb-5 sm:mb-6 md:mb-8 text-center">
           <div className="mb-4 sm:mb-6 flex justify-center">
             <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
