@@ -13,9 +13,10 @@ interface AuthFormProps {
   defaultMode?: "login" | "signup"
   prefillEmail?: string
   showMagicLink?: boolean
+  embedded?: boolean // When true, renders without fixed overlay (for use inside Dialog)
 }
 
-export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMagicLink = true }: AuthFormProps) {
+export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMagicLink = true, embedded = false }: AuthFormProps) {
   const { login, register } = useAuth()
   const [isLogin, setIsLogin] = useState(defaultMode !== "signup")
   const [email, setEmail] = useState(prefillEmail || "")
@@ -106,9 +107,8 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
     }
   }, [email])
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] max-h-[90vh] overflow-y-auto">
+  const cardContent = (
+    <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] max-h-[90vh] overflow-y-auto">
         <div className="mb-5 sm:mb-6 md:mb-8 text-center">
           <div className="mb-4 sm:mb-6 flex justify-center">
             <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
@@ -275,6 +275,17 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
           </p>
         </div>
       </Card>
+  )
+
+  // When embedded in a Dialog, just return the card content
+  if (embedded) {
+    return cardContent
+  }
+
+  // When standalone, wrap with fixed overlay
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+      {cardContent}
     </div>
   )
 }

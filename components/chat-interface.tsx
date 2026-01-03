@@ -951,12 +951,12 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
       {/* Auth Modal for Guests */}
       <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
-        <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden">
+        <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden h-auto max-h-[90vh]">
           <VisuallyHidden>
             <DialogTitle>Sign in to Anplexa</DialogTitle>
             <DialogDescription>Create an account or sign in to continue chatting.</DialogDescription>
           </VisuallyHidden>
-          <AuthForm onSuccess={() => setShowAuthModal(false)} />
+          <AuthForm onSuccess={() => setShowAuthModal(false)} embedded />
         </DialogContent>
       </Dialog>
 

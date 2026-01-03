@@ -431,12 +431,12 @@ export default function LandingPage() {
         setShowAuthModal(open)
         if (!open) setUpgradeIntent(false)
       }}>
-        <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden">
+        <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden h-auto max-h-[90vh]">
           <VisuallyHidden>
             <DialogTitle>{upgradeIntent ? "Sign in to upgrade to Pro" : "Sign in to Anplexa"}</DialogTitle>
             <DialogDescription>Create an account or sign in to access your private AI companion.</DialogDescription>
           </VisuallyHidden>
-          <AuthForm onSuccess={handleAuthSuccess} />
+          <AuthForm onSuccess={handleAuthSuccess} embedded />
         </DialogContent>
       </Dialog>
     </div>
