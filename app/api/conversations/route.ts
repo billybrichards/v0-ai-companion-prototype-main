@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     if (!response.ok) {
       // If backend doesn't have this endpoint yet, return empty array
       if (response.status === 404) {
+        console.log("[Conversations] Backend returned 404, returning empty list")
         return NextResponse.json({ conversations: [] })
       }
       const errorText = await response.text()
@@ -29,6 +30,10 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await response.json()
+    // Handle different response formats from backend
+    if (Array.isArray(data)) {
+      return NextResponse.json({ conversations: data })
+    }
     return NextResponse.json(data)
   } catch (error) {
     console.error("[Conversations] Error:", error)

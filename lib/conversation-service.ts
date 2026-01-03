@@ -62,12 +62,33 @@ export async function fetchConversations(accessToken: string): Promise<Conversat
 
     const data = await response.json()
 
-    // If backend returned empty or no conversations, check local storage
-    if (!data.conversations || data.conversations.length === 0) {
+    // Handle different response formats
+    let conversations: Conversation[] = []
+    if (Array.isArray(data)) {
+      conversations = data
+    } else if (data.conversations && Array.isArray(data.conversations)) {
+      conversations = data.conversations
+    }
+
+    // Map backend format to our format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    conversations = conversations.map((conv: any) => ({
+      id: conv.id || conv._id,
+      title: conv.title,
+      messages: (conv.messages || []).map((msg: unknown) => normalizeMessage(msg as Message)),
+      createdAt: conv.createdAt || conv.created_at || new Date().toISOString(),
+      updatedAt: conv.updatedAt || conv.updated_at || conv.createdAt || new Date().toISOString(),
+      isLocal: false
+    }))
+
+    // If backend returned empty, check local storage
+    if (conversations.length === 0) {
+      console.log("[ConversationService] No backend conversations, checking local storage")
       return getLocalConversations()
     }
 
-    return data.conversations
+    console.log("[ConversationService] Loaded", conversations.length, "conversations from backend")
+    return conversations
   } catch (error) {
     console.error("[ConversationService] Fetch error:", error)
     return getLocalConversations()
@@ -125,21 +146,24 @@ export async function getMostRecentConversation(accessToken: string, userId?: st
 
     if (conversations.length === 0) {
       // Check legacy local storage
-      const legacyMessages = localStorage.getItem("chat-messages")
-      if (legacyMessages) {
-        try {
-          const messages = JSON.parse(legacyMessages)
-          if (messages.length > 0) {
-            return {
-              id: `migrated-${Date.now()}`,
-              messages: messages.map(normalizeMessage),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              isLocal: true
+      if (typeof window !== "undefined") {
+        const legacyMessages = localStorage.getItem("chat-messages")
+        if (legacyMessages) {
+          try {
+            const messages = JSON.parse(legacyMessages)
+            if (messages.length > 0) {
+              console.log("[ConversationService] Using legacy localStorage messages")
+              return {
+                id: `migrated-${Date.now()}`,
+                messages: messages.map(normalizeMessage),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                isLocal: true
+              }
             }
+          } catch {
+            // Ignore parse errors
           }
-        } catch {
-          // Ignore parse errors
         }
       }
       return null
@@ -150,7 +174,19 @@ export async function getMostRecentConversation(accessToken: string, userId?: st
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     )
 
-    return sorted[0]
+    const mostRecent = sorted[0]
+    console.log("[ConversationService] Most recent conversation:", mostRecent.id)
+
+    // If the conversation doesn't have messages loaded, fetch the full conversation
+    if (!mostRecent.messages || mostRecent.messages.length === 0) {
+      console.log("[ConversationService] Fetching full conversation details...")
+      const fullConversation = await loadConversation(mostRecent.id, accessToken, userId)
+      if (fullConversation) {
+        return fullConversation
+      }
+    }
+
+    return mostRecent
   } catch (error) {
     console.error("[ConversationService] Get recent error:", error)
 
@@ -318,7 +354,17 @@ export async function loadConversation(
 
     if (response.ok) {
       const data = await response.json()
-      return data
+      // Map backend format to our format
+      const conversation: Conversation = {
+        id: data.id || data._id || conversationId,
+        title: data.title,
+        messages: (data.messages || []).map((msg: unknown) => normalizeMessage(msg as Message)),
+        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
+        updatedAt: data.updatedAt || data.updated_at || data.createdAt || new Date().toISOString(),
+        isLocal: false
+      }
+      console.log("[ConversationService] Loaded conversation from backend:", conversationId, "with", conversation.messages.length, "messages")
+      return conversation
     }
   } catch (error) {
     console.log("[ConversationService] Backend load failed, using local:", error)
