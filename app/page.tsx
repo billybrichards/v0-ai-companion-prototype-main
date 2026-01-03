@@ -127,7 +127,7 @@ export default function LandingPage() {
               <div className="hidden md:block flex-shrink-0 mt-10 md:mt-0">
                 <PhoneMockup 
                   images={["/images/companion-1.png", "/images/companion-2.png"]}
-                  interval={4000}
+                  interval={6000}
                 />
               </div>
             </div>
