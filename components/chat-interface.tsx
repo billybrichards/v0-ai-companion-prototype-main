@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, User } from "lucide-react"
+import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, User, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
