@@ -436,7 +436,7 @@ export default function LandingPage() {
             <DialogTitle>{upgradeIntent ? "Sign in to upgrade to Pro" : "Sign in to Anplexa"}</DialogTitle>
             <DialogDescription>Create an account or sign in to access your private AI companion.</DialogDescription>
           </VisuallyHidden>
-          <AuthForm onSuccess={handleAuthSuccess} />
+          <AuthForm onSuccess={handleAuthSuccess} embedded />
         </DialogContent>
       </Dialog>
     </div>
