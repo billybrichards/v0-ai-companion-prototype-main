@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,6 +26,8 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
   const [showPassword, setShowPassword] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [isSendingMagicLink, setIsSendingMagicLink] = useState(false)
+  const [forgotPasswordSent, setForgotPasswordSent] = useState(false)
+  const [isSendingForgotPassword, setIsSendingForgotPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,6 +76,35 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
       setIsSendingMagicLink(false)
     }
   }
+
+  const handleForgotPassword = useCallback(async () => {
+    if (!email) {
+      setError("Please enter your email first")
+      return
+    }
+    
+    setError("")
+    setIsSendingForgotPassword(true)
+    
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to send reset link")
+      }
+      
+      setForgotPasswordSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send reset link")
+    } finally {
+      setIsSendingForgotPassword(false)
+    }
+  }, [email])
 
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background p-3 sm:p-4 safe-top safe-bottom">
@@ -144,6 +175,25 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {isLogin && (
+              <div className="flex justify-end">
+                {forgotPasswordSent ? (
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    <Check className="h-3 w-3" />
+                    Reset link sent to your email
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={isSendingForgotPassword}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors py-1"
+                  >
+                    {isSendingForgotPassword ? "Sending..." : "Forgot password?"}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {error && (

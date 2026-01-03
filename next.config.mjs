@@ -10,7 +10,7 @@ const nextConfig = {
     '*.kirk.replit.dev',
   ],
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://2-terminal-companion--billy130.replit.app',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://api.anplexa.com',
   },
   async headers() {
     return [
