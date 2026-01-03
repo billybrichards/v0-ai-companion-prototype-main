@@ -3,7 +3,7 @@ import { z } from "zod"
 
 export const maxDuration = 60
 
-const API_BASE = process.env.API_URL || "http://localhost:3001"
+const API_BASE = process.env.API_URL || "https://api.anplexa.com"
 
 const MessagePartSchema = z.object({
   type: z.string(),
