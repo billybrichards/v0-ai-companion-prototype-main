@@ -275,64 +275,116 @@ function DashContent() {
         }
         setSetupComplete(true)
       } else {
-        // No stored gender - force setup
         setSetupComplete(false)
       }
       setIsLoading(false)
       return
     }
 
-    // For authenticated users
-    const userGenderKey = `companion-gender-${userId}`
-    const userCustomGenderKey = `companion-custom-gender-${userId}`
-    const userChatNameKey = `chat-name-${userId}`
-    
-    const storedGender = localStorage.getItem(userGenderKey)
-    const storedCustomGender = localStorage.getItem(userCustomGenderKey)
-    const storedChatName = localStorage.getItem(userChatNameKey)
+    // For authenticated users - fetch from backend first
+    const fetchUserProfile = async () => {
+      try {
+        console.log("[Dash] Fetching user profile from backend...")
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        
+        if (response.ok) {
+          const profile = await response.json()
+          console.log("[Dash] User profile:", profile)
+          
+          if (profile.preferredGender || profile.gender) {
+            const backendGender = profile.preferredGender || profile.gender
+            const isCustomGender = !["male", "female", "non-binary"].includes(backendGender)
+            
+            if (isCustomGender) {
+              setGender("custom")
+              setCustomGender(backendGender)
+            } else {
+              setGender(backendGender as GenderOption)
+            }
+            
+            if (profile.chatName) {
+              setChatName(profile.chatName)
+            }
+            
+            // Cache in localStorage
+            const userGenderKey = `companion-gender-${userId}`
+            const userCustomGenderKey = `companion-custom-gender-${userId}`
+            const userChatNameKey = `chat-name-${userId}`
+            
+            localStorage.setItem(userGenderKey, isCustomGender ? "custom" : backendGender)
+            if (isCustomGender) {
+              localStorage.setItem(userCustomGenderKey, backendGender)
+            }
+            if (profile.chatName) {
+              localStorage.setItem(userChatNameKey, profile.chatName)
+            }
+            
+            setSetupComplete(true)
+            setIsLoading(false)
+            return
+          }
+        }
+      } catch (error) {
+        console.error("[Dash] Failed to fetch user profile:", error)
+      }
+      
+      // Fallback to localStorage
+      const userGenderKey = `companion-gender-${userId}`
+      const userCustomGenderKey = `companion-custom-gender-${userId}`
+      const userChatNameKey = `chat-name-${userId}`
+      
+      const storedGender = localStorage.getItem(userGenderKey)
+      const storedCustomGender = localStorage.getItem(userCustomGenderKey)
+      const storedChatName = localStorage.getItem(userChatNameKey)
 
-    if (storedGender) {
-      setGender(storedGender as GenderOption)
-      if (storedCustomGender) {
-        setCustomGender(storedCustomGender)
-      }
-      if (storedChatName) {
-        setChatName(storedChatName)
-      }
-      setSetupComplete(true)
-    } else {
-      // Check for guest data to migrate
-      const guestGender = localStorage.getItem("guest-companion-gender")
-      if (guestGender) {
-        setGender(guestGender as GenderOption)
-        const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
-        const guestName = localStorage.getItem("guest-chat-name")
-        if (guestCustomGender) {
-          setCustomGender(guestCustomGender)
+      if (storedGender) {
+        setGender(storedGender as GenderOption)
+        if (storedCustomGender) {
+          setCustomGender(storedCustomGender)
         }
-        if (guestName) {
-          setChatName(guestName)
+        if (storedChatName) {
+          setChatName(storedChatName)
         }
-        localStorage.setItem(userGenderKey, guestGender)
-        if (guestCustomGender) {
-          localStorage.setItem(userCustomGenderKey, guestCustomGender)
-        }
-        if (guestName) {
-          localStorage.setItem(userChatNameKey, guestName)
-        }
-        localStorage.removeItem("guest-companion-gender")
-        localStorage.removeItem("guest-companion-custom-gender")
-        localStorage.removeItem("guest-chat-name")
         setSetupComplete(true)
       } else {
-        // No stored gender - force setup even for authenticated users from funnel
-        console.log("[Dash] User has no stored gender, forcing setup")
-        setSetupComplete(false)
+        // Check for guest data to migrate
+        const guestGender = localStorage.getItem("guest-companion-gender")
+        if (guestGender) {
+          setGender(guestGender as GenderOption)
+          const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
+          const guestName = localStorage.getItem("guest-chat-name")
+          if (guestCustomGender) {
+            setCustomGender(guestCustomGender)
+          }
+          if (guestName) {
+            setChatName(guestName)
+          }
+          localStorage.setItem(userGenderKey, guestGender)
+          if (guestCustomGender) {
+            localStorage.setItem(userCustomGenderKey, guestCustomGender)
+          }
+          if (guestName) {
+            localStorage.setItem(userChatNameKey, guestName)
+          }
+          localStorage.removeItem("guest-companion-gender")
+          localStorage.removeItem("guest-companion-custom-gender")
+          localStorage.removeItem("guest-chat-name")
+          setSetupComplete(true)
+        } else {
+          console.log("[Dash] User has no stored gender, forcing setup")
+          setSetupComplete(false)
+        }
       }
-    }
 
-    setIsLoading(false)
-  }, [authLoading, isAuthenticated, userId])
+      setIsLoading(false)
+    }
+    
+    fetchUserProfile()
+  }, [authLoading, isAuthenticated, userId, accessToken])
 
   useEffect(() => {
     checkBackendHealth().then(setBackendHealth)

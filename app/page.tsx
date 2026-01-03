@@ -11,6 +11,8 @@ import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User, Image, 
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 import { useAuth } from "@/lib/auth-context"
+import dynamic from "next/dynamic"
+const PhoneMockup = dynamic(() => import("@/components/phone-mockup"), { ssr: false })
 
 export default function LandingPage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -80,43 +82,54 @@ export default function LandingPage() {
       <main className="pt-16 sm:pt-20">
         <section className="relative overflow-hidden px-4 sm:px-6 py-12 sm:py-16 md:py-20">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-          <div className="relative mx-auto max-w-4xl text-center">
-            <h1 className="mb-4 sm:mb-6 font-heading text-fluid-4xl font-light leading-tight tracking-tight">
-              <span className="block">Your fantasy.</span>
-              <span className="block text-primary">Your voice.</span>
-              <span className="block">Your secret.</span>
-            </h1>
-            
-            <p className="mx-auto mb-8 sm:mb-10 max-w-2xl text-base sm:text-lg md:text-xl text-muted-foreground px-2">
-              An open, private AI companion for conversation, intimacy, and imagination.
-              <br className="hidden md:block" />
-              No judgment. No filters. No audience.
-            </p>
+          <div className="relative mx-auto max-w-6xl">
+            <div className="flex flex-col md:flex-row md:items-center md:gap-8 lg:gap-12">
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="mb-4 sm:mb-6 font-heading text-fluid-4xl font-light leading-tight tracking-tight">
+                  <span className="block">Your fantasy.</span>
+                  <span className="block text-primary">Your voice.</span>
+                  <span className="block">Your secret.</span>
+                </h1>
+                
+                <p className="mx-auto md:mx-0 mb-8 sm:mb-10 max-w-2xl text-base sm:text-lg md:text-xl text-muted-foreground px-2 md:px-0">
+                  An open, private AI companion for conversation, intimacy, and imagination.
+                  <br className="hidden md:block" />
+                  No judgment. No filters. No audience.
+                </p>
 
-            <div className="flex flex-col items-center gap-3 sm:gap-4 sm:flex-row sm:justify-center">
-              <Link href="/dash" className="w-full sm:w-auto">
-                <Button size="lg" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gradient-primary glow-hover rounded-full w-full sm:w-auto min-touch-target">
-                  <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Use Anplexa now
-                </Button>
-              </Link>
-              <p className="text-xs sm:text-sm text-muted-foreground">No login required</p>
-            </div>
+                <div className="flex flex-col items-center gap-3 sm:gap-4 sm:flex-row md:justify-start sm:justify-center">
+                  <Link href="/dash" className="w-full sm:w-auto">
+                    <Button size="lg" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gradient-primary glow-hover rounded-full w-full sm:w-auto min-touch-target">
+                      <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      Use Anplexa now
+                    </Button>
+                  </Link>
+                  <p className="text-xs sm:text-sm text-muted-foreground">No login required</p>
+                </div>
 
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="text-xs sm:text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors min-touch-target py-2"
-              >
-                Sign in
-              </button>
-              <span className="text-muted-foreground/50">•</span>
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="text-xs sm:text-sm text-primary underline-offset-4 hover:underline transition-colors min-touch-target py-2 font-medium"
-              >
-                Create account
-              </button>
+                <div className="flex items-center justify-center md:justify-start gap-3 sm:gap-4 mt-4 sm:mt-6">
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="text-xs sm:text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors min-touch-target py-2"
+                  >
+                    Sign in
+                  </button>
+                  <span className="text-muted-foreground/50">•</span>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="text-xs sm:text-sm text-primary underline-offset-4 hover:underline transition-colors min-touch-target py-2 font-medium"
+                  >
+                    Create account
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden md:block flex-shrink-0 mt-10 md:mt-0">
+                <PhoneMockup 
+                  images={["/images/companion-1.png", "/images/companion-2.png"]}
+                  interval={4000}
+                />
+              </div>
             </div>
           </div>
 
