@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
 import { getMostRecentConversation, setCurrentConversationId } from "@/lib/conversation-service"
+import { ConversationProvider } from "@/lib/infrastructure/providers/conversation-provider"
 import ChatInterface from "@/components/chat-interface"
 import AnplexaLogo from "@/components/anplexa-logo"
 import GenderSetup from "@/components/gender-setup"
@@ -551,8 +552,8 @@ function DashContent() {
     )
   }
 
-  return (
-    <main className="flex min-h-screen flex-col">
+  const chatContent = (
+    <>
       {backendHealth?.status === "unhealthy" && (
         <div className="bg-[var(--security)]/10 border-b border-[var(--security)] px-4 py-2 text-center">
           <p className="text-sm text-[var(--security)]">
@@ -581,6 +582,18 @@ function DashContent() {
         />
       )}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+    </>
+  )
+
+  return (
+    <main className="flex min-h-screen flex-col">
+      {isAuthenticated ? (
+        <ConversationProvider>
+          {chatContent}
+        </ConversationProvider>
+      ) : (
+        chatContent
+      )}
     </main>
   )
 }
