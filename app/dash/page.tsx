@@ -17,7 +17,7 @@ type GenderOption = "male" | "female" | "non-binary" | "custom"
 type FunnelAuthMode = "login" | "signup" | null
 type FunnelPersona = "A" | "B" | "C" | "D" | "E" | "F" | "Initial" | "Direct" | null
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.anplexa.com"
+const API_BASE = "https://api.anplexa.com"
 
 const FUNNEL_PERSONA_NAMES: Record<string, string> = {
   "A": "Quietly Lonely",
