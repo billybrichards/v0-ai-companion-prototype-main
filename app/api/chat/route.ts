@@ -3,7 +3,7 @@ import { z } from "zod"
 
 export const maxDuration = 60
 
-const API_BASE = process.env.API_URL || "https://2-terminal-companion-production-1e32.up.railway.app"
+const API_BASE = process.env.API_URL || "https://api.anplexa.com"
 
 const MessagePartSchema = z.object({
   type: z.string(),
