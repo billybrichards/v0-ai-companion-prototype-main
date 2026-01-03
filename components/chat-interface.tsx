@@ -20,6 +20,7 @@ const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
 })
 import { useAuth } from "@/lib/auth-context"
 import { analytics } from "@/lib/analytics"
+import { useConversation, type Message as ConversationMessage } from "@/lib/use-conversation"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 
@@ -75,6 +76,19 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
   const [personalityModes, setPersonalityModes] = useState<PersonalityMode[]>([])
   const [selectedPersonalityMode, setSelectedPersonalityMode] = useState<string>("nurturing")
+
+  // Conversation persistence hook
+  const {
+    conversation,
+    isLoading: isConversationLoading,
+    saveCurrentMessages,
+    startNewConversation,
+    initialMessages,
+  } = useConversation({
+    accessToken,
+    userId: user?.id,
+    enabled: !isGuest,
+  })
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
@@ -229,14 +243,21 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
   // For authenticated users - use the AI SDK
   useEffect(() => {
-    if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current) {
-      // Check if we have stored messages to prevent starting a new chat
+    if (!isGuest && messages.length === 0 && status === "ready" && isNewChatRef.current && !hasTriggeredIcebreaker.current && !isConversationLoading) {
+      // Check if we have messages from the conversation service
+      if (initialMessages.length > 0) {
+        console.log("[Chat] Found existing messages from conversation service, skipping ice-breaker")
+        hasTriggeredIcebreaker.current = true
+        return
+      }
+
+      // Also check localStorage as fallback
       const stored = localStorage.getItem("chat-messages")
       if (stored) {
         try {
           const parsed = JSON.parse(stored)
           if (parsed.length > 0) {
-            console.log("[Chat] Found existing messages, skipping ice-breaker")
+            console.log("[Chat] Found existing messages in localStorage, skipping ice-breaker")
             hasTriggeredIcebreaker.current = true
             return
           }
@@ -249,7 +270,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       console.log("[Chat] Triggering ice-breaker for authenticated user")
       sendMessage({ text: "[start conversation]" })
     }
-  }, [isGuest, messages.length, status, sendMessage])
+  }, [isGuest, messages.length, status, sendMessage, isConversationLoading, initialMessages])
 
   // For guests - call the API directly to get ice-breaker
   useEffect(() => {
@@ -353,11 +374,23 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, guestMessages])
 
+  // Save messages to conversation service (with localStorage fallback)
   useEffect(() => {
-    if (messages.length > 0) {
+    if (!isGuest && messages.length > 0) {
+      // Save via conversation service (handles both local and backend storage)
+      const messagesToSave = messages.map(m => ({
+        id: m.id,
+        role: m.role as "user" | "assistant" | "system",
+        content: m.parts?.filter((p): p is { type: "text"; text: string } => p.type === "text").map(p => p.text).join("") || "",
+        parts: m.parts,
+        createdAt: new Date().toISOString()
+      }))
+      saveCurrentMessages(messagesToSave)
+
+      // Also keep legacy localStorage for backward compatibility
       localStorage.setItem("chat-messages", JSON.stringify(messages))
     }
-  }, [messages])
+  }, [messages, isGuest, saveCurrentMessages])
 
   // Track authenticated user message count (only user messages count toward limit)
   useEffect(() => {

@@ -5,6 +5,7 @@ import { analytics } from "@/lib/analytics"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
+import { getMostRecentConversation, setCurrentConversationId } from "@/lib/conversation-service"
 import ChatInterface from "@/components/chat-interface"
 import AnplexaLogo from "@/components/anplexa-logo"
 import GenderSetup from "@/components/gender-setup"
@@ -41,6 +42,7 @@ function DashContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [backendHealth, setBackendHealth] = useState<HealthStatus | null>(null)
   const [conversationKey, setConversationKey] = useState(0)
+  const [conversationLoaded, setConversationLoaded] = useState(false)
   const [funnelAuthMode, setFunnelAuthMode] = useState<FunnelAuthMode>(null)
   const [funnelEmail, setFunnelEmail] = useState<string | null>(null)
   const [funnelChecked, setFunnelChecked] = useState(false)
@@ -335,6 +337,45 @@ function DashContent() {
     checkBackendHealth().then(setBackendHealth)
   }, [])
 
+  // Load most recent conversation when authenticated
+  useEffect(() => {
+    const loadConversation = async () => {
+      if (!isAuthenticated || !accessToken || !user?.id || authLoading) {
+        // For guests or when not ready, mark as loaded immediately
+        if (!authLoading) {
+          setConversationLoaded(true)
+        }
+        return
+      }
+
+      try {
+        console.log("[Dash] Loading most recent conversation...")
+        const conversation = await getMostRecentConversation(accessToken, user.id)
+
+        if (conversation && conversation.messages.length > 0) {
+          console.log("[Dash] Found conversation with", conversation.messages.length, "messages")
+          // Sync to localStorage so ChatInterface can read it
+          // Convert to the format expected by the chat interface
+          const messagesForStorage = conversation.messages.map(msg => ({
+            id: msg.id,
+            role: msg.role,
+            parts: msg.parts || [{ type: "text", text: msg.content }],
+          }))
+          localStorage.setItem("chat-messages", JSON.stringify(messagesForStorage))
+          setCurrentConversationId(conversation.id, user.id)
+        } else {
+          console.log("[Dash] No existing conversation found")
+        }
+      } catch (error) {
+        console.error("[Dash] Failed to load conversation:", error)
+      } finally {
+        setConversationLoaded(true)
+      }
+    }
+
+    loadConversation()
+  }, [isAuthenticated, accessToken, user?.id, authLoading])
+
   const syncPreferencesToBackend = async (
     token: string,
     genderValue: GenderOption,
@@ -446,11 +487,14 @@ function DashContent() {
   const handleNewChat = () => {
     if (user?.id) {
       localStorage.removeItem(`chat-messages-${user.id}`)
+      // Clear conversation service state
+      localStorage.removeItem(`anplexa-current-conversation-${user.id}`)
     } else {
       localStorage.removeItem("guest-chat-messages")
       localStorage.removeItem("guest-message-count")
     }
     localStorage.removeItem("chat-messages")
+    localStorage.removeItem("anplexa-current-conversation")
     setConversationKey(prev => prev + 1)
     analytics.newConversationStarted(!isAuthenticated)
   }
@@ -460,7 +504,7 @@ function DashContent() {
     setFunnelEmail(null)
   }
 
-  if (authLoading || isLoading || !funnelChecked || magicLinkProcessing) {
+  if (authLoading || isLoading || !funnelChecked || magicLinkProcessing || !conversationLoaded) {
     return (
       <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-6">
