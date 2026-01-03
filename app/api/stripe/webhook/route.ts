@@ -45,13 +45,17 @@ export async function POST(req: NextRequest) {
       const customerEmail = session.customer_email || session.customer_details?.email
 
       if (userId) {
-        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
+        const internalWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+        if (!internalWebhookSecret) {
+          console.error("STRIPE_WEBHOOK_SECRET not configured - cannot update subscription")
+          return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 })
+        }
         const backendApiKey = process.env.BACKEND_API_KEY
         const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Webhook-Secret": webhookSecret,
+            "X-Webhook-Secret": internalWebhookSecret,
             ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
           },
           body: JSON.stringify({ userId, subscriptionStatus: "subscribed" }),
@@ -77,13 +81,17 @@ export async function POST(req: NextRequest) {
       const userId = subscription.metadata?.userId
 
       if (userId) {
-        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "stripe-webhook-internal"
+        const internalWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+        if (!internalWebhookSecret) {
+          console.error("STRIPE_WEBHOOK_SECRET not configured - cannot update subscription")
+          return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 })
+        }
         const backendApiKey = process.env.BACKEND_API_KEY
         const response = await fetch(`${API_BASE}/api/webhooks/subscription`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Webhook-Secret": webhookSecret,
+            "X-Webhook-Secret": internalWebhookSecret,
             ...(backendApiKey ? { "X-API-Key": backendApiKey } : {}),
           },
           body: JSON.stringify({ userId, subscriptionStatus: "not_subscribed" }),

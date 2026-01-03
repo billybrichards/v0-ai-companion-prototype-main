@@ -7,7 +7,7 @@ const STRIPE_PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY || "price_1SkBhsHf3F
 function getStripeClient() {
   const stripeSecret = process.env.STRIPE_SECRET
   if (!stripeSecret) {
-    throw new Error("Stripe secret not configured")
+    throw new globalThis.Error("Stripe secret not configured")
   }
   return new Stripe(stripeSecret, {
     apiVersion: "2025-12-15.clover",
@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
     }
     
     const priceId = plan === "yearly" ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY
-    console.log(`[Checkout] Creating session for user ${userId}, plan: ${plan}, priceId: ${priceId}`)
     
     const stripe = getStripeClient()
     
@@ -36,7 +35,6 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId,
@@ -52,11 +50,10 @@ export async function POST(req: NextRequest) {
       client_reference_id: userId,
     })
 
-    console.log(`[Checkout] Session created: ${session.id}`)
     return NextResponse.json({ url: session.url })
-  } catch (error: unknown) {
-    console.error("Checkout error:", error)
-    const message = error instanceof Error ? error.message : "Failed to create checkout session"
+  } catch (err: unknown) {
+    console.error("Checkout error:", err)
+    const message = err instanceof globalThis.Error ? err.message : "Failed to create checkout session"
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
