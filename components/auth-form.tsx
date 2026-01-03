@@ -108,7 +108,7 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
   }, [email])
 
   const cardContent = (
-    <Card className={`w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] ${embedded ? '' : 'max-h-[90vh] overflow-y-auto'}`}>
+    <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] max-h-[90vh] overflow-y-auto">
         <div className="mb-5 sm:mb-6 md:mb-8 text-center">
           <div className="mb-4 sm:mb-6 flex justify-center">
             <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
