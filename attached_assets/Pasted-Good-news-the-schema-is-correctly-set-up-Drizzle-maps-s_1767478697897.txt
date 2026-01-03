@@ -1,0 +1,68 @@
+Good news - the schema is correctly set up. Drizzle maps subscriptionStatus (in code) to subscription_status (database column). The admin update should work.
+
+The issue is likely frontend caching. Here's my plan:
+
+Proposed Fix
+Create a dedicated /api/auth/subscription-status endpoint with:
+No-cache headers (Cache-Control: no-store, no-cache, must-revalidate)
+Fresh database read every time
+Returns only subscriptionStatus and isSubscribed boolean
+Verify the admin UI update is correctly hitting the database by adding logging
+Update docs with the new refresh endpoint for frontend use
+This endpoint can be called by the frontend on:
+
+App initialization
+After checkout completion
+Manual refresh button
+Periodic polling if needed
+Created task list
+Worked for 1 minute
+Start building
+•
+Free
+Transitioned from Plan to Build mode
+Now let me add logging to the admin subscription update and update the docs:
+Now let me add the API docs for the new subscription-status endpoint. I'll insert it after the magic-link/verify section:
+Now let me restart the server and test the endpoint:
+Checked system logs
+Server is running. Let me update the task list and get architect review:
+Let me check what subscription states are actually used in the system and fix this:
+$ rg -i -n 'trialing|canceled_pending|subscription_status.*=' server
+Looking at the code, the database actually only stores subscribed or not_subscribed - the trialing status from Stripe gets mapped to subscribed in our webhooks. But to be safe and future-proof, let me update the endpoint to not force values:
+All done! Here's what I implemented:
+
+New Subscription Status Refresh Endpoint
+GET /api/auth/subscription-status
+
+The frontend can now call this endpoint to get a fresh subscription status with no caching:
+
+const response = await fetch('/api/auth/subscription-status', {
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Cache-Control': 'no-cache'
+  },
+  cache: 'no-store'
+});
+const { subscriptionStatus, isSubscribed, credits } = await response.json();
+Response example:
+
+{
+  "subscriptionStatus": "subscribed",
+  "isSubscribed": true,
+  "credits": 50,
+  "hasStripeCustomer": true,
+  "hasActiveSubscription": true,
+  "timestamp": "2026-01-03T22:14:00.000Z"
+}
+Key features:
+
+Aggressive no-cache headers (Cache-Control: no-store, no-cache, must-revalidate)
+Raw SQL query bypasses ORM caching
+Returns isSubscribed boolean that handles all active states (subscribed, trialing, active)
+Includes timestamp for cache validation
+Admin UI Improvements
+The admin user update now logs before and after state:
+
+[Admin UI] Updating user abc123: subscriptionStatus=subscribed, credits=100
+[Admin UI] User abc123 updated. New status: subscribed, credits: 100
+This will help debug any issues with subscription updates not being persisted.

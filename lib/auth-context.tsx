@@ -202,26 +202,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("[Auth] Refreshing subscription status...")
       const response = await fetch("/api/subscription", {
-        headers: { Authorization: `Bearer ${activeToken}` },
+        headers: { 
+          Authorization: `Bearer ${activeToken}`,
+          "Cache-Control": "no-cache"
+        },
         cache: 'no-store'
       })
 
       if (response.ok) {
         const data = await response.json()
         console.log("[Auth] Subscription data received:", data)
-        if (data.subscriptionStatus && activeUser) {
+        
+        const newStatus = data.isSubscribed ? "subscribed" : (data.subscriptionStatus || "not_subscribed")
+        
+        if (activeUser) {
           const CHECKOUT_GRACE_PERIOD = 5 * 60 * 1000
           const isRecentCheckout = activeUser.subscriptionVerifiedAt && 
             (Date.now() - activeUser.subscriptionVerifiedAt) < CHECKOUT_GRACE_PERIOD
           
-          if (activeUser.subscriptionStatus === "subscribed" && data.subscriptionStatus === "not_subscribed" && isRecentCheckout) {
+          if (activeUser.subscriptionStatus === "subscribed" && newStatus === "not_subscribed" && isRecentCheckout) {
             console.log("[Auth] Ignoring backend downgrade during grace period - checkout verified recently")
             return
           }
-          const updatedUser = { ...activeUser, subscriptionStatus: data.subscriptionStatus }
+          const updatedUser = { ...activeUser, subscriptionStatus: newStatus }
           setUser(updatedUser)
           localStorage.setItem("user", JSON.stringify(updatedUser))
-          console.log("[Auth] Updated user status to:", data.subscriptionStatus)
+          console.log("[Auth] Updated user status to:", newStatus, "(isSubscribed:", data.isSubscribed, ")")
         }
       } else {
         console.error("[Auth] Subscription refresh failed:", response.status)
