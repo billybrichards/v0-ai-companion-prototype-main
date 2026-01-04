@@ -13,6 +13,7 @@ import GenderSetup from "@/components/gender-setup"
 import SettingsModal from "@/components/settings-modal"
 import FeedbackModal from "@/components/feedback-modal"
 import AuthForm from "@/components/auth-form"
+import OptionalPasswordPrompt from "@/components/optional-password-prompt"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 type FunnelAuthMode = "login" | "signup" | null
@@ -50,7 +51,10 @@ function DashContent() {
   const [funnelPersona, setFunnelPersona] = useState<FunnelPersona>(null)
   const [funnelPlan, setFunnelPlan] = useState<string | null>(null)
   const [magicLinkProcessing, setMagicLinkProcessing] = useState(false)
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
+  const [guestSessionEmail, setGuestSessionEmail] = useState<string | null>(null)
   const magicLinkProcessed = useRef(false)
+  const guestSessionProcessed = useRef(false)
   const pendingSubscriptionCheck = useRef(false)
   const checkoutVerified = useRef(false)
   const checkoutSubscribed = useRef(false)
@@ -166,6 +170,7 @@ function DashContent() {
       const funnel = searchParams.get("Funnel")
       const subscription = searchParams.get("subscription")
       const plan = searchParams.get("plan")
+      const status = searchParams.get("status")
       
       if (funnel && Object.keys(FUNNEL_PERSONA_NAMES).includes(funnel)) {
         setFunnelPersona(funnel as FunnelPersona)
@@ -195,6 +200,51 @@ function DashContent() {
           pendingSubscriptionCheck.current = false
         }
         window.history.replaceState({}, "", window.location.pathname)
+        setFunnelChecked(true)
+        return
+      }
+
+      if (email && status === "try_for_free" && !guestSessionProcessed.current) {
+        guestSessionProcessed.current = true
+        console.log("[Funnel] Processing try_for_free flow for:", email)
+        setFunnelEmail(email)
+        
+        try {
+          const response = await fetch("/api/guest-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, funnel }),
+          })
+          const data = await response.json()
+          
+          if (data.success && data.accessToken && data.user) {
+            console.log("[Funnel] Guest session created successfully")
+            await loginWithToken(data.accessToken, data.user, data.refreshToken)
+            setGuestSessionEmail(email)
+            
+            const promptDismissed = localStorage.getItem("password-prompt-dismissed")
+            if (!data.hasPassword && !promptDismissed) {
+              setTimeout(() => setShowPasswordPrompt(true), 1500)
+            }
+            
+            window.history.replaceState({}, "", window.location.pathname)
+            setFunnelChecked(true)
+            return
+          } else if (!data.exists) {
+            console.log("[Funnel] User not found, showing signup")
+            setFunnelEmail(null)
+            setFunnelAuthMode("signup")
+          } else {
+            console.log("[Funnel] Guest session failed:", data.error)
+            setFunnelEmail(null)
+            setFunnelAuthMode("login")
+          }
+        } catch (error) {
+          console.error("[Funnel] Guest session error:", error)
+          setFunnelEmail(null)
+          setFunnelAuthMode("signup")
+        }
+        
         setFunnelChecked(true)
         return
       }
@@ -557,6 +607,29 @@ function DashContent() {
     setFunnelEmail(null)
   }
 
+  const handleSetPassword = async (password: string) => {
+    if (!accessToken || !guestSessionEmail) {
+      throw new Error("No active session")
+    }
+    
+    const response = await fetch(`${API_BASE}/api/auth/set-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ password }),
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to set password")
+    }
+    
+    console.log("[Password] Password set successfully")
+    localStorage.setItem("password-prompt-dismissed", "true")
+  }
+
   if (authLoading || isLoading || !funnelChecked || magicLinkProcessing || !conversationLoaded) {
     return (
       <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
@@ -634,6 +707,14 @@ function DashContent() {
         />
       )}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      {showPasswordPrompt && guestSessionEmail && (
+        <OptionalPasswordPrompt
+          open={showPasswordPrompt}
+          onClose={() => setShowPasswordPrompt(false)}
+          onSetPassword={handleSetPassword}
+          email={guestSessionEmail}
+        />
+      )}
     </>
   )
 

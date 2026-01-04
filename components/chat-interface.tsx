@@ -71,6 +71,7 @@ const guestResponses = [
 export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
+  const [hasMounted, setHasMounted] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [creditLimitInfo, setCreditLimitInfo] = useState<{
@@ -84,6 +85,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const [authMessageCount, setAuthMessageCount] = useState(0)
   const [personalityModes, setPersonalityModes] = useState<PersonalityMode[]>([])
   const [selectedPersonalityMode, setSelectedPersonalityMode] = useState<string>("nurturing")
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   // Conversation persistence hook
   const {
@@ -569,6 +574,14 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     if (gender === "female") return "She/Her"
     if (gender === "non-binary") return "They/Them"
     return customGender || "Custom"
+  }
+
+  if (!hasMounted) {
+    return (
+      <div className="flex h-[100dvh] flex-col items-center justify-center bg-background">
+        <AnplexaLogo size={48} className="animate-pulse opacity-50" />
+      </div>
+    )
   }
 
   return (
