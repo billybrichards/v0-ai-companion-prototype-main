@@ -163,7 +163,7 @@ export default function LandingPage() {
                         </div>
                       </div>
                     </div>
-                    <span className="text-sm text-muted-foreground">343,400 reviews</span>
+                    <span className="text-sm text-muted-foreground">150 reviews</span>
                   </div>
                 </div>
 
