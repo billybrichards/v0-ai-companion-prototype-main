@@ -51,6 +51,9 @@ The application is built with Next.js 16, React 19, and TypeScript, utilizing Ta
 - **shadcn/ui:** For accessible and customizable UI components.
 - **PostHog Analytics:** For comprehensive event tracking and user behavior analysis.
 - **AI SDK (@ai-sdk/react):** For integrating AI functionalities.
+- **Error Boundary:** Global error boundary (`components/error-boundary.tsx`) catches client-side crashes and displays a recovery UI.
+- **Guest State Management:** `lib/guest-state.ts` provides safe localStorage operations for unauthenticated users with proper SSR guards.
+- **Providers Wrapper:** `components/providers.tsx` wraps ErrorBoundary, PostHog, Clarity, and Auth providers in a stable tree to prevent remounts.
 
 **Analytics (PostHog):**
 - Provider: `lib/posthog.tsx` wraps the app with PostHog context
