@@ -69,8 +69,31 @@ export async function POST(req: NextRequest) {
   })
 
   if (!response.ok) {
-    const error = await response.text()
-    return new Response(JSON.stringify({ error }), {
+    const errorText = await response.text()
+    let errorData: Record<string, unknown> = { error: errorText }
+    
+    try {
+      errorData = JSON.parse(errorText)
+    } catch {
+      // Keep errorText as string
+    }
+    
+    // Check for credit limit error and include full details
+    if (errorData.errorCode === "CREDIT_LIMIT_REACHED" || response.status === 402) {
+      return new Response(JSON.stringify({
+        error: errorData.error || "Credits exhausted",
+        errorCode: "CREDIT_LIMIT_REACHED",
+        message: errorData.message || "All used up for today! Subscribe for unlimited messages, or come back tomorrow for 5 more free messages.",
+        credits: errorData.credits ?? 0,
+        maxCredits: errorData.maxCredits ?? 5,
+        resetsAt: errorData.resetsAt,
+      }), {
+        status: 402,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+    
+    return new Response(JSON.stringify(errorData), {
       status: response.status,
       headers: { "Content-Type": "application/json" },
     })

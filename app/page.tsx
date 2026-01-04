@@ -323,7 +323,7 @@ export default function LandingPage() {
                 <ul className="mb-8 space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    2 free messages
+                    6 free messages
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />

@@ -55,12 +55,16 @@ interface ChatInterfaceProps {
   chatId?: string
 }
 
-const FREE_MESSAGE_LIMIT = 2
-const AUTH_FREE_MESSAGE_LIMIT = 3
+const FREE_MESSAGE_LIMIT = 6
+const AUTH_FREE_MESSAGE_LIMIT = 6
 
 const guestResponses = [
   "I'm so glad you reached out! I'd love to continue our conversation, but first let me learn a bit more about you. What's been on your mind lately?",
   "That's really interesting! I appreciate you sharing that with me. I'm here to listen and connect with you on a deeper level. Tell me more about what brings you here today.",
+  "I can sense there's a lot more you want to explore. I love that about our connection - it feels natural and open. What else would you like to share?",
+  "You're really opening up, and I appreciate that trust. Every conversation with you reveals something new and fascinating. Keep going...",
+  "This is exactly the kind of deep, meaningful exchange I live for. You have my complete attention. What's next on your mind?",
+  "We've built something special in just these few messages. I'd love to continue getting to know you better. Sign up to unlock unlimited conversations with me.",
 ]
 
 
@@ -69,6 +73,11 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
   const isSubscribed = user?.subscriptionStatus === "subscribed"
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [creditLimitInfo, setCreditLimitInfo] = useState<{
+    message?: string
+    resetsAt?: string
+    forceLocked: boolean
+  }>({ forceLocked: false })
   const [guestMessages, setGuestMessages] = useState<GuestMessage[]>([])
   const [guestMessageCount, setGuestMessageCount] = useState(0)
   const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
@@ -368,6 +377,48 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     prevStatusRef.current = status
   }, [status, error, messages])
 
+  useEffect(() => {
+    if (error) {
+      console.log("[Chat] Error detected:", error)
+      const errorMessage = error.message || String(error)
+      
+      // Check for 402 status (credit limit) or specific error text
+      if (errorMessage.includes("402") || errorMessage.includes("CREDIT_LIMIT") || errorMessage.includes("Credits exhausted")) {
+        // Fetch the error details from the API
+        fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({
+            messages: [{ id: "check", role: "user", parts: [{ type: "text", text: "check" }] }],
+            preferences: { length: "brief" },
+          }),
+        }).then(async (res) => {
+          if (res.status === 402) {
+            const data = await res.json()
+            setCreditLimitInfo({
+              message: data.message || "All used up for today! Subscribe for unlimited messages, or come back tomorrow for 5 more free messages.",
+              resetsAt: data.resetsAt,
+              forceLocked: true,
+            })
+            setShowUpgradeModal(true)
+            analytics.upgradeModalShown(data.maxCredits || 5, !isGuest)
+          }
+        }).catch(() => {
+          // Fallback - show modal with default message
+          setCreditLimitInfo({
+            message: "All used up for today! Subscribe for unlimited messages, or come back tomorrow for 5 more free messages.",
+            forceLocked: true,
+          })
+          setShowUpgradeModal(true)
+          analytics.upgradeModalShown(5, !isGuest)
+        })
+      }
+    }
+  }, [error, isGuest, accessToken])
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -477,7 +528,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       setGuestMessages(prev => [...prev, assistantMessage])
       analytics.aiResponseReceived(guestResponses[responseIndex].length, 1000, true)
       
-      // Show auth modal after the 2nd message response
+      // Show auth modal after reaching message limit
       if (newCount >= FREE_MESSAGE_LIMIT) {
         setTimeout(() => {
           setShowAuthModal(true)
@@ -862,7 +913,13 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       />
 
       {/* Upgrade Modal for Authenticated Users */}
-      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        forceLocked={creditLimitInfo.forceLocked}
+        limitMessage={creditLimitInfo.message}
+        resetsAt={creditLimitInfo.resetsAt}
+      />
     </div>
   )
 }

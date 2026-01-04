@@ -5,15 +5,18 @@ import { useAuth } from "@/lib/auth-context"
 import { analytics } from "@/lib/analytics"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Lock, Sparkles } from "lucide-react"
+import { Lock, Sparkles, Clock } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 
 interface UpgradeModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  forceLocked?: boolean
+  limitMessage?: string
+  resetsAt?: string
 }
 
-export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
+export function UpgradeModal({ open, onOpenChange, forceLocked = false, limitMessage, resetsAt }: UpgradeModalProps) {
   const { accessToken, user } = useAuth()
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
@@ -60,9 +63,37 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     }
   }
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (forceLocked && !newOpen) {
+      return
+    }
+    onOpenChange(newOpen)
+  }
+
+  const formatResetTime = () => {
+    if (!resetsAt) return "tomorrow"
+    try {
+      const resetDate = new Date(resetsAt)
+      const now = new Date()
+      const diffMs = resetDate.getTime() - now.getTime()
+      const diffHours = Math.ceil(diffMs / (1000 * 60 * 60))
+      
+      if (diffHours <= 1) return "in about an hour"
+      if (diffHours < 24) return `in ${diffHours} hours`
+      return "tomorrow"
+    } catch {
+      return "tomorrow"
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-border p-5 sm:p-6">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent 
+        className="sm:max-w-md bg-card border-border p-5 sm:p-6"
+        onPointerDownOutside={forceLocked ? (e) => e.preventDefault() : undefined}
+        onEscapeKeyDown={forceLocked ? (e) => e.preventDefault() : undefined}
+        hideCloseButton={forceLocked}
+      >
         <div className="space-y-5">
           <div className="text-center space-y-2">
             <div className="mx-auto w-fit relative">
@@ -73,16 +104,24 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
             </div>
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-heading font-semibold text-foreground">
-                You&apos;ve reached your limit
+                You&apos;ve used all your messages
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Subscribe now to continue your private conversations.
+                {limitMessage || "Subscribe now to continue your private conversations."}
               </DialogDescription>
             </DialogHeader>
           </div>
 
+          {forceLocked && (
+            <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary/10 border border-primary/30">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-sm text-foreground">
+                Your limit refreshes {formatResetTime()} — <span className="font-medium">5 free messages daily</span>
+              </span>
+            </div>
+          )}
+
           <div className="space-y-3">
-            {/* Monthly Plan */}
             <button
               onClick={() => setSelectedPlan("monthly")}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
@@ -103,7 +142,6 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
               </div>
             </button>
 
-            {/* Yearly Plan (Best Value) */}
             <button
               onClick={() => setSelectedPlan("yearly")}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
