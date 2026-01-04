@@ -306,74 +306,120 @@ export default function LandingPage() {
         </section>
 
         <section className="px-4 sm:px-6 py-8 sm:py-10 md:py-14 bg-card/30">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-5xl">
             <h2 className="mb-6 sm:mb-8 text-center font-heading text-xl sm:text-2xl md:text-3xl font-light text-muted-foreground">
               Simple pricing
             </h2>
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-              <Card className="border-border/50 bg-card p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl">
-                <h3 className="mb-1.5 sm:mb-2 font-heading text-lg sm:text-xl font-medium">Free</h3>
-                <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground">Try instantly. Limited access.</p>
+            <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3">
+              <Card className="flex flex-col border-border/50 bg-card p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl transition-colors hover:border-primary/30">
+                <div className="mb-4 flex justify-center">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    <MessageSquare className="h-6 w-6" />
+                  </div>
+                </div>
+                <h3 className="mb-1.5 sm:mb-2 font-heading text-lg sm:text-xl font-medium">Try Free</h3>
+                <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground">Get a taste of Anplexa</p>
                 <div className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">£0</div>
-                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
+                <ul className="mb-8 space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
                     2 free messages
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    Text conversation
+                    Private & secure
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    No account required
+                    Adult-friendly
                   </li>
                 </ul>
-                <Link href="/dash" className="block mt-4 sm:mt-6">
+                <Link href="/dash" className="mt-auto block">
                   <Button variant="outline" className="w-full rounded-lg border-border h-10 sm:h-11 text-sm min-touch-target">
-                    Try Free
+                    Start Trial
                   </Button>
                 </Link>
               </Card>
 
-              <Card className="relative border-primary/50 bg-card p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(123,44,191,0.15)]">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 sm:px-4 py-1 text-[10px] sm:text-xs font-medium text-white whitespace-nowrap">
-                  Recommended
+              <Card className="relative flex flex-col border-primary bg-primary/5 p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[0_0_40px_rgba(123,44,191,0.2)]">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 sm:px-4 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                  Best Value
                 </div>
-                <h3 className="mb-1.5 sm:mb-2 font-heading text-lg sm:text-xl font-medium">Pro</h3>
-                <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground">Unlimited conversation. Full freedom.</p>
-                <div className="mb-4 sm:mb-6">
-                  <span className="text-2xl sm:text-3xl font-bold">£5</span>
-                  <span className="text-sm sm:text-base text-muted-foreground"> / month</span>
+                <div className="mb-4 flex justify-center">
+                  <div className="rounded-full bg-primary p-3 text-white glow-primary">
+                    <Crown className="h-6 w-6" />
+                  </div>
                 </div>
-                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
+                <h3 className="mb-1.5 sm:mb-2 font-heading text-lg sm:text-xl font-medium">Early Believer</h3>
+                <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground italic">limited time offer</p>
+                <div className="mb-1 text-2xl sm:text-3xl font-bold">£0.99<span className="text-sm font-normal text-muted-foreground"> / month</span></div>
+                <div className="mb-4 sm:mb-6 text-xs text-muted-foreground font-medium">billed yearly at £11.99</div>
+                <ul className="mb-8 space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+                    Unlimited messages
+                  </li>
+                  <li className="flex items-center gap-2 font-medium">
+                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+                    Pro-only personalities
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+                    Priority processing
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+                    NSFW unrestricted
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => {
+                    setUpgradeIntent(true)
+                    setShowAuthModal(true)
+                  }}
+                  className="mt-auto rounded-lg gradient-primary glow-hover h-10 sm:h-11 text-sm min-touch-target"
+                >
+                  Get Yearly Deal
+                </Button>
+              </Card>
+
+              <Card className="flex flex-col border-border/50 bg-card p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl transition-colors hover:border-primary/30">
+                <div className="mb-4 flex justify-center">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                </div>
+                <h3 className="mb-1.5 sm:mb-2 font-heading text-lg sm:text-xl font-medium">Monthly PRO</h3>
+                <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground">Unlimited freedom</p>
+                <div className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">£2.99<span className="text-sm font-normal text-muted-foreground"> / mo</span></div>
+                <ul className="mb-8 space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
                     Unlimited messages
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    Voice access
+                    Pro-only personalities
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    All companion personalities
+                    NSFW unrestricted
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                    Priority responses
+                    Cancel anytime
                   </li>
                 </ul>
                 <Button 
-                  onClick={handleGoProClick}
-                  className="w-full mt-4 sm:mt-6 rounded-lg gradient-primary glow-hover h-10 sm:h-11 text-sm min-touch-target"
+                  onClick={() => {
+                    setUpgradeIntent(true)
+                    setShowAuthModal(true)
+                  }}
+                  variant="outline" 
+                  className="mt-auto rounded-lg border-border h-10 sm:h-11 text-sm min-touch-target"
                 >
-                  <Crown className="mr-2 h-4 w-4" />
-                  Get Pro
+                  Go Pro Monthly
                 </Button>
-                <p className="mt-2 sm:mt-3 text-center text-[10px] sm:text-xs text-muted-foreground">
-                  Cancel anytime.
-                </p>
               </Card>
             </div>
           </div>
