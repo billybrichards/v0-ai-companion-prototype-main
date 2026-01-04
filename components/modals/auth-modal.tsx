@@ -18,7 +18,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden h-auto max-h-[90vh]">
+      <DialogContent className="sm:max-w-lg p-0 bg-card border-border/50 overflow-hidden h-auto max-h-[90vh] rounded-2xl sm:rounded-3xl shadow-2xl">
         <VisuallyHidden>
           <DialogTitle>Sign in to Anplexa</DialogTitle>
           <DialogDescription>Create an account or sign in to continue chatting.</DialogDescription>

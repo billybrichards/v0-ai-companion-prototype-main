@@ -108,7 +108,7 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
   }, [email])
 
   const cardContent = (
-    <Card className="w-full max-w-md border border-border bg-card p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-[var(--shadow-card)] max-h-[90vh] overflow-y-auto">
+    <Card className="w-full max-w-md border border-border/50 bg-card/95 backdrop-blur-md p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="mb-5 sm:mb-6 md:mb-8 text-center">
           <div className="mb-4 sm:mb-6 flex justify-center">
             <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
@@ -284,7 +284,7 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
 
   // When standalone, wrap with fixed overlay
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background p-4">
       {cardContent}
     </div>
   )
