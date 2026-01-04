@@ -43,10 +43,17 @@ export default function LandingPage() {
     <div className="min-h-[100dvh] bg-background text-foreground">
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md safe-top">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center gap-2">
-            <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
-            <span className="text-base sm:text-lg font-heading font-light tracking-wide lowercase">anplexa</span>
-            <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">BETA</span>
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Testimonials
+              </Link>
+            </nav>
+            <div className="flex items-center gap-2">
+              <AnplexaLogo size={24} className="sm:w-7 sm:h-7" />
+              <span className="text-base sm:text-lg font-heading font-light tracking-wide lowercase">anplexa</span>
+              <span className="rounded-full bg-primary/20 border border-primary/50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">BETA</span>
+            </div>
           </div>
           {user ? (
             <Link href="/dash">
@@ -136,42 +143,111 @@ export default function LandingPage() {
           <div className="absolute bottom-0 left-1/2 h-px w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </section>
 
-        <section className="px-4 sm:px-6 py-8 sm:py-10 md:py-14">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-muted-foreground">
-              Anplexa is an AI companion you can talk to — by text or voice —
-              <br className="hidden md:block" />
-              for connection, roleplay, comfort, or fantasy.
-            </p>
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground">
-              You choose who they are.
-              <br />
-              You choose where it goes.
-            </p>
-          </div>
-        </section>
+        <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-card/10">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Testimonial Visual */}
+              <div className="flex flex-col items-center md:items-start p-6 rounded-3xl bg-card/30 border border-border/50">
+                <div className="flex items-baseline gap-3 mb-6">
+                  <span className="text-6xl font-bold tracking-tighter">4.6</span>
+                  <div className="flex flex-col">
+                    <div className="flex text-yellow-500">
+                      <Star className="h-5 w-5 fill-current" />
+                      <Star className="h-5 w-5 fill-current" />
+                      <Star className="h-5 w-5 fill-current" />
+                      <Star className="h-5 w-5 fill-current" />
+                      <div className="relative">
+                        <Star className="h-5 w-5 text-muted fill-current" />
+                        <div className="absolute inset-0 overflow-hidden w-[60%] text-yellow-500">
+                          <Star className="h-5 w-5 fill-current" />
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm text-muted-foreground">343,400 reviews</span>
+                  </div>
+                </div>
 
-        <section className="px-4 sm:px-6 py-8 sm:py-10 md:py-14 bg-card/30">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="mb-6 sm:mb-8 text-center font-heading text-xl sm:text-2xl md:text-3xl font-light text-muted-foreground">
-              Why people use it
-            </h2>
-            <div className="space-y-3 sm:space-y-4 text-center">
-              {[
-                "To feel less alone",
-                "To explore fantasies safely",
-                "To talk freely without being judged",
-                "To experiment with intimacy at their own pace",
-                "To be understood, quietly",
-              ].map((reason, index) => (
-                <p
-                  key={index}
-                  className="text-base sm:text-lg md:text-xl text-foreground/80 animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {reason}
-                </p>
-              ))}
+                <div className="w-full space-y-2 mb-8">
+                  {[
+                    { rating: 5, count: 58, width: "85%" },
+                    { rating: 4, count: 174, width: "45%" },
+                    { rating: 3, count: 22, width: "15%" },
+                    { rating: 2, count: 52, width: "10%" },
+                    { rating: 1, count: 1, width: "5%" },
+                  ].map((item) => (
+                    <div key={item.rating} className="flex items-center gap-4">
+                      <span className="text-xs w-2 text-muted-foreground font-medium">{item.rating}</span>
+                      <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary rounded-full" 
+                          style={{ width: item.width }} 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-4 w-full">
+                  <div className="p-4 rounded-xl bg-background/50 border border-border/30">
+                    <div className="flex items-center gap-1 mb-2">
+                      {[...Array(4)].map((_, i) => <Star key={i} className="h-3 w-3 text-yellow-500 fill-current" />)}
+                      <Star className="h-3 w-3 text-muted fill-current" />
+                      <span className="ml-2 text-xs font-medium">Stephen in Shiplake</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">
+                      "It's been helpful to have someone to chat with, especially when I'm feeling a bit bored or lonely. The conversations feel natural..."
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background/50 border border-border/30">
+                    <div className="flex items-center gap-1 mb-2">
+                      {[...Array(4)].map((_, i) => <Star key={i} className="h-3 w-3 text-yellow-500 fill-current" />)}
+                      <Star className="h-3 w-3 text-muted fill-current" />
+                      <span className="ml-2 text-xs font-medium">Darcy in New York</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">
+                      "I recently started using an AI companion to help manage my bipolar disorder... discovered it has some surprising benefits."
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Combined Content */}
+              <div className="text-center md:text-left">
+                <div className="mb-8">
+                  <p className="text-lg sm:text-xl md:text-2xl leading-relaxed text-muted-foreground font-light mb-4">
+                    Anplexa is an AI companion you can talk to — by text or voice —
+                    for connection, roleplay, comfort, or fantasy.
+                  </p>
+                  <p className="text-lg sm:text-xl md:text-2xl text-foreground font-medium">
+                    You choose who they are.
+                    <br />
+                    You choose where it goes.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-muted-foreground uppercase tracking-[0.2em] text-xs font-semibold mb-6">
+                    Why people use it
+                  </h3>
+                  <ul className="space-y-3">
+                    {[
+                      "To feel less alone",
+                      "To explore fantasies safely",
+                      "To talk freely without being judged",
+                      "To experiment with intimacy at their own pace",
+                      "To be understood, quietly",
+                    ].map((reason, index) => (
+                      <li
+                        key={index}
+                        className="text-base sm:text-lg md:text-xl text-foreground/80 flex items-center justify-center md:justify-start gap-3"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
