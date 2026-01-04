@@ -9,9 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, Check, Sparkles, User, Plus } from "lucide-react"
+import { Lock, Send, Square, Settings, MessageSquare, Palette, LogOut, Crown, User, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 const ThemeCustomizer = dynamic(() => import("@/components/theme-customizer"), {
@@ -22,7 +20,10 @@ import { useAuth } from "@/lib/auth-context"
 import { analytics } from "@/lib/analytics"
 import { useConversation, type Message as ConversationMessage } from "@/lib/use-conversation"
 import AnplexaLogo from "@/components/anplexa-logo"
-import AuthForm from "@/components/auth-form"
+import { ConversationDropdown } from "@/components/chat/conversation-dropdown"
+import { UpgradeModal } from "@/components/modals/upgrade-modal"
+import { AuthModal } from "@/components/modals/auth-modal"
+import { GuestLimitModal } from "@/components/modals/guest-limit-modal"
 
 type ResponsePreference = {
   length: "brief" | "moderate" | "detailed"
@@ -54,28 +55,40 @@ interface ChatInterfaceProps {
   chatId?: string
 }
 
-const FREE_MESSAGE_LIMIT = 2
-const AUTH_FREE_MESSAGE_LIMIT = 3
+const FREE_MESSAGE_LIMIT = 6
+const AUTH_FREE_MESSAGE_LIMIT = 6
 
 const guestResponses = [
   "I'm so glad you reached out! I'd love to continue our conversation, but first let me learn a bit more about you. What's been on your mind lately?",
   "That's really interesting! I appreciate you sharing that with me. I'm here to listen and connect with you on a deeper level. Tell me more about what brings you here today.",
+  "I can sense there's a lot more you want to explore. I love that about our connection - it feels natural and open. What else would you like to share?",
+  "You're really opening up, and I appreciate that trust. Every conversation with you reveals something new and fascinating. Keep going...",
+  "This is exactly the kind of deep, meaningful exchange I live for. You have my complete attention. What's next on your mind?",
+  "We've built something special in just these few messages. I'd love to continue getting to know you better. Sign up to unlock unlimited conversations with me.",
 ]
 
 
 export default function ChatInterface({ gender, customGender, onOpenSettings, onOpenFeedback, onLogout, onNewChat, userName, isGuest = false, chatId }: ChatInterfaceProps) {
   const { accessToken, user, refreshSubscriptionStatus } = useAuth()
   const isSubscribed = user?.subscriptionStatus === "subscribed"
-  const [isSubscribing, setIsSubscribing] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [creditLimitInfo, setCreditLimitInfo] = useState<{
+    message?: string
+    resetsAt?: string
+    forceLocked: boolean
+  }>({ forceLocked: false })
   const [guestMessages, setGuestMessages] = useState<GuestMessage[]>([])
   const [guestMessageCount, setGuestMessageCount] = useState(0)
   const [initialWelcomeShown, setInitialWelcomeShown] = useState(false)
   const [authMessageCount, setAuthMessageCount] = useState(0)
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly")
   const [personalityModes, setPersonalityModes] = useState<PersonalityMode[]>([])
   const [selectedPersonalityMode, setSelectedPersonalityMode] = useState<string>("nurturing")
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   // Conversation persistence hook
   const {
@@ -369,6 +382,48 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     prevStatusRef.current = status
   }, [status, error, messages])
 
+  useEffect(() => {
+    if (error) {
+      console.log("[Chat] Error detected:", error)
+      const errorMessage = error.message || String(error)
+      
+      // Check for 402 status (credit limit) or specific error text
+      if (errorMessage.includes("402") || errorMessage.includes("CREDIT_LIMIT") || errorMessage.includes("Credits exhausted")) {
+        // Fetch the error details from the API
+        fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({
+            messages: [{ id: "check", role: "user", parts: [{ type: "text", text: "check" }] }],
+            preferences: { length: "brief" },
+          }),
+        }).then(async (res) => {
+          if (res.status === 402) {
+            const data = await res.json()
+            setCreditLimitInfo({
+              message: data.message || "All used up for today! Subscribe for unlimited messages, or come back tomorrow for 5 more free messages.",
+              resetsAt: data.resetsAt,
+              forceLocked: true,
+            })
+            setShowUpgradeModal(true)
+            analytics.upgradeModalShown(data.maxCredits || 5, !isGuest)
+          }
+        }).catch(() => {
+          // Fallback - show modal with default message
+          setCreditLimitInfo({
+            message: "All used up for today! Subscribe for unlimited messages, or come back tomorrow for 5 more free messages.",
+            forceLocked: true,
+          })
+          setShowUpgradeModal(true)
+          analytics.upgradeModalShown(5, !isGuest)
+        })
+      }
+    }
+  }, [error, isGuest, accessToken])
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -478,7 +533,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       setGuestMessages(prev => [...prev, assistantMessage])
       analytics.aiResponseReceived(guestResponses[responseIndex].length, 1000, true)
       
-      // Show auth modal after the 2nd message response
+      // Show auth modal after reaching message limit
       if (newCount >= FREE_MESSAGE_LIMIT) {
         setTimeout(() => {
           setShowAuthModal(true)
@@ -521,47 +576,12 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
     return customGender || "Custom"
   }
 
-  const handleSubscribe = async (plan: "monthly" | "yearly" = "yearly") => {
-    if (!accessToken || !user) {
-      console.log("[Subscribe] Missing accessToken or user", { hasToken: !!accessToken, hasUser: !!user })
-      return
-    }
-    
-    setIsSubscribing(true)
-    console.log("[Subscribe] Starting checkout with plan:", plan)
-    analytics.upgradeClicked("upgrade_modal", plan)
-    analytics.checkoutStarted(plan, plan === "yearly" ? 11.99 : 2.99, "GBP")
-    try {
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          plan,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to create checkout session")
-      }
-
-      const data = await response.json()
-      console.log("[Subscribe] Checkout response:", data)
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        throw new Error("No checkout URL returned")
-      }
-    } catch (error) {
-      console.error("Failed to create checkout session:", error)
-      alert(error instanceof Error ? error.message : "Failed to start checkout")
-    } finally {
-      setIsSubscribing(false)
-    }
+  if (!hasMounted) {
+    return (
+      <div className="flex h-[100dvh] flex-col items-center justify-center bg-background">
+        <AnplexaLogo size={48} className="animate-pulse opacity-50" />
+      </div>
+    )
   }
 
   return (
@@ -588,6 +608,10 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
             </div>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Conversation History Dropdown - only for authenticated users */}
+            {!isGuest && (
+              <ConversationDropdown className="hidden sm:flex" />
+            )}
             {isGuest ? (
               <Button
                 variant="outline"
@@ -845,62 +869,7 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
           )}
 
           {isGuest && guestMessageCount >= FREE_MESSAGE_LIMIT && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-              <Card className="mx-4 max-w-md w-full border-2 border-primary/50 bg-card p-6 sm:p-8 rounded-2xl shadow-[0_0_40px_rgba(123,44,191,0.3)]">
-                <div className="space-y-6 text-center">
-                  <div className="relative mx-auto w-fit">
-                    <div className="absolute inset-0 blur-2xl opacity-60">
-                      <div className="h-16 w-16 rounded-full bg-primary" />
-                    </div>
-                    <div className="relative">
-                      <AnplexaLogo size={64} className="drop-shadow-[0_0_20px_rgba(123,44,191,0.8)]" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h2 className="text-xl sm:text-2xl font-heading font-semibold text-foreground">
-                      You've reached your free limit
-                    </h2>
-                    <p className="text-sm sm:text-base text-muted-foreground">
-                      Create a free account to continue your private conversation with unlimited messages.
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 text-left bg-primary/10 rounded-xl p-4">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="h-5 w-5 text-primary shrink-0" />
-                      <span className="text-sm text-foreground">Unlimited private conversations</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Lock className="h-5 w-5 text-primary shrink-0" />
-                      <span className="text-sm text-foreground">100% private & judgment-free</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <MessageSquare className="h-5 w-5 text-primary shrink-0" />
-                      <span className="text-sm text-foreground">Save your chat history</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Button
-                      onClick={() => setShowAuthModal(true)}
-                      className="w-full gradient-primary glow-hover h-12 sm:h-14 text-base sm:text-lg font-medium rounded-xl"
-                    >
-                      Sign Up Free
-                    </Button>
-                    <p className="text-xs text-muted-foreground">
-                      Already have an account?{" "}
-                      <button 
-                        onClick={() => setShowAuthModal(true)}
-                        className="text-primary hover:underline font-medium"
-                      >
-                        Log in
-                      </button>
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            <GuestLimitModal onSignUp={() => setShowAuthModal(true)} />
           )}
 
           <form onSubmit={handleSubmit} className="flex gap-2">
@@ -950,103 +919,20 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       </div>
 
       {/* Auth Modal for Guests */}
-      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
-        <DialogContent className="sm:max-w-lg p-0 bg-background border-border overflow-hidden h-auto max-h-[90vh]">
-          <VisuallyHidden>
-            <DialogTitle>Sign in to Anplexa</DialogTitle>
-            <DialogDescription>Create an account or sign in to continue chatting.</DialogDescription>
-          </VisuallyHidden>
-          <AuthForm onSuccess={() => setShowAuthModal(false)} embedded />
-        </DialogContent>
-      </Dialog>
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSuccess={() => setShowAuthModal(false)}
+      />
 
       {/* Upgrade Modal for Authenticated Users */}
-      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="sm:max-w-md bg-card border-border p-5 sm:p-6">
-          <div className="space-y-5">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-fit relative">
-                <div className="absolute inset-0 blur-xl opacity-50">
-                  <div className="h-12 w-12 rounded-full bg-primary" />
-                </div>
-                <AnplexaLogo size={48} className="relative drop-shadow-[0_0_12px_rgba(123,44,191,0.6)]" />
-              </div>
-              <DialogHeader>
-                <DialogTitle className="text-xl sm:text-2xl font-heading font-semibold text-foreground">
-                  You&apos;ve reached your limit
-                </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
-                  Subscribe now to continue your private conversations.
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-
-            <div className="space-y-3">
-              {/* Monthly Plan */}
-              <button
-                onClick={() => setSelectedPlan("monthly")}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                  selectedPlan === "monthly" 
-                    ? "border-primary bg-primary/10" 
-                    : "border-border bg-background hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-foreground">Monthly</div>
-                    <div className="text-sm text-muted-foreground">Cancel anytime</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-foreground">£2.99</div>
-                    <div className="text-sm text-muted-foreground">/month</div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Yearly Plan (Best Value) */}
-              <button
-                onClick={() => setSelectedPlan("yearly")}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
-                  selectedPlan === "yearly" 
-                    ? "border-primary bg-primary/10" 
-                    : "border-border bg-background hover:border-primary/50"
-                }`}
-              >
-                <div className="absolute -top-3 right-4 px-2 py-0.5 bg-primary text-white text-xs font-semibold rounded flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  BEST VALUE
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-foreground">Early Believer</div>
-                    <div className="text-sm text-primary">Locked in forever</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-foreground">£0.99</div>
-                    <div className="text-sm text-muted-foreground">/month</div>
-                    <div className="text-xs text-muted-foreground">Billed £11.99/year</div>
-                  </div>
-                </div>
-              </button>
-            </div>
-
-            <Button
-              onClick={() => {
-                handleSubscribe(selectedPlan)
-              }}
-              disabled={isSubscribing}
-              className="w-full h-12 text-base font-medium gradient-primary glow-hover text-white rounded-xl min-touch-target"
-            >
-              {isSubscribing ? "Processing..." : "Subscribe Now"}
-            </Button>
-
-            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-              <Lock className="h-3 w-3" />
-              <span>Your email is kept private.</span>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        forceLocked={creditLimitInfo.forceLocked}
+        limitMessage={creditLimitInfo.message}
+        resetsAt={creditLimitInfo.resetsAt}
+      />
     </div>
   )
 }

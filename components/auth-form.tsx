@@ -113,51 +113,51 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
           <div className="mb-4 sm:mb-6 flex justify-center">
             <AnplexaLogo size={48} className="sm:w-16 sm:h-16 animate-pulse-glow" />
           </div>
-          <div className="flex items-center justify-center gap-2 mb-1.5 sm:mb-2">
+          <div className="flex items-center justify-center gap-2 mb-1">
             <AnplexaLogo size={20} className="sm:w-6 sm:h-6" />
             <h1 className="text-xl sm:text-2xl font-heading font-light tracking-wide text-foreground lowercase">anplexa</h1>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-[0.2em] font-medium opacity-70">
             Private AI Companion
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div className="space-y-1.5 sm:space-y-2">
-              <label className="text-xs sm:text-sm font-medium text-muted-foreground">Display Name</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider ml-1">Display Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
                 <Input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
-                  className="border border-border bg-background pl-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
+                  className="border-border/50 bg-background/50 pl-11 rounded-xl h-12 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-xs sm:text-sm font-medium text-muted-foreground">Email</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider ml-1">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 required
-                className="border border-border bg-background pl-10 pr-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
+                className="border-border/50 bg-background/50 pl-11 rounded-xl h-12 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-xs sm:text-sm font-medium text-muted-foreground">Password</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider ml-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
               <Input
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -165,12 +165,12 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
                 placeholder="Password"
                 required
                 minLength={6}
-                className="border border-border bg-background pl-10 pr-10 rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base focus:border-primary focus:shadow-[0_0_8px_rgba(123,44,191,0.3)] min-touch-target"
+                className="border-border/50 bg-background/50 pl-11 pr-11 rounded-xl h-12 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 min-touch-target"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors p-1"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -202,14 +202,14 @@ export default function AuthForm({ onSuccess, defaultMode, prefillEmail, showMag
             </div>
           )}
 
-          <Button type="submit" className="w-full gradient-primary glow-hover rounded-lg sm:rounded-xl h-11 sm:h-12 text-sm sm:text-base font-medium min-touch-target" disabled={isLoading}>
+          <Button type="submit" className="w-full h-12 gradient-primary glow-hover rounded-xl text-sm font-bold tracking-widest uppercase transition-all active:scale-[0.98]" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                <span className="text-sm">{isLogin ? "Signing in..." : "Creating account..."}</span>
+                <span>{isLogin ? "Signing in..." : "Creating account..."}</span>
               </span>
             ) : (
-              <span className="uppercase tracking-wider">{isLogin ? "Login" : "Create Account"}</span>
+              <span>{isLogin ? "Login" : "Register"}</span>
             )}
           </Button>
 

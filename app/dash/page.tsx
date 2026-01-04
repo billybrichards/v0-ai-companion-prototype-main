@@ -6,12 +6,14 @@ import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { checkBackendHealth, type HealthStatus } from "@/lib/api-health"
 import { getMostRecentConversation, setCurrentConversationId } from "@/lib/conversation-service"
+import { ConversationProvider } from "@/lib/infrastructure/providers/conversation-provider"
 import ChatInterface from "@/components/chat-interface"
 import AnplexaLogo from "@/components/anplexa-logo"
 import GenderSetup from "@/components/gender-setup"
 import SettingsModal from "@/components/settings-modal"
 import FeedbackModal from "@/components/feedback-modal"
 import AuthForm from "@/components/auth-form"
+import OptionalPasswordPrompt from "@/components/optional-password-prompt"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 type FunnelAuthMode = "login" | "signup" | null
@@ -49,7 +51,10 @@ function DashContent() {
   const [funnelPersona, setFunnelPersona] = useState<FunnelPersona>(null)
   const [funnelPlan, setFunnelPlan] = useState<string | null>(null)
   const [magicLinkProcessing, setMagicLinkProcessing] = useState(false)
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
+  const [guestSessionEmail, setGuestSessionEmail] = useState<string | null>(null)
   const magicLinkProcessed = useRef(false)
+  const guestSessionProcessed = useRef(false)
   const pendingSubscriptionCheck = useRef(false)
   const checkoutVerified = useRef(false)
   const checkoutSubscribed = useRef(false)
@@ -165,6 +170,7 @@ function DashContent() {
       const funnel = searchParams.get("Funnel")
       const subscription = searchParams.get("subscription")
       const plan = searchParams.get("plan")
+      const status = searchParams.get("status")
       
       if (funnel && Object.keys(FUNNEL_PERSONA_NAMES).includes(funnel)) {
         setFunnelPersona(funnel as FunnelPersona)
@@ -194,6 +200,51 @@ function DashContent() {
           pendingSubscriptionCheck.current = false
         }
         window.history.replaceState({}, "", window.location.pathname)
+        setFunnelChecked(true)
+        return
+      }
+
+      if (email && status === "try_for_free" && !guestSessionProcessed.current) {
+        guestSessionProcessed.current = true
+        console.log("[Funnel] Processing try_for_free flow for:", email)
+        setFunnelEmail(email)
+        
+        try {
+          const response = await fetch("/api/guest-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, funnel }),
+          })
+          const data = await response.json()
+          
+          if (data.success && data.accessToken && data.user) {
+            console.log("[Funnel] Guest session created successfully")
+            await loginWithToken(data.accessToken, data.user, data.refreshToken)
+            setGuestSessionEmail(email)
+            
+            const promptDismissed = localStorage.getItem("password-prompt-dismissed")
+            if (!data.hasPassword && !promptDismissed) {
+              setTimeout(() => setShowPasswordPrompt(true), 1500)
+            }
+            
+            window.history.replaceState({}, "", window.location.pathname)
+            setFunnelChecked(true)
+            return
+          } else if (!data.exists) {
+            console.log("[Funnel] User not found, showing signup")
+            setFunnelEmail(null)
+            setFunnelAuthMode("signup")
+          } else {
+            console.log("[Funnel] Guest session failed:", data.error)
+            setFunnelEmail(null)
+            setFunnelAuthMode("login")
+          }
+        } catch (error) {
+          console.error("[Funnel] Guest session error:", error)
+          setFunnelEmail(null)
+          setFunnelAuthMode("signup")
+        }
+        
         setFunnelChecked(true)
         return
       }
@@ -274,64 +325,116 @@ function DashContent() {
         }
         setSetupComplete(true)
       } else {
-        // No stored gender - force setup
         setSetupComplete(false)
       }
       setIsLoading(false)
       return
     }
 
-    // For authenticated users
-    const userGenderKey = `companion-gender-${userId}`
-    const userCustomGenderKey = `companion-custom-gender-${userId}`
-    const userChatNameKey = `chat-name-${userId}`
-    
-    const storedGender = localStorage.getItem(userGenderKey)
-    const storedCustomGender = localStorage.getItem(userCustomGenderKey)
-    const storedChatName = localStorage.getItem(userChatNameKey)
+    // For authenticated users - fetch from backend first
+    const fetchUserProfile = async () => {
+      try {
+        console.log("[Dash] Fetching user profile from backend...")
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        
+        if (response.ok) {
+          const profile = await response.json()
+          console.log("[Dash] User profile:", profile)
+          
+          if (profile.preferredGender || profile.gender) {
+            const backendGender = profile.preferredGender || profile.gender
+            const isCustomGender = !["male", "female", "non-binary"].includes(backendGender)
+            
+            if (isCustomGender) {
+              setGender("custom")
+              setCustomGender(backendGender)
+            } else {
+              setGender(backendGender as GenderOption)
+            }
+            
+            if (profile.chatName) {
+              setChatName(profile.chatName)
+            }
+            
+            // Cache in localStorage
+            const userGenderKey = `companion-gender-${userId}`
+            const userCustomGenderKey = `companion-custom-gender-${userId}`
+            const userChatNameKey = `chat-name-${userId}`
+            
+            localStorage.setItem(userGenderKey, isCustomGender ? "custom" : backendGender)
+            if (isCustomGender) {
+              localStorage.setItem(userCustomGenderKey, backendGender)
+            }
+            if (profile.chatName) {
+              localStorage.setItem(userChatNameKey, profile.chatName)
+            }
+            
+            setSetupComplete(true)
+            setIsLoading(false)
+            return
+          }
+        }
+      } catch (error) {
+        console.error("[Dash] Failed to fetch user profile:", error)
+      }
+      
+      // Fallback to localStorage
+      const userGenderKey = `companion-gender-${userId}`
+      const userCustomGenderKey = `companion-custom-gender-${userId}`
+      const userChatNameKey = `chat-name-${userId}`
+      
+      const storedGender = localStorage.getItem(userGenderKey)
+      const storedCustomGender = localStorage.getItem(userCustomGenderKey)
+      const storedChatName = localStorage.getItem(userChatNameKey)
 
-    if (storedGender) {
-      setGender(storedGender as GenderOption)
-      if (storedCustomGender) {
-        setCustomGender(storedCustomGender)
-      }
-      if (storedChatName) {
-        setChatName(storedChatName)
-      }
-      setSetupComplete(true)
-    } else {
-      // Check for guest data to migrate
-      const guestGender = localStorage.getItem("guest-companion-gender")
-      if (guestGender) {
-        setGender(guestGender as GenderOption)
-        const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
-        const guestName = localStorage.getItem("guest-chat-name")
-        if (guestCustomGender) {
-          setCustomGender(guestCustomGender)
+      if (storedGender) {
+        setGender(storedGender as GenderOption)
+        if (storedCustomGender) {
+          setCustomGender(storedCustomGender)
         }
-        if (guestName) {
-          setChatName(guestName)
+        if (storedChatName) {
+          setChatName(storedChatName)
         }
-        localStorage.setItem(userGenderKey, guestGender)
-        if (guestCustomGender) {
-          localStorage.setItem(userCustomGenderKey, guestCustomGender)
-        }
-        if (guestName) {
-          localStorage.setItem(userChatNameKey, guestName)
-        }
-        localStorage.removeItem("guest-companion-gender")
-        localStorage.removeItem("guest-companion-custom-gender")
-        localStorage.removeItem("guest-chat-name")
         setSetupComplete(true)
       } else {
-        // No stored gender - force setup even for authenticated users from funnel
-        console.log("[Dash] User has no stored gender, forcing setup")
-        setSetupComplete(false)
+        // Check for guest data to migrate
+        const guestGender = localStorage.getItem("guest-companion-gender")
+        if (guestGender) {
+          setGender(guestGender as GenderOption)
+          const guestCustomGender = localStorage.getItem("guest-companion-custom-gender")
+          const guestName = localStorage.getItem("guest-chat-name")
+          if (guestCustomGender) {
+            setCustomGender(guestCustomGender)
+          }
+          if (guestName) {
+            setChatName(guestName)
+          }
+          localStorage.setItem(userGenderKey, guestGender)
+          if (guestCustomGender) {
+            localStorage.setItem(userCustomGenderKey, guestCustomGender)
+          }
+          if (guestName) {
+            localStorage.setItem(userChatNameKey, guestName)
+          }
+          localStorage.removeItem("guest-companion-gender")
+          localStorage.removeItem("guest-companion-custom-gender")
+          localStorage.removeItem("guest-chat-name")
+          setSetupComplete(true)
+        } else {
+          console.log("[Dash] User has no stored gender, forcing setup")
+          setSetupComplete(false)
+        }
       }
-    }
 
-    setIsLoading(false)
-  }, [authLoading, isAuthenticated, userId])
+      setIsLoading(false)
+    }
+    
+    fetchUserProfile()
+  }, [authLoading, isAuthenticated, userId, accessToken])
 
   useEffect(() => {
     checkBackendHealth().then(setBackendHealth)
@@ -504,6 +607,29 @@ function DashContent() {
     setFunnelEmail(null)
   }
 
+  const handleSetPassword = async (password: string) => {
+    if (!accessToken || !guestSessionEmail) {
+      throw new Error("No active session")
+    }
+    
+    const response = await fetch(`${API_BASE}/api/auth/set-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ password }),
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to set password")
+    }
+    
+    console.log("[Password] Password set successfully")
+    localStorage.setItem("password-prompt-dismissed", "true")
+  }
+
   if (authLoading || isLoading || !funnelChecked || magicLinkProcessing || !conversationLoaded) {
     return (
       <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
@@ -551,8 +677,8 @@ function DashContent() {
     )
   }
 
-  return (
-    <main className="flex min-h-screen flex-col">
+  const chatContent = (
+    <>
       {backendHealth?.status === "unhealthy" && (
         <div className="bg-[var(--security)]/10 border-b border-[var(--security)] px-4 py-2 text-center">
           <p className="text-sm text-[var(--security)]">
@@ -581,6 +707,26 @@ function DashContent() {
         />
       )}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      {showPasswordPrompt && guestSessionEmail && (
+        <OptionalPasswordPrompt
+          open={showPasswordPrompt}
+          onClose={() => setShowPasswordPrompt(false)}
+          onSetPassword={handleSetPassword}
+          email={guestSessionEmail}
+        />
+      )}
+    </>
+  )
+
+  return (
+    <main className="flex min-h-screen flex-col">
+      {isAuthenticated ? (
+        <ConversationProvider>
+          {chatContent}
+        </ConversationProvider>
+      ) : (
+        chatContent
+      )}
     </main>
   )
 }
