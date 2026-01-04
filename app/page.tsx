@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User, Image, Video, Headphones } from "lucide-react"
+import { Lock, Shield, MessageSquare, Mic, Sparkles, Check, Crown, User, Image, Video, Headphones, Star } from "lucide-react"
 import AnplexaLogo from "@/components/anplexa-logo"
 import AuthForm from "@/components/auth-form"
 import { useAuth } from "@/lib/auth-context"
@@ -170,9 +170,9 @@ export default function LandingPage() {
                 <div className="w-full space-y-2 mb-8">
                   {[
                     { rating: 5, count: 58, width: "85%" },
-                    { rating: 4, count: 174, width: "45%" },
-                    { rating: 3, count: 22, width: "15%" },
-                    { rating: 2, count: 52, width: "10%" },
+                    { rating: 4, count: 17, width: "25%" },
+                    { rating: 3, count: 22, width: "35%" },
+                    { rating: 2, count: 52, width: "15%" },
                     { rating: 1, count: 1, width: "5%" },
                   ].map((item) => (
                     <div key={item.rating} className="flex items-center gap-4">

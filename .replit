@@ -45,6 +45,8 @@ build = ["npm", "run", "build"]
 NEXT_PUBLIC_API_URL = "https://api.anplexa.com"
 STRIPE_PRICE_ID = "price_1Sj3Q4Hf3F7YsE79EfGL6BuF"
 NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com"
+POSTGRES_URL = "postgres://PGUSER:PGPASSWORD@PGHOST:PGPORT/PGDATABASE?sslmode=require"
+POSTGRES_URL_NON_POOLING = "postgres://PGUSER:PGPASSWORD@PGHOST:PGPORT/PGDATABASE?sslmode=require"
 
 [userenv.development]
 STRIPE_PRICE_MONTHLY = "price_1SkkrmB6IBiJ6M2wKHKGA2WV"
