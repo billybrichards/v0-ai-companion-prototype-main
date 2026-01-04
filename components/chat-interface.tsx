@@ -105,43 +105,51 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
 
   // Load guest messages from localStorage or show initial welcome
   useEffect(() => {
-    if (isGuest) {
-      const stored = localStorage.getItem("guest-chat-messages")
-      const storedCount = localStorage.getItem("guest-message-count")
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          // Filter out old static welcome messages that contain the legacy greeting
-          const filteredMessages = parsed.filter((msg: GuestMessage) => 
-            !(msg.role === "assistant" && msg.id?.startsWith("welcome-") && msg.content?.includes("been waiting for you"))
-          )
-          setGuestMessages(filteredMessages)
-          if (filteredMessages.length > 0) {
-            setShowWelcome(false)
+    if (isGuest && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("guest-chat-messages")
+        const storedCount = localStorage.getItem("guest-message-count")
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            // Filter out old static welcome messages that contain the legacy greeting
+            const filteredMessages = parsed.filter((msg: GuestMessage) => 
+              !(msg.role === "assistant" && msg.id?.startsWith("welcome-") && msg.content?.includes("been waiting for you"))
+            )
+            setGuestMessages(filteredMessages)
+            if (filteredMessages.length > 0) {
+              setShowWelcome(false)
+            }
+            // If we filtered out messages, update localStorage
+            if (filteredMessages.length !== parsed.length) {
+              localStorage.setItem("guest-chat-messages", JSON.stringify(filteredMessages))
+            }
+          } catch (e) {
+            console.error("Failed to parse guest messages", e)
           }
-          // If we filtered out messages, update localStorage
-          if (filteredMessages.length !== parsed.length) {
-            localStorage.setItem("guest-chat-messages", JSON.stringify(filteredMessages))
-          }
-        } catch (e) {
-          console.error("Failed to parse guest messages", e)
+        } else {
+          // No stored messages - start with empty chat (backend will provide ice-breaker)
+          setGuestMessages([])
+          setShowWelcome(false)
         }
-      } else {
-        // No stored messages - start with empty chat (backend will provide ice-breaker)
-        setGuestMessages([])
-        setShowWelcome(false)
-      }
-      if (storedCount) {
-        setGuestMessageCount(parseInt(storedCount, 10))
+        if (storedCount) {
+          setGuestMessageCount(parseInt(storedCount, 10))
+        }
+      } catch (e) {
+        console.error("Failed to access localStorage for guest messages", e)
       }
     }
   }, [isGuest, userName])
 
   // Save guest messages to localStorage
   useEffect(() => {
-    if (isGuest && guestMessages.length > 0) {
-      localStorage.setItem("guest-chat-messages", JSON.stringify(guestMessages))
-      localStorage.setItem("guest-message-count", guestMessageCount.toString())
+    if (isGuest && guestMessages.length > 0 && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("guest-chat-messages", JSON.stringify(guestMessages))
+        localStorage.setItem("guest-message-count", guestMessageCount.toString())
+      } catch (e) {
+        console.error("Failed to save guest messages to localStorage", e)
+      }
     }
   }, [isGuest, guestMessages, guestMessageCount])
 
@@ -265,17 +273,19 @@ export default function ChatInterface({ gender, customGender, onOpenSettings, on
       }
 
       // Also check localStorage as fallback
-      const stored = localStorage.getItem("chat-messages")
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          if (parsed.length > 0) {
-            console.log("[Chat] Found existing messages in localStorage, skipping ice-breaker")
-            hasTriggeredIcebreaker.current = true
-            return
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("chat-messages")
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            if (parsed.length > 0) {
+              console.log("[Chat] Found existing messages in localStorage, skipping ice-breaker")
+              hasTriggeredIcebreaker.current = true
+              return
+            }
+          } catch (e) {
+            console.error("Failed to parse stored messages in icebreaker check", e)
           }
-        } catch (e) {
-          console.error("Failed to parse stored messages in icebreaker check", e)
         }
       }
 
