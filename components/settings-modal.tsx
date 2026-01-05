@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { X, Check } from "lucide-react"
+import { X, Check, Loader2, CreditCard } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 type GenderOption = "male" | "female" | "non-binary" | "custom"
 
@@ -15,9 +16,44 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ currentGender, currentCustomGender, onClose, onSave }: SettingsModalProps) {
+  const { user, accessToken, updateSubscriptionStatus } = useAuth()
   const [selectedGender, setSelectedGender] = useState<GenderOption>(currentGender)
   const [customGender, setCustomGender] = useState(currentCustomGender || "")
   const [showCustomInput, setShowCustomInput] = useState(currentGender === "custom")
+  const [isUnsubscribing, setIsUnsubscribing] = useState(false)
+  const [unsubscribeError, setUnsubscribeError] = useState<string | null>(null)
+  const [showUnsubscribeConfirm, setShowUnsubscribeConfirm] = useState(false)
+
+  const isSubscribed = user?.subscriptionStatus === "subscribed"
+
+  const handleUnsubscribe = async () => {
+    if (!accessToken) return
+
+    setIsUnsubscribing(true)
+    setUnsubscribeError(null)
+
+    try {
+      const response = await fetch("/api/subscription/cancel", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to cancel subscription")
+      }
+
+      updateSubscriptionStatus("not_subscribed")
+      setShowUnsubscribeConfirm(false)
+    } catch (error) {
+      setUnsubscribeError(error instanceof Error ? error.message : "Failed to cancel subscription")
+    } finally {
+      setIsUnsubscribing(false)
+    }
+  }
 
   const genderOptions: { value: GenderOption; label: string; description: string }[] = [
     { value: "male", label: "Male", description: "He/Him" },
@@ -98,6 +134,63 @@ export default function SettingsModal({ currentGender, currentCustomGender, onCl
                 placeholder="Enter gender identity"
                 className="w-full rounded-lg border-2 border-border bg-background px-4 py-2 text-foreground font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
+            </div>
+          )}
+
+          {/* Subscription Management */}
+          {isSubscribed && (
+            <div className="border-t border-border pt-6">
+              <label className="text-sm font-bold text-foreground">SUBSCRIPTION</label>
+              <div className="mt-3 rounded-lg border-2 border-border bg-background p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="font-bold text-foreground">Active Subscription</div>
+                      <div className="text-sm text-muted-foreground font-mono">Your subscription is currently active</div>
+                    </div>
+                  </div>
+                  {!showUnsubscribeConfirm ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowUnsubscribeConfirm(true)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      Unsubscribe
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowUnsubscribeConfirm(false)}
+                        disabled={isUnsubscribing}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleUnsubscribe}
+                        disabled={isUnsubscribing}
+                      >
+                        {isUnsubscribing ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Cancelling...
+                          </>
+                        ) : (
+                          "Confirm"
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {unsubscribeError && (
+                  <div className="mt-3 text-sm text-destructive font-mono">{unsubscribeError}</div>
+                )}
+              </div>
             </div>
           )}
 
