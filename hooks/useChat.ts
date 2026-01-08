@@ -171,7 +171,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
             try {
               const event: SSEEvent = JSON.parse(line.slice(6))
 
-              if (event.type === 'text') {
+              if (event.type === 'token') {
                 setMessages(prev => prev.map(m =>
                   m.id === assistantMessageId
                     ? { ...m, content: m.content + event.content }
