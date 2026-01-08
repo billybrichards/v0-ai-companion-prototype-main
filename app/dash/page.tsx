@@ -54,11 +54,13 @@ function DashContent() {
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const [guestSessionEmail, setGuestSessionEmail] = useState<string | null>(null)
   const magicLinkProcessed = useRef(false)
+  const exchangeCodeProcessed = useRef(false)
   const guestSessionProcessed = useRef(false)
   const pendingSubscriptionCheck = useRef(false)
   const checkoutVerified = useRef(false)
   const checkoutSubscribed = useRef(false)
   const [pendingSessionId, setPendingSessionId] = useState<string | null>(null)
+  const [exchangeCodeProcessing, setExchangeCodeProcessing] = useState(false)
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id")
@@ -119,28 +121,87 @@ function DashContent() {
   }, [pendingSessionId, isAuthenticated, accessToken, user, authLoading, updateSubscriptionStatus])
 
   useEffect(() => {
+    // Process exchange code from Funnel-Forge redirect
+    // Exchange codes are short-lived (5 min) single-use codes that are more secure than passing JWT in URL
+    const processExchangeCode = async () => {
+      const code = searchParams.get("code")
+      const email = searchParams.get("email")
+
+      if (!code || !email || exchangeCodeProcessed.current || isAuthenticated) {
+        return false
+      }
+
+      exchangeCodeProcessed.current = true
+      setExchangeCodeProcessing(true)
+      console.log("[Exchange Code] Processing exchange code for:", email)
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/exchange-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.accessToken && data.user) {
+            console.log("[Exchange Code] Successfully exchanged code for tokens")
+            await loginWithToken(data.accessToken, data.user, data.refreshToken)
+
+            // Check subscription status after login
+            const subscription = searchParams.get("subscription")
+            if (subscription === "active" && !checkoutSubscribed.current) {
+              console.log("[Exchange Code] Verifying subscription status after login...")
+              try {
+                await refreshSubscriptionStatus()
+              } catch (error) {
+                console.error("[Exchange Code] Subscription verification failed:", error)
+              }
+            }
+
+            // Clean up URL but keep funnel-related params for analytics
+            const cleanUrl = new URL(window.location.href)
+            cleanUrl.searchParams.delete("code")
+            cleanUrl.searchParams.delete("token") // Remove legacy token if present
+            window.history.replaceState({}, "", cleanUrl.toString())
+
+            return true
+          }
+        } else {
+          const error = await response.json()
+          console.error("[Exchange Code] Exchange failed:", error)
+        }
+      } catch (error) {
+        console.error("[Exchange Code] Exchange error:", error)
+      } finally {
+        setExchangeCodeProcessing(false)
+      }
+
+      return false
+    }
+
     const processMagicLink = async () => {
       const magicToken = searchParams.get("magic")
-      
+
       if (!magicToken || magicLinkProcessed.current || isAuthenticated) {
         return false
       }
-      
+
       magicLinkProcessed.current = true
       setMagicLinkProcessing(true)
-      
+
       try {
         const response = await fetch("/api/magic-link/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: magicToken }),
         })
-        
+
         if (response.ok) {
           const data = await response.json()
           if (data.accessToken && data.user) {
             await loginWithToken(data.accessToken, data.user, data.refreshToken)
-            
+
             if (pendingSubscriptionCheck.current && !checkoutSubscribed.current) {
               console.log("[Magic Link] Verifying subscription status after login...")
               try {
@@ -150,7 +211,7 @@ function DashContent() {
               }
               pendingSubscriptionCheck.current = false
             }
-            
+
             window.history.replaceState({}, "", window.location.pathname)
             return true
           }
@@ -160,7 +221,7 @@ function DashContent() {
       } finally {
         setMagicLinkProcessing(false)
       }
-      
+
       return false
     }
 
@@ -292,7 +353,15 @@ function DashContent() {
 
     const init = async () => {
       if (authLoading) return
-      
+
+      // Process exchange code first (from Funnel-Forge secure redirect)
+      const exchangeHandled = await processExchangeCode()
+      if (exchangeHandled) {
+        setFunnelChecked(true)
+        return
+      }
+
+      // Then try magic link
       const magicHandled = await processMagicLink()
       if (!magicHandled) {
         await checkFunnelParams()
@@ -630,7 +699,7 @@ function DashContent() {
     localStorage.setItem("password-prompt-dismissed", "true")
   }
 
-  if (authLoading || isLoading || !funnelChecked || magicLinkProcessing || !conversationLoaded) {
+  if (authLoading || isLoading || !funnelChecked || magicLinkProcessing || exchangeCodeProcessing || !conversationLoaded) {
     return (
       <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-6">
