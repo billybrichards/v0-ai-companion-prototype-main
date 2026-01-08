@@ -29,10 +29,16 @@ export function PathChoiceProvider({ children }: { children: ReactNode }) {
 
   // Load path choice from localStorage on mount
   useEffect(() => {
-    const storedData = localStorage.getItem(STORAGE_KEY)
+    // SSR guard - localStorage only available on client
+    if (typeof window === 'undefined') {
+      setIsLoading(false)
+      return
+    }
 
-    if (storedData) {
-      try {
+    try {
+      const storedData = localStorage.getItem(STORAGE_KEY)
+
+      if (storedData) {
         const parsed: StoredPathChoice = JSON.parse(storedData)
 
         // Check if the stored choice has expired
@@ -42,31 +48,40 @@ export function PathChoiceProvider({ children }: { children: ReactNode }) {
           // Expired, clear it
           localStorage.removeItem(STORAGE_KEY)
         }
-      } catch {
-        // Invalid stored data, clear it
-        localStorage.removeItem(STORAGE_KEY)
       }
+    } catch {
+      // localStorage unavailable (private browsing, etc.) or invalid data
+      // Fail silently and continue with default state
     }
+
     setIsLoading(false)
   }, [])
 
   const setPathChoice = (choice: PathChoice) => {
     setPathChoiceState(choice)
 
-    if (choice) {
-      const storedData: StoredPathChoice = {
-        choice,
-        expiresAt: Date.now() + EXPIRY_MS,
+    try {
+      if (choice) {
+        const storedData: StoredPathChoice = {
+          choice,
+          expiresAt: Date.now() + EXPIRY_MS,
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData))
+      } else {
+        localStorage.removeItem(STORAGE_KEY)
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData))
-    } else {
-      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // localStorage unavailable - state still updates in memory
     }
   }
 
   const clearPathChoice = () => {
     setPathChoiceState(null)
-    localStorage.removeItem(STORAGE_KEY)
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // localStorage unavailable - state still updates in memory
+    }
   }
 
   const hasChosenPath = (): boolean => {

@@ -13,11 +13,14 @@ export default function CreatorComingSoonPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+  // TODO: Implement actual email collection API (e.g., /api/waitlist or integrate with email service)
+  // Currently this is a placeholder that simulates submission but doesn't store the email
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
 
     setIsLoading(true)
+    // Simulated delay - replace with actual API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     setIsSubmitted(true)
     setIsLoading(false)
